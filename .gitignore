@@ -1,0 +1,49 @@
+## Xcode
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+DerivedData/
+
+## Swift Package Manager
+.swiftpm/
+.build/
+Package.resolved.user
+
+## CocoaPods (项目目前未用，预防)
+Pods/
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Build artifacts
+build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.app.dSYM.zip
+*.framework.dSYM.zip
+
+## Carthage (项目目前未用，预防)
+Carthage/Build/
+
+## 项目特定
+build-errors.txt
+
+## Claude Code 个人 override (项目级 settings.json 仍入库)
+.claude/settings.local.json
+
+## Secrets / 本地配置
+.env
+.env.local
+*.xcconfig.local
+secrets.plist
+
+## IDE
+.idea/
+.vscode/
+*.swp
+*.swo

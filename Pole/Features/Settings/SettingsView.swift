@@ -1,0 +1,178 @@
+import SwiftUI
+import UserNotifications
+
+struct SettingsView: View {
+    @State private var authStatus: UNAuthorizationStatus = .notDetermined
+    @State private var pendingCount: Int = 0
+    @AppStorage("languageMode") private var languageRaw: String = LanguageMode.zh.rawValue
+    @AppStorage("liveActivityEnabled") private var liveActivityEnabled: Bool = true
+    @AppStorage("appearanceMode") private var appearanceRaw: String = AppearanceMode.system.rawValue
+    @AppStorage("leadTimeRace") private var leadTimeRace: Int = 30
+    @AppStorage("leadTimeQualifying") private var leadTimeQualifying: Int = 15
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(LanguageMode.allCases) { mode in
+                        Button {
+                            languageRaw = mode.rawValue
+                        } label: {
+                            HStack {
+                                Text(mode.displayName)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                if mode.rawValue == languageRaw {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.tint)
+                                        .font(.subheadline.weight(.bold))
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } header: {
+                    Text(L10n.t(zh: "显示语言", en: "Display Language"))
+                } footer: {
+                    Text(L10n.t(zh: "切换后赛事 / 国名 / 状态等数据立即生效", en: "Switching takes effect immediately for race / country / status data"))
+                        .font(.caption2)
+                }
+
+                // 外观 — 跟随系统 / 浅色 / 深色(夜间)
+                Section {
+                    ForEach(AppearanceMode.allCases) { mode in
+                        Button {
+                            appearanceRaw = mode.rawValue
+                        } label: {
+                            HStack {
+                                Image(systemName: appearanceIcon(mode))
+                                    .frame(width: 22)
+                                    .foregroundStyle(.secondary)
+                                Text(mode.displayName)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                if mode.rawValue == appearanceRaw {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.tint)
+                                        .font(.subheadline.weight(.bold))
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } header: {
+                    Text(L10n.t(zh: "外观", en: "Appearance"))
+                } footer: {
+                    Text(L10n.t(zh: "深色模式适合夜间观赛", en: "Dark mode is easier on the eyes at night"))
+                        .font(.caption2)
+                }
+
+                Section(L10n.t(zh: "通知", en: "Notifications")) {
+                    LabeledContent(L10n.t(zh: "系统授权", en: "System Authorization"), value: authStatusLabel)
+                    if authStatus == .notDetermined {
+                        Button(L10n.t(zh: "申请通知权限", en: "Request Notification Permission")) {
+                            Task {
+                                _ = await NotificationScheduler.shared.requestAuthorization()
+                                await refresh()
+                            }
+                        }
+                    } else if authStatus == .denied {
+                        Button(L10n.t(zh: "前往系统设置开启", en: "Open System Settings")) {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    }
+                    LabeledContent(L10n.t(zh: "已排程", en: "Scheduled"), value: "\(pendingCount)")
+                    Button(L10n.t(zh: "清空全部通知", en: "Clear All Notifications"), role: .destructive) {
+                        Task {
+                            await NotificationScheduler.shared.cancelAll()
+                            await refresh()
+                        }
+                    }
+                }
+                Section(L10n.t(zh: "灵动岛 / 锁屏陪伴", en: "Dynamic Island / Lock Screen")) {
+                    Toggle(L10n.t(zh: "允许从赛事详情启动", en: "Allow start from race detail"),
+                           isOn: $liveActivityEnabled)
+                        .onChange(of: liveActivityEnabled) { _, newValue in
+                            // 关掉时立刻停止当前所有进行中的 activity;
+                            // RaceDetailView "开始跟看" 按钮自己读 @AppStorage 判断是否禁用。
+                            if !newValue {
+                                Task {
+                                    await RaceLiveActivityCoordinator.shared.stopAll()
+                                }
+                            }
+                        }
+                }
+                Section {
+                    Picker(L10n.t(zh: "正赛 / Superpole Race", en: "Race / Superpole Race"),
+                           selection: $leadTimeRace) {
+                        ForEach(Self.leadTimeOptions, id: \.self) { m in
+                            Text(leadTimeLabel(m)).tag(m)
+                        }
+                    }
+                    Picker(L10n.t(zh: "排位 / Sprint", en: "Qualifying / Sprint"),
+                           selection: $leadTimeQualifying) {
+                        ForEach(Self.leadTimeOptions, id: \.self) { m in
+                            Text(leadTimeLabel(m)).tag(m)
+                        }
+                    }
+                    LabeledContent(L10n.t(zh: "练习", en: "Practice"),
+                                   value: L10n.t(zh: "不推送", en: "Not pushed"))
+                } header: {
+                    Text(L10n.t(zh: "通知策略", en: "Notification Policy"))
+                } footer: {
+                    Text(L10n.t(zh: "下次拉数据时新策略生效;已排程的提醒不会自动重排",
+                                en: "New policy applies at next data refresh; existing scheduled reminders unchanged"))
+                        .font(.caption2)
+                }
+                Section(L10n.t(zh: "数据源", en: "Data Sources")) {
+                    LabeledContent("F1", value: "jolpica/Ergast")
+                    LabeledContent("MotoGP", value: "Pulselive")
+                    LabeledContent("WorldSBK / WSSP", value: "worldsbk.com")
+                    LabeledContent("Formula E", value: "Pulselive")
+                }
+                Section(L10n.t(zh: "关于", en: "About")) {
+                    LabeledContent(L10n.t(zh: "版本", en: "Version"), value: appVersion)
+                }
+            }
+            .navigationTitle(L10n.t(zh: "设置", en: "Settings"))
+            .task { await refresh() }
+        }
+    }
+
+    /// lead time picker 选项 — 5 / 15 / 30 / 45 / 60 分钟,覆盖大多数偏好。
+    private static let leadTimeOptions: [Int] = [5, 15, 30, 45, 60]
+
+    private func leadTimeLabel(_ minutes: Int) -> String {
+        L10n.t(zh: "提前 \(minutes) 分钟", en: "\(minutes) min before")
+    }
+
+    private func appearanceIcon(_ mode: AppearanceMode) -> String {
+        switch mode {
+        case .system: return "circle.lefthalf.filled"
+        case .light:  return "sun.max"
+        case .dark:   return "moon"
+        }
+    }
+
+    private func refresh() async {
+        authStatus = await NotificationScheduler.shared.authorizationStatus()
+        pendingCount = await NotificationScheduler.shared.pendingCount()
+    }
+
+    private var authStatusLabel: String {
+        switch authStatus {
+        case .authorized:    return L10n.t(zh: "已开启", en: "Enabled")
+        case .denied:        return L10n.t(zh: "已拒绝", en: "Denied")
+        case .notDetermined: return L10n.t(zh: "未询问", en: "Not Asked")
+        case .provisional:   return L10n.t(zh: "临时授权", en: "Provisional")
+        case .ephemeral:     return L10n.t(zh: "临时", en: "Ephemeral")
+        @unknown default:    return L10n.t(zh: "未知", en: "Unknown")
+        }
+    }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0"
+    }
+}
