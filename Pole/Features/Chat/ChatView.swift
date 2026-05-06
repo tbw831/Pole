@@ -160,7 +160,7 @@ struct ChatView: View {
             content
                 // 不再叠红色顶部渐变,走系统纯色背景(支持夜间模式自动切深色)
                 .background(Color(.systemBackground).ignoresSafeArea())
-                .navigationTitle("Pole")
+                .navigationTitle(L10n.t(zh: "小赛", en: "Xiao Sai"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

@@ -25,8 +25,8 @@ struct ContentView: View {
             switch self {
             case .motorsport: return L10n.t(zh: "赛历", en: "Calendar")
             case .standings:  return L10n.t(zh: "积分榜", en: "Standings")
-            // AI tab 名直接用产品名,避免出现额外子品牌昵称导致命名不一致。
-            case .ai:         return "Pole"
+            // 助手昵称"小赛"——对话亲切感比"赛车助手"高;英文用拼音 Xiao Sai 保持品牌一致
+            case .ai:         return L10n.t(zh: "小赛", en: "Xiao Sai")
             case .follow:     return L10n.t(zh: "关注", en: "Follow")
             case .settings:   return L10n.t(zh: "设置", en: "Settings")
             }
