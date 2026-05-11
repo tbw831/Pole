@@ -44,15 +44,15 @@ struct MotoGPRiderDetailView: View {
                 VStack(alignment: .leading, spacing: DS.Spacing.sm) {
                     Text(standing.rider.displayFullName)
                         .font(.title2.weight(.semibold))
-                    HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
+                    HStack(spacing: DS.Spacing.sm) {
                         if let n = standing.rider.number {
                             Text("#\(n)")
-                                .font(DS.Font.numberLarge)
+                                .font(.subheadline.weight(.heavy).monospacedDigit())
                                 .foregroundStyle(MotorsportSeries.motogp.brandColor)
                         }
                         if let iso = standing.rider.countryISO {
                             Text(iso)
-                                .font(DS.Font.numberSmall)
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
                         }
                     }

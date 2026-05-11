@@ -269,25 +269,19 @@ public extension View {
     }
 
     /// hero 大卡片(Settings header / RoundDetail / TriviaCard 等):
-    /// tarmacBg 底 + speedLines 装饰 + 可选顶部 SeriesTopAccent 色条。
+    /// tarmacBg 底,无 speedLines / SeriesTopAccent — 用户反馈装饰过多。
+    /// seriesAccent 参数保留兼容,但当前实现不渲染顶条。
     func dsHeroBanner(seriesAccent: MotorsportSeries? = nil) -> some View {
-        VStack(spacing: 0) {
-            if let series = seriesAccent {
-                SeriesTopAccent(series: series)
-            }
-            self
-                .padding(DS.Spacing.lg)
-        }
-        .background(
-            DS.Palette.tarmacBg,
-            in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
-                .strokeBorder(DS.Palette.tarmacHairline, lineWidth: 0.5)
-        )
-        .speedLines()
-        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous))
+        self
+            .padding(DS.Spacing.lg)
+            .background(
+                DS.Palette.tarmacBg,
+                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                    .strokeBorder(DS.Palette.tarmacHairline, lineWidth: 0.5)
+            )
     }
 
     /// 通用 list row 卡片包装。

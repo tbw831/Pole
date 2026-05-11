@@ -35,25 +35,13 @@ struct GlassHeroHeader<TopContent: View>: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            SeriesTopAccent(series: series)
-            heroContent
-                .frame(height: 217)  // 220 - 3px accent
-        }
-        .scaleEffect(appeared ? 1.0 : 0.96)
-        .opacity(appeared ? 1.0 : 0.0)
-        .onAppear {
-            withAnimation(DS.Motion.raceEntry) { appeared = true }
-        }
-    }
-
-    @ViewBuilder
-    private var heroContent: some View {
-        if enableSpeedLines {
-            baseHeroZStack.speedLines()
-        } else {
-            baseHeroZStack
-        }
+        baseHeroZStack
+            .frame(height: 220)
+            .scaleEffect(appeared ? 1.0 : 0.96)
+            .opacity(appeared ? 1.0 : 0.0)
+            .onAppear {
+                withAnimation(DS.Motion.raceEntry) { appeared = true }
+            }
     }
 
     @ViewBuilder

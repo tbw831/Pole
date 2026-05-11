@@ -51,15 +51,15 @@ struct FEDriverDetailView: View {
                             displayName: standing.driver.fullName
                         )
                     }
-                    HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
+                    HStack(spacing: DS.Spacing.sm) {
                         if let tla = standing.driver.tla {
                             Text(tla)
-                                .font(DS.Font.numberLarge)
+                                .font(.subheadline.weight(.heavy).monospacedDigit())
                                 .foregroundStyle(MotorsportSeries.fe.brandColor)
                         }
                         if let iso = standing.driver.countryISO2 {
                             Text(iso)
-                                .font(DS.Font.numberSmall)
+                                .font(.caption.monospaced())
                                 .foregroundStyle(.secondary)
                         }
                     }
