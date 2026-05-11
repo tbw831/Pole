@@ -46,7 +46,7 @@ struct WSSPRiderDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DS.Spacing.sm) {
                     Text(localizedRider)
                         .font(.title2.weight(.semibold))
                     Text(L10n.t(zh: "WSSP 赛季", en: "WSSP Season"))

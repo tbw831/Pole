@@ -48,7 +48,7 @@ struct F1DriverDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DS.Spacing.sm) {
                     Text(MotorsportNames.driverFullName(rawFullName: viewModel.driverName, series: .f1))
                         .font(.title2.weight(.semibold))
                     Text(L10n.t(zh: "F1 \(viewModel.season) 赛季", en: "F1 \(viewModel.season) Season"))
