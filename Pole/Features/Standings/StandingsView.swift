@@ -188,7 +188,7 @@ private struct F1DriverStandingRow: View {
                         Text(code).font(.caption2.bold()).foregroundStyle(.tertiary)
                     }
                 }
-                Text(standing.constructor.displayName).font(.caption).foregroundStyle(.secondary)
+                Text(constructorChineseName).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
             PointsBlock(points: standing.points, wins: standing.wins)
@@ -200,9 +200,16 @@ private struct F1DriverStandingRow: View {
         // VoiceOver:row 整体一句读完 + 关注按钮单独可点
         .accessibilityElement(children: .contain)
         .accessibilityLabel(L10n.t(
-            zh: "第 \(standing.position) 位 \(standing.driver.displayName) \(standing.constructor.displayName) \(Int(standing.points)) 分 \(standing.wins) 胜",
-            en: "P\(standing.position) \(standing.driver.displayName) \(standing.constructor.displayName) \(Int(standing.points)) pts \(standing.wins) wins"
+            zh: "第 \(standing.position) 位 \(standing.driver.displayName) \(constructorChineseName) \(Int(standing.points)) 分 \(standing.wins) 胜",
+            en: "P\(standing.position) \(standing.driver.displayName) \(constructorChineseName) \(Int(standing.points)) pts \(standing.wins) wins"
         ))
+    }
+
+    /// F1DriverStanding 只携带 constructorIds: [String](Ergast wire 字段),
+    /// 一个 driver 当季最多对应 1 个车队;通过 MotorsportNames.teamName 走中文翻译。
+    private var constructorChineseName: String {
+        guard let raw = standing.constructorIds.first, !raw.isEmpty else { return "" }
+        return MotorsportNames.teamName(raw: raw, series: .f1)
     }
 }
 
