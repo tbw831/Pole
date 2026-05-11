@@ -245,7 +245,7 @@ public extension View {
         self
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
-            .background(Color(uiColor: .systemBackground))
+            .background(DS.Palette.tarmacBg)
             .listSectionSpacing(DS.Spacing.md)
     }
 
