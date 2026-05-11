@@ -123,18 +123,6 @@ private struct F1StandingsContent: View {
             .padding(.top, DS.Spacing.xs)
             .padding(.bottom, DS.Spacing.xs)
 
-            HStack(spacing: DS.Spacing.sm) {
-                Text(tab.displayName.uppercased())
-                    .font(DS.Font.toolLabel)
-                    .tracking(1.0)
-                    .foregroundStyle(.secondary)
-                CheckerStripe(.horizontal, cellSize: 4, opacity: 0.5)
-                    .frame(width: 24, height: 6)
-                Spacer()
-            }
-            .padding(.horizontal, DS.Spacing.lg)
-            .padding(.top, DS.Spacing.sm)
-
             content
         }
         .task {
@@ -296,18 +284,6 @@ private struct MotoGPStandingsContent: View {
             }
             .padding(.horizontal, DS.Spacing.lg)
             .padding(.vertical, DS.Spacing.xs)
-
-            HStack(spacing: DS.Spacing.sm) {
-                Text(tab.displayName.uppercased())
-                    .font(DS.Font.toolLabel)
-                    .tracking(1.0)
-                    .foregroundStyle(.secondary)
-                CheckerStripe(.horizontal, cellSize: 4, opacity: 0.5)
-                    .frame(width: 24, height: 6)
-                Spacer()
-            }
-            .padding(.horizontal, DS.Spacing.lg)
-            .padding(.top, DS.Spacing.sm)
 
             content
         }
@@ -500,18 +476,6 @@ private struct WSSPStandingsContent: View {
             .padding(.horizontal, DS.Spacing.lg)
             .padding(.vertical, DS.Spacing.xs)
 
-            HStack(spacing: DS.Spacing.sm) {
-                Text(tab.displayName.uppercased())
-                    .font(DS.Font.toolLabel)
-                    .tracking(1.0)
-                    .foregroundStyle(.secondary)
-                CheckerStripe(.horizontal, cellSize: 4, opacity: 0.5)
-                    .frame(width: 24, height: 6)
-                Spacer()
-            }
-            .padding(.horizontal, DS.Spacing.lg)
-            .padding(.top, DS.Spacing.sm)
-
             content
         }
         .task {
@@ -648,18 +612,6 @@ private struct FEStandingsContent: View {
             }
             .padding(.horizontal, DS.Spacing.lg)
             .padding(.vertical, DS.Spacing.xs)
-
-            HStack(spacing: DS.Spacing.sm) {
-                Text(tab.displayName.uppercased())
-                    .font(DS.Font.toolLabel)
-                    .tracking(1.0)
-                    .foregroundStyle(.secondary)
-                CheckerStripe(.horizontal, cellSize: 4, opacity: 0.5)
-                    .frame(width: 24, height: 6)
-                Spacer()
-            }
-            .padding(.horizontal, DS.Spacing.lg)
-            .padding(.top, DS.Spacing.sm)
 
             content
         }
