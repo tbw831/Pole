@@ -242,7 +242,21 @@ struct ChatView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DS.Spacing.lg) {
 
-                // ---------- 今日冷知识(已无 hero 区,直接顶到顶部) ----------
+                // ---------- Greeting hero ----------
+                VStack(spacing: DS.Spacing.lg) {
+                    AIAvatar(size: .large)
+                    Text(vm.greetingHeaderTitle)
+                        .font(DS.Font.heroDisplay)
+                        .foregroundStyle(.primary)
+                    Text(vm.greetingHeaderSubtitle)
+                        .font(DS.Font.numberSmall)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DS.Spacing.xl)
+                .padding(.horizontal, DS.Spacing.lg)
+
+                // ---------- 今日冷知识 ----------
                 TriviaCard(modelContext: modelContext)
                     .padding(.horizontal, DS.Spacing.lg)
 

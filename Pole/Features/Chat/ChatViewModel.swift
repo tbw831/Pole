@@ -124,6 +124,21 @@ final class ChatViewModel {
         L10n.t(zh: Self.zhSystemPrompt, en: Self.enSystemPrompt)
     }
 
+    var greetingHeaderTitle: String {
+        L10n.t(zh: "早上好,Pole", en: "Hey, Pole")
+    }
+
+    var greetingHeaderSubtitle: String {
+        let mode = UserDefaults.standard.string(forKey: "greetingMode") ?? "racing"
+        switch mode {
+        case "racing":
+            let dateStr = Date().formatted(.dateTime.year().month().day())
+            return "READY · DRS ENABLED · \(dateStr)"
+        default:
+            return L10n.t(zh: "今天想聊点什么", en: "What's on your mind today")
+        }
+    }
+
     private static let zhSystemPrompt: String = """
     你不是 AI 助手。你是一个看了二十年 F1、MotoGP、WSBK、FE 的老车迷,在和另一个车迷聊天。
     回得像在微信里手打,不像在写报告。
