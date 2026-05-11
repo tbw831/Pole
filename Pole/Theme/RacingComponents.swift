@@ -162,3 +162,71 @@ public struct StartLightGrid: View {
     .padding(32)
     .background(DS.Palette.tarmacBg)
 }
+
+// MARK: - SpeedLinesOverlay
+//
+// 45° 半透明斜线装饰。
+// 默认在容器铺斜线,alpha 由 DS.Palette.decorOnSurface 提供(双模)。
+// animated: true 时配 speedLine motion 滚动。
+
+public struct SpeedLinesOverlay: ViewModifier {
+    var color: Color
+    var animated: Bool
+
+    @State private var phase: CGFloat = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public func body(content: Content) -> some View {
+        content
+            .overlay {
+                GeometryReader { geo in
+                    Canvas { context, size in
+                        let stripeWidth: CGFloat = 1.5
+                        let gap: CGFloat = 14
+                        let total = size.width + size.height
+                        var x: CGFloat = -size.height + (animated && !reduceMotion ? phase : 0)
+                        while x < total {
+                            var path = Path()
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: x + size.height, y: size.height))
+                            path = path.strokedPath(.init(lineWidth: stripeWidth))
+                            context.fill(path, with: .color(color))
+                            x += gap
+                        }
+                        _ = total
+                    }
+                }
+                .clipped()
+                .allowsHitTesting(false)
+            }
+            .onAppear {
+                guard animated && !reduceMotion else { return }
+                withAnimation(DS.Motion.speedLine) { phase = 14 }
+            }
+    }
+}
+
+public extension View {
+    /// 在容器上叠加 45° 速度线装饰,默认色 decorOnSurface(双模 alpha 不同)。
+    func speedLines(color: Color = DS.Palette.decorOnSurface, animated: Bool = false) -> some View {
+        modifier(SpeedLinesOverlay(color: color, animated: animated))
+    }
+}
+
+#Preview("SpeedLinesOverlay") {
+    VStack(spacing: 16) {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(DS.Palette.tarmacCard)
+            .frame(height: 80)
+            .speedLines()
+            .overlay(Text("Static").foregroundStyle(.secondary))
+
+        RoundedRectangle(cornerRadius: 12)
+            .fill(DS.Palette.tarmacCard)
+            .frame(height: 80)
+            .speedLines(animated: true)
+            .overlay(Text("Animated").foregroundStyle(.secondary))
+    }
+    .padding()
+    .background(DS.Palette.tarmacBg)
+}
