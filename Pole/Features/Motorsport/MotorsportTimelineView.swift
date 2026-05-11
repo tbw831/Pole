@@ -126,13 +126,17 @@ struct MotorsportTimelineView: View {
                                     .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         } header: {
-                            Text(group.bucket.label)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 12)
-                                .dsGlassPill()
-                                .padding(.bottom, 4)
+                            HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
+                                Rectangle()
+                                    .fill(DS.Palette.racingRed)
+                                    .frame(width: 3, height: 22)
+                                Text(group.bucket.label.uppercased())
+                                    .font(DS.Font.heroTitle)
+                                    .foregroundStyle(.primary)
+                                    .tracking(1.2)
+                                Spacer()
+                            }
+                            .padding(.vertical, DS.Spacing.sm)
                         }
                     }
                 }
