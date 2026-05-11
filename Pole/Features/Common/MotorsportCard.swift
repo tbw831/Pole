@@ -1,6 +1,6 @@
 import SwiftUI
 
-private let motorsportCardCornerRadius: CGFloat = 16
+private let motorsportCardCornerRadius: CGFloat = DS.Radius.xl
 
 /// 通用赛车卡片容器——中央 content + 右侧 trailing accessory。
 /// 卡片本体玻璃材质 + 16pt 圆角 + 微阴影,LIVE 状态加红色 stroke。

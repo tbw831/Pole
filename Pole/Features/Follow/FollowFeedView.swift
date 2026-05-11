@@ -47,6 +47,7 @@ struct FollowFeedView: View {
             }
             .frame(maxWidth: .infinity, minHeight: 200)
             .padding()
+            .background(CheckerStripe(.fill, opacity: 0.04))
         } else {
             ScrollView {
                 LazyVStack(spacing: DS.Spacing.sm) {
