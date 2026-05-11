@@ -87,6 +87,10 @@ struct ContentView: View {
             // 跳到赛车 tab(detail navigation 由各 list view 内部 handle)
             selection = .motorsport
         }
+        // 关注 tab 空状态 CTA "去赛车 tab 发现" 发出此通知 → 切到赛历 tab
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToMotorsportTab)) { _ in
+            selection = .motorsport
+        }
         .task {
             // 首次启动若尚未询问,自动弹一次系统授权(用户可拒)。
             let status = await NotificationScheduler.shared.authorizationStatus()

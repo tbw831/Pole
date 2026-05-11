@@ -35,29 +35,39 @@ struct FollowFeedView: View {
     @ViewBuilder
     private var content: some View {
         if items.isEmpty {
-            ContentUnavailableView {
-                Label(L10n.t(zh: "还没有关注任何对象", en: "Nothing followed yet"), systemImage: "star")
-            } description: {
-                Text(L10n.t(zh: "在积分榜里点 ☆ 关注车手或车队",
-                            en: "Tap ☆ in the standings to follow a rider or team"))
+            VStack(spacing: DS.Spacing.lg) {
+                StartLightGrid(mode: .idle, size: 14)
+                Text(L10n.t(zh: "尚未关注任何车手 / 车队", en: "No followed athletes or teams"))
+                    .font(DS.Font.heroSubtitle)
+                    .foregroundStyle(.secondary)
+                Button(L10n.t(zh: "去赛车 tab 发现", en: "Discover in Race tab")) {
+                    NotificationCenter.default.post(name: .navigateToMotorsportTab, object: nil)
+                }
+                .buttonStyle(.dsRacingButton)
             }
+            .frame(maxWidth: .infinity, minHeight: 200)
+            .padding()
         } else {
-            List {
-                ForEach(grouped, id: \.0) { series, rows in
-                    Section(seriesLabel(series)) {
+            ScrollView {
+                LazyVStack(spacing: DS.Spacing.sm) {
+                    ForEach(grouped, id: \.0) { series, rows in
+                        // Section header
+                        HStack {
+                            Text(seriesLabel(series).uppercased())
+                                .font(DS.Font.toolLabel)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        .padding(.horizontal, DS.Spacing.md)
+                        .padding(.top, DS.Spacing.sm)
+
                         ForEach(rows) { item in
                             FollowedRowLink(item: item)
                         }
-                        .onDelete { offsets in
-                            for index in offsets {
-                                context.delete(rows[index])
-                            }
-                            try? context.save()
-                            // 跟 contextMenu 删除路径一致,刷新 widget snapshot
-                            WidgetSnapshotBuilder.refresh(force: true)
-                        }
                     }
                 }
+                .padding(.horizontal, DS.Spacing.md)
+                .padding(.vertical, DS.Spacing.sm)
             }
         }
     }
@@ -143,6 +153,10 @@ private struct FollowedRowLink: View {
 private struct FollowedRow: View {
     let item: FollowedItem
 
+    private var seriesAccent: MotorsportSeries? {
+        MotorsportSeries(rawValue: item.seriesRaw)
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: kindIcon)
@@ -160,6 +174,7 @@ private struct FollowedRow: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
+        .dsListCard(seriesAccent: seriesAccent)
     }
 
     /// item.displayName 持久化的是关注当时的 raw 名(英文 fullName / 厂商原名),
