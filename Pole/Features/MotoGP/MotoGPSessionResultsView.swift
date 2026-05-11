@@ -66,6 +66,8 @@ struct MotoGPSessionResultsView: View {
 private struct ResultRow: View {
     let row: MotoGPRaceResult
 
+    private var isP1: Bool { row.position == 1 }
+
     var body: some View {
         HStack(spacing: 10) {
             positionBadge
@@ -82,7 +84,7 @@ private struct ResultRow: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 Text(timingText)
-                    .font(.caption.monospacedDigit())
+                    .font(DS.Font.numberSmall)
                     .foregroundStyle(timingColor)
                 if row.points > 0 {
                     Text("+\(Int(row.points)) \(L10n.t(zh: "分", en: "pts"))")
@@ -91,12 +93,13 @@ private struct ResultRow: View {
                 }
             }
         }
+        .listRowBackground(isP1 ? DS.Palette.racingRedFaint : Color.clear)
     }
 
     private var positionBadge: some View {
         Text("\(row.position)")
-            .font(.headline.monospacedDigit())
-            .foregroundStyle(row.position <= 3 ? .primary : .secondary)
+            .font(DS.Font.numberMid)
+            .foregroundStyle(isP1 ? DS.Palette.racingRed : (row.position <= 3 ? .primary : .secondary))
             .frame(width: 28, alignment: .center)
     }
 

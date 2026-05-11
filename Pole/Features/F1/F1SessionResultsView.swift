@@ -86,6 +86,8 @@ struct F1SessionResultsView: View {
 private struct RaceResultRow: View {
     let result: F1RaceResult
 
+    private var isP1: Bool { result.positionText == "1" }
+
     var body: some View {
         HStack(spacing: 10) {
             positionLabel
@@ -101,7 +103,7 @@ private struct RaceResultRow: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 if let timeText = result.timeText {
-                    Text(timeText).font(.caption.monospacedDigit())
+                    Text(timeText).font(DS.Font.numberSmall)
                 } else {
                     Text(result.status).font(.caption).foregroundStyle(.secondary)
                 }
@@ -111,6 +113,7 @@ private struct RaceResultRow: View {
                 }
             }
         }
+        .listRowBackground(isP1 ? DS.Palette.racingRedFaint : Color.clear)
     }
 
     @ViewBuilder
@@ -118,8 +121,8 @@ private struct RaceResultRow: View {
         let text = result.positionText
         let isNumeric = Int(text) != nil
         Text(text)
-            .font(.headline.monospacedDigit())
-            .foregroundStyle(isNumeric ? .primary : .secondary)
+            .font(DS.Font.numberMid)
+            .foregroundStyle(isP1 ? DS.Palette.racingRed : (isNumeric ? .primary : .secondary))
             .frame(width: 28, alignment: .center)
     }
 }
@@ -127,10 +130,13 @@ private struct RaceResultRow: View {
 private struct QualifyingResultRow: View {
     let result: F1QualifyingResult
 
+    private var isP1: Bool { result.position == 1 }
+
     var body: some View {
         HStack(spacing: 10) {
             Text("\(result.position)")
-                .font(.headline.monospacedDigit())
+                .font(DS.Font.numberMid)
+                .foregroundStyle(isP1 ? DS.Palette.racingRed : .primary)
                 .frame(width: 28, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -143,9 +149,10 @@ private struct QualifyingResultRow: View {
             }
             Spacer()
             Text(bestTime ?? "—")
-                .font(.caption.monospacedDigit())
+                .font(DS.Font.numberSmall)
                 .foregroundStyle(.secondary)
         }
+        .listRowBackground(isP1 ? DS.Palette.racingRedFaint : Color.clear)
     }
 
     private var bestTime: String? {

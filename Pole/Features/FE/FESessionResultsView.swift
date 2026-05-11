@@ -72,6 +72,8 @@ private struct ResultRow: View {
     let row: FESessionResult
     let isRace: Bool
 
+    private var isP1: Bool { row.driverPosition == 1 }
+
     var body: some View {
         HStack(spacing: 10) {
             positionBadge
@@ -91,7 +93,7 @@ private struct ResultRow: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 Text(timingText)
-                    .font(.caption.monospacedDigit())
+                    .font(DS.Font.numberSmall)
                     .foregroundStyle(timingColor)
                 if isRace, row.points > 0 {
                     Text("+\(Int(row.points)) \(L10n.t(zh: "分", en: "pts"))")
@@ -104,17 +106,18 @@ private struct ResultRow: View {
                 }
             }
         }
+        .listRowBackground(isP1 ? DS.Palette.racingRedFaint : Color.clear)
     }
 
     private var positionBadge: some View {
         Group {
             if let pos = row.driverPosition {
                 Text("\(pos)")
-                    .font(.headline.monospacedDigit())
-                    .foregroundStyle(pos <= 3 ? .primary : .secondary)
+                    .font(DS.Font.numberMid)
+                    .foregroundStyle(isP1 ? DS.Palette.racingRed : (pos <= 3 ? .primary : .secondary))
             } else {
                 Text("—")
-                    .font(.headline)
+                    .font(DS.Font.numberMid)
                     .foregroundStyle(.tertiary)
             }
         }
