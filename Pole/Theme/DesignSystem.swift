@@ -511,3 +511,45 @@ public struct StreamingCursor: View {
             .accessibilityHidden(true)
     }
 }
+
+// MARK: - dsRacingButton ButtonStyle
+
+public struct DSRacingButtonStyle: ButtonStyle {
+    public init() {}
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(DS.Font.heroSubtitle.weight(.heavy))
+            .foregroundStyle(.white)
+            .padding(.horizontal, DS.Spacing.lg)
+            .padding(.vertical, DS.Spacing.md - 2)
+            .background(
+                DS.Palette.racingGradient,
+                in: RoundedRectangle(cornerRadius: DS.Radius.pill, style: .continuous)
+            )
+            .shadow(
+                color: DS.Shadow.racingGlow.color,
+                radius: DS.Shadow.racingGlow.radius,
+                x: DS.Shadow.racingGlow.x,
+                y: DS.Shadow.racingGlow.y
+            )
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(DS.Motion.press, value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed { HapticFeedback.lightImpact() }
+            }
+    }
+}
+
+public extension ButtonStyle where Self == DSRacingButtonStyle {
+    static var dsRacingButton: DSRacingButtonStyle { .init() }
+}
+
+#Preview("dsRacingButton") {
+    VStack(spacing: 16) {
+        Button("发送") { }.buttonStyle(.dsRacingButton)
+        Button("去赛车 tab 发现") { }.buttonStyle(.dsRacingButton)
+    }
+    .padding()
+    .background(DS.Palette.tarmacBg)
+}
