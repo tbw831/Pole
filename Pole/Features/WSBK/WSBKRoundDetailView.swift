@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 @MainActor
 @Observable
@@ -41,6 +42,7 @@ struct WSBKRoundDetailView: View {
 
     var body: some View {
         List {
+            heroSection
             headerSection
             recapSection
             circuitHighlightSection
@@ -51,7 +53,43 @@ struct WSBKRoundDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .tint(MotorsportSeries.wssp.brandColor)
         .task { await viewModel.loadSessionsIfNeeded() }
+        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // navigationDestination 注册在 WSBKRoundListView 的 NavigationStack 上,不在这里
+    }
+
+    /// 顶部 hero:SeriesTopAccent 色条 + 站次/赛道名 + 可选倒计时起跑灯。
+    @ViewBuilder
+    private var heroSection: some View {
+        Section {
+            VStack(spacing: DS.Spacing.sm) {
+                HStack {
+                    VStack(alignment: .leading, spacing: DS.Spacing.xxs) {
+                        Text(viewModel.round.headline)
+                            .font(DS.Font.heroTitle)
+                        Text(viewModel.round.circuit.name)
+                            .font(DS.Font.heroSubtitle)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                if viewModel.round.currentStatus == .upcoming,
+                   let startDate = viewModel.round.mainRace?.startTime {
+                    let minutes = max(0, Int(startDate.timeIntervalSinceNow / 60))
+                    if minutes <= 10 {
+                        HStack {
+                            Spacer()
+                            StartLightGrid(mode: StartLightGrid.mode(forMinutesUntilStart: minutes), size: 16)
+                            Spacer()
+                        }
+                        .padding(.top, DS.Spacing.sm)
+                    }
+                }
+            }
+            .padding(.vertical, DS.Spacing.sm)
+            .dsHeroBanner(seriesAccent: .wssp)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
     }
 
     /// AI 赛事概览 — round 已结束时显示。dataProvider 给 LLM 当前 standings + round info。
@@ -86,6 +124,7 @@ struct WSBKRoundDetailView: View {
                     return String(data: data, encoding: .utf8) ?? "{}"
                 }
             )
+            .dsHeroBanner(seriesAccent: .wssp)
         }
     }
 
@@ -183,12 +222,13 @@ private struct SessionRow: View {
     private var session: Session { item.session }
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(session.label)
-                .font(.subheadline.weight(.medium))
+        HStack(spacing: DS.Spacing.sm) {
+            Text(session.label.uppercased())
+                .font(DS.Font.heroSubtitle.weight(.heavy))
+                .tracking(0.5)
                 .frame(width: 110, alignment: .leading)
             Text(session.startTime, format: .dateTime.hour().minute().beijing())
-                .font(.subheadline.monospacedDigit())
+                .font(DS.Font.numberSmall)
                 .foregroundStyle(.secondary)
             Spacer()
             kindBadge

@@ -9,6 +9,7 @@ struct GlassHeroHeader<TopContent: View>: View {
     let bannerURL: URL?
     let svgURL: URL?
     let badge: EventStatus?
+    var enableSpeedLines: Bool
     @ViewBuilder let topAccessory: () -> TopContent
 
     init(
@@ -18,6 +19,7 @@ struct GlassHeroHeader<TopContent: View>: View {
         bannerURL: URL? = nil,
         svgURL: URL? = nil,
         badge: EventStatus? = nil,
+        enableSpeedLines: Bool = false,
         @ViewBuilder topAccessory: @escaping () -> TopContent = { EmptyView() }
     ) {
         self.title = title
@@ -26,13 +28,32 @@ struct GlassHeroHeader<TopContent: View>: View {
         self.bannerURL = bannerURL
         self.svgURL = svgURL
         self.badge = badge
+        self.enableSpeedLines = enableSpeedLines
         self.topAccessory = topAccessory
     }
 
     var body: some View {
+        VStack(spacing: 0) {
+            SeriesTopAccent(series: series)
+            heroContent
+                .frame(height: 217)  // 220 - 3px accent
+        }
+    }
+
+    @ViewBuilder
+    private var heroContent: some View {
+        if enableSpeedLines {
+            baseHeroZStack.speedLines()
+        } else {
+            baseHeroZStack
+        }
+    }
+
+    @ViewBuilder
+    private var baseHeroZStack: some View {
         ZStack(alignment: .bottomLeading) {
             backgroundLayer
-                .frame(height: 220)
+                .frame(height: 217)
                 .clipped()
 
             // 底部黑色渐变,文字保证可读
@@ -69,7 +90,6 @@ struct GlassHeroHeader<TopContent: View>: View {
             }
             .padding(16)
         }
-        .frame(height: 220)
     }
 
     @ViewBuilder
@@ -112,11 +132,13 @@ extension GlassHeroHeader where TopContent == EmptyView {
         series: MotorsportSeries,
         bannerURL: URL? = nil,
         svgURL: URL? = nil,
-        badge: EventStatus? = nil
+        badge: EventStatus? = nil,
+        enableSpeedLines: Bool = false
     ) {
         self.init(
             title: title, subtitle: subtitle, series: series,
             bannerURL: bannerURL, svgURL: svgURL, badge: badge,
+            enableSpeedLines: enableSpeedLines,
             topAccessory: { EmptyView() }
         )
     }

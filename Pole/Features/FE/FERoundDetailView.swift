@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 @MainActor
 @Observable
@@ -51,6 +52,7 @@ struct FERoundDetailView: View {
 
     var body: some View {
         List {
+            heroSection
             if viewModel.isDoubleHeader {
                 racePickerSection
             }
@@ -67,7 +69,42 @@ struct FERoundDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .tint(MotorsportSeries.fe.brandColor)
         .task { await viewModel.loadSessions() }
+        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // navigationDestination 注册在 outer NavigationStack 上,不在这里
+    }
+
+    /// 顶部 hero:SeriesTopAccent 色条 + 赛事名/赛道名 + 可选倒计时起跑灯。
+    @ViewBuilder
+    private var heroSection: some View {
+        Section {
+            VStack(spacing: DS.Spacing.sm) {
+                HStack {
+                    VStack(alignment: .leading, spacing: DS.Spacing.xxs) {
+                        Text(Localization.feRaceName(viewModel.round.name))
+                            .font(DS.Font.heroTitle)
+                        Text(viewModel.round.circuit.name)
+                            .font(DS.Font.heroSubtitle)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                if viewModel.round.currentStatus == .upcoming {
+                    let minutes = max(0, Int(viewModel.round.raceDate.timeIntervalSinceNow / 60))
+                    if minutes <= 10 {
+                        HStack {
+                            Spacer()
+                            StartLightGrid(mode: StartLightGrid.mode(forMinutesUntilStart: minutes), size: 16)
+                            Spacer()
+                        }
+                        .padding(.top, DS.Spacing.sm)
+                    }
+                }
+            }
+            .padding(.vertical, DS.Spacing.sm)
+            .dsHeroBanner(seriesAccent: .fe)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
     }
 
     /// 双回合 Race 1 / Race 2 切换（用日期区分）
@@ -125,6 +162,7 @@ struct FERoundDetailView: View {
                     return String(data: data, encoding: .utf8) ?? "{}"
                 }
             )
+            .dsHeroBanner(seriesAccent: .fe)
         }
     }
 
@@ -204,13 +242,14 @@ private struct FESessionRow: View {
     let session: FESession
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(session.localizedDisplayName)
-                .font(.subheadline.weight(.medium))
+        HStack(spacing: DS.Spacing.sm) {
+            Text(session.localizedDisplayName.uppercased())
+                .font(DS.Font.heroSubtitle.weight(.heavy))
+                .tracking(0.5)
                 .frame(width: 130, alignment: .leading)
             if !session.isSummary {
                 Text(session.startTime)
-                    .font(.subheadline.monospacedDigit())
+                    .font(DS.Font.numberSmall)
                     .foregroundStyle(.secondary)
             }
             Spacer()

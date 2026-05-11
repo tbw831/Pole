@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - View
 
@@ -23,6 +24,7 @@ struct RaceDetailView: View {
 
     var body: some View {
         List {
+            heroSection
             headerSection
             recapSection               // 赛事概览(赛后才显示) — 放最上,AI 内容区主视觉
             circuitHighlightSection    // 赛道亮点 — 紧贴概览,AI 内容区视觉一致
@@ -34,6 +36,7 @@ struct RaceDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .tint(MotorsportSeries.f1.brandColor)
         .sensoryFeedback(.success, trigger: liveActivityStartCounter)
+        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // 注:F1SessionResultsRef 的 navigationDestination 注册在 RaceListView 的
         // NavigationStack 上,不在这里——子 view 内部嵌套注册会让 SwiftUI 路径解析
         // 出现"返回时多出一层"的 bug。
@@ -117,7 +120,45 @@ struct RaceDetailView: View {
                     return String(data: data, encoding: .utf8) ?? "{}"
                 }
             )
+            .dsHeroBanner(seriesAccent: .f1)
         }
+    }
+
+    // MARK: Hero
+
+    /// 顶部 hero:SeriesTopAccent 色条 + 站次/赛道名 + 可选倒计时起跑灯。
+    @ViewBuilder
+    private var heroSection: some View {
+        Section {
+            VStack(spacing: DS.Spacing.sm) {
+                HStack {
+                    VStack(alignment: .leading, spacing: DS.Spacing.xxs) {
+                        Text(race.headline)
+                            .font(DS.Font.heroTitle)
+                        Text(race.circuit.name)
+                            .font(DS.Font.heroSubtitle)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                if race.currentStatus == .upcoming,
+                   let startDate = race.mainRace?.startTime {
+                    let minutes = max(0, Int(startDate.timeIntervalSinceNow / 60))
+                    if minutes <= 10 {
+                        HStack {
+                            Spacer()
+                            StartLightGrid(mode: StartLightGrid.mode(forMinutesUntilStart: minutes), size: 16)
+                            Spacer()
+                        }
+                        .padding(.top, DS.Spacing.sm)
+                    }
+                }
+            }
+            .padding(.vertical, DS.Spacing.sm)
+            .dsHeroBanner(seriesAccent: .f1)
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
     }
 
     // MARK: Header
@@ -196,12 +237,13 @@ private struct SessionRow: View {
     let race: F1Race
 
     var body: some View {
-        HStack {
-            Text(session.label)
-                .font(.subheadline.weight(.medium))
-                .frame(width: 90, alignment: .leading)
+        HStack(spacing: DS.Spacing.sm) {
+            Text(session.label.uppercased())
+                .font(DS.Font.heroSubtitle.weight(.heavy))
+                .tracking(0.5)
+                .frame(width: 100, alignment: .leading)
             Text(session.startTime, format: .dateTime.hour().minute().beijing())
-                .font(.subheadline.monospacedDigit())
+                .font(DS.Font.numberSmall)
                 .foregroundStyle(.secondary)
             Spacer()
             kindBadge

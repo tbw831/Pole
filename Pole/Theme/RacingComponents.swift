@@ -213,6 +213,18 @@ public extension View {
     }
 }
 
+public extension StartLightGrid {
+    /// 根据距离开赛分钟数返回合适 mode。
+    /// 简化策略,避免高频 Timer 耗电:1Hz 60s 刷新即可。
+    static func mode(forMinutesUntilStart minutes: Int) -> Mode {
+        if minutes > 10 { return .idle }
+        if minutes > 5  { return .countdown(litCount: 1) }
+        if minutes > 1  { return .countdown(litCount: 3) }
+        if minutes > 0  { return .countdown(litCount: 5) }
+        return .lightsOut
+    }
+}
+
 #Preview("SpeedLinesOverlay") {
     VStack(spacing: 16) {
         RoundedRectangle(cornerRadius: 12)
