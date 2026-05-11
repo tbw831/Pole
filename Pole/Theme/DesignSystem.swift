@@ -513,7 +513,7 @@ public struct StreamingCursor: View {
     public var body: some View {
         Text("▍")
             .font(DS.Font.bubble)
-            .foregroundStyle(DS.Palette.primary)
+            .foregroundStyle(DS.Palette.racingRed)
             .opacity(reduceMotion ? 1.0 : (blink ? 0.2 : 1.0))
             .onAppear {
                 guard !reduceMotion else { return }
