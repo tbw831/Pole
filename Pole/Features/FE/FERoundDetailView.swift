@@ -10,15 +10,26 @@ final class FERoundDetailViewModel {
         case failed(message: String)
     }
 
-    let round: FERound
+    let rounds: [FERound]
+    var selectedRoundIndex: Int
     private(set) var sessionsState: SessionsState = .idle
 
-    init(round: FERound) {
-        self.round = round
+    var round: FERound { rounds[selectedRoundIndex] }
+    var isDoubleHeader: Bool { rounds.count > 1 }
+    var weekend: FEWeekend { FEWeekend(rounds: rounds) }
+
+    init(route: FERoute) {
+        switch route {
+        case .single(let r):
+            self.rounds = [r]
+            self.selectedRoundIndex = 0
+        case .weekend(let w):
+            self.rounds = w.rounds
+            self.selectedRoundIndex = 0
+        }
     }
 
-    func loadSessionsIfNeeded() async {
-        guard case .idle = sessionsState else { return }
+    func loadSessions() async {
         sessionsState = .loading
         do {
             let sessions = try await FormulaEClient.shared.fetchSessions(raceId: round.id)
@@ -30,15 +41,19 @@ final class FERoundDetailViewModel {
 }
 
 /// FE 单站详情——hero + 赛程时间表 + 完整成绩(汇总表)。
+/// 双回合赛事头部显示 Race 切换。
 struct FERoundDetailView: View {
     @State private var viewModel: FERoundDetailViewModel
 
-    init(round: FERound) {
-        _viewModel = State(initialValue: FERoundDetailViewModel(round: round))
+    init(route: FERoute) {
+        _viewModel = State(initialValue: FERoundDetailViewModel(route: route))
     }
 
     var body: some View {
         List {
+            if viewModel.isDoubleHeader {
+                racePickerSection
+            }
             headerSection
             recapSection
             circuitHighlightSection
@@ -46,11 +61,35 @@ struct FERoundDetailView: View {
             summarySection
         }
         .dsDetailList()
-        .navigationTitle(viewModel.round.headline)
+        .navigationTitle(viewModel.isDoubleHeader
+            ? viewModel.weekend.headline
+            : Localization.feRaceName(viewModel.round.name))
         .navigationBarTitleDisplayMode(.inline)
         .tint(MotorsportSeries.fe.brandColor)
-        .task { await viewModel.loadSessionsIfNeeded() }
+        .task { await viewModel.loadSessions() }
         // navigationDestination 注册在 outer NavigationStack 上,不在这里
+    }
+
+    /// 双回合 Race 1 / Race 2 切换（用日期区分）
+    @ViewBuilder
+    private var racePickerSection: some View {
+        Section {
+            SegmentedPillPicker(
+                selection: Binding(
+                    get: { viewModel.selectedRoundIndex },
+                    set: { newIndex in
+                        guard newIndex != viewModel.selectedRoundIndex else { return }
+                        viewModel.selectedRoundIndex = newIndex
+                        Task { await viewModel.loadSessions() }
+                    }
+                ),
+                items: Array(viewModel.rounds.indices),
+                label: { index in
+                    let round = viewModel.rounds[index]
+                    Text(round.raceDate, format: .dateTime.month(.abbreviated).day().beijing())
+                }
+            )
+        }
     }
 
     /// AI 赛事概览 — round 已结束时显示。dataProvider 给 LLM 当前 standings + round info。

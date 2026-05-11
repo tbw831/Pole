@@ -73,6 +73,10 @@ final class ChatViewModel {
     @ObservationIgnored
     nonisolated(unsafe) private var currentRunTask: Task<Void, Never>?
 
+    /// 是否正在流式输出(有活跃的 streamingText)。
+    /// 供 ChatView 的 Timer 节拍器判断是否需要持续滚动。
+    var isStreaming: Bool { !streamingText.isEmpty }
+
     /// 流式中的 assistant 文本 — 流式期间只改这个属性,不污染 bubbles 数组。
     /// Stream 结束(runtime.run 返回)时合并进 bubbles。
     /// 性能关键:LazyVStack 看到 bubbles 没变就不重 diff,避免每个 chunk 都全 list 重算 ForEach。
@@ -691,6 +695,7 @@ final class ChatViewModel {
             store.save()
         }
 
+        // 首个 chunk 到达时 handleEvent 已设 isThinking=false;错误路径(无 chunk)兜底再设一次。
         isThinking = false
 
         // 异步生成追问建议——不阻塞主流程,失败/慢都没关系
@@ -784,6 +789,7 @@ final class ChatViewModel {
             // 流式期间只改 streamingText,不动 bubbles 数组(避免 LazyVStack 全 list diff)。
             // 首个 chunk 来时创建 ChatMessage 持久化入 store,后续 chunk 只更新 text 字段。
             if streamingId == nil {
+                isThinking = false
                 let id = UUID()
                 streamingId = id
                 let m = ChatMessage(id: id, role: .assistant, text: "")

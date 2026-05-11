@@ -48,6 +48,11 @@ struct FEDriverDetailView: View {
                         if let tla = standing.driver.tla {
                             Text(tla).font(.subheadline.bold()).foregroundStyle(.secondary)
                         }
+                        Spacer()
+                        FollowToggleButton(
+                            target: .athlete(id: standing.driver.id, sport: .motorsport, series: "fe"),
+                            displayName: standing.driver.fullName
+                        )
                     }
                     Text("Formula E · \(MotorsportNames.teamName(raw: standing.teamName, series: .fe))")
                         .font(.caption)

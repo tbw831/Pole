@@ -27,7 +27,7 @@ public enum LLMError: Error, LocalizedError {
     }
 }
 
-/// LLM 客户端——用 DeepSeek `deepseek-chat`(V3.x,响应最快的官方 chat 模型)。
+/// LLM 客户端——用 DeepSeek `deepseek-v4-flash`(thinking: disabled,非推理模式)。
 /// 标准 OpenAI 兼容协议。
 ///
 /// API key 来源(优先级):
@@ -79,7 +79,7 @@ public actor LLMClient {
     }
 
     /// 通用 chat completion——给 system prompt + user prompt,返回 assistant content。
-    public func chat(system: String?, user: String, model: String = "deepseek-chat", temperature: Double = 0.3) async throws -> String {
+    public func chat(system: String?, user: String, model: String = "deepseek-v4-flash", temperature: Double = 0.3) async throws -> String {
         guard !apiKey.isEmpty else { throw LLMError.missingAPIKey }
         var messages: [Message] = []
         // 全局 persona 前缀:让所有 LLM 输出都站在"赛车助手"角度,不要自称 DeepSeek/AI/语言模型。
@@ -88,7 +88,8 @@ public actor LLMClient {
         messages.append(Message(role: "system", content: personaSystem))
         messages.append(Message(role: "user", content: user))
 
-        let body = ChatRequest(model: model, messages: messages, temperature: temperature)
+        let body = ChatRequest(model: model, messages: messages, temperature: temperature,
+                               thinking: .init(type: "disabled"))
         let request = makeRequest(body: try JSONEncoder().encode(body), accept: "application/json")
 
         // 1 次 5xx / network 重试 + 30s 总超时,DeepSeek 偶发故障不直接给用户失败提示。
@@ -107,11 +108,12 @@ public actor LLMClient {
             }
             do {
                 let decoded = try self.decoder.decode(ChatResponse.self, from: data)
-                guard let content = decoded.choices.first?.message.content,
-                      !content.isEmpty else {
+                let msg = decoded.choices.first?.message
+                let content = msg?.content ?? msg?.reasoning_content
+                guard let text = content, !text.isEmpty else {
                     throw LLMError.empty
                 }
-                return content
+                return text
             } catch let err as LLMError {
                 throw err
             } catch {
@@ -175,7 +177,7 @@ public actor LLMClient {
     public func chatWithTools(
         messages: [AgentMessage],
         tools: [ToolDefinition],
-        model: String = "deepseek-chat",
+        model: String = "deepseek-v4-flash",
         temperature: Double = 0.3
     ) async throws -> AgentMessage {
         guard !apiKey.isEmpty else { throw LLMError.missingAPIKey }
@@ -267,7 +269,8 @@ public actor LLMClient {
         var body: [String: Any] = [
             "model": model,
             "messages": msgs,
-            "temperature": temperature
+            "temperature": temperature,
+            "thinking": ["type": "disabled"]
         ]
         if !toolsArr.isEmpty {
             body["tools"] = toolsArr
@@ -286,7 +289,7 @@ public actor LLMClient {
     public func chatStream(
         messages: [AgentMessage],
         tools: [ToolDefinition],
-        model: String = "deepseek-chat",
+        model: String = "deepseek-v4-flash",
         temperature: Double = 0.3
     ) -> AsyncThrowingStream<StreamChunk, Error> {
         let key = apiKey
@@ -339,6 +342,7 @@ public actor LLMClient {
                         if let delta = chunk.choices.first?.delta {
                             let parsed = StreamChunk(
                                 contentDelta: delta.content,
+                                reasoningContentDelta: delta.reasoning_content,
                                 toolCallsDelta: delta.tool_calls?.map { dto in
                                     StreamChunk.ToolCallDelta(
                                         index: dto.index,
@@ -365,6 +369,7 @@ public actor LLMClient {
 
     public struct StreamChunk: Sendable {
         public let contentDelta: String?
+        public let reasoningContentDelta: String?
         public let toolCallsDelta: [ToolCallDelta]
         public let finishReason: String?
 
@@ -383,6 +388,7 @@ public actor LLMClient {
         }
         struct Delta: Sendable, nonisolated Decodable {
             let content: String?
+            let reasoning_content: String?
             let tool_calls: [DeltaToolCallDTO]?
         }
         struct DeltaToolCallDTO: Sendable, nonisolated Decodable {
@@ -407,6 +413,7 @@ public actor LLMClient {
         struct Message: Sendable, nonisolated Decodable {
             let role: String
             let content: String?
+            let reasoning_content: String?
             let tool_calls: [ToolCallDTO]?
         }
         struct ToolCallDTO: Sendable, nonisolated Decodable {
@@ -808,6 +815,11 @@ public actor LLMClient {
         let model: String
         let messages: [Message]
         let temperature: Double
+        let thinking: ThinkingConfig
+
+        struct ThinkingConfig: Codable, Sendable {
+            let type: String
+        }
     }
 
     private struct ChatResponse: Sendable, nonisolated Decodable {
@@ -816,7 +828,8 @@ public actor LLMClient {
         }
         struct Message: Sendable, nonisolated Decodable {
             let role: String
-            let content: String
+            let content: String?
+            let reasoning_content: String?
         }
         let choices: [Choice]
     }

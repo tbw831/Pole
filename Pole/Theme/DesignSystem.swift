@@ -277,6 +277,7 @@ public struct SegmentedPillPicker<T: Hashable, Label: View>: View {
 // MARK: - AI 头像组件(可复用)
 
 /// 36 / 96 两档头像 — sparkles 紫渐变圆。
+/// AI 头像 — 渐变圆底 + 方向盘图标(赛车语义,跟 tab bar 风格统一)。
 public struct AIAvatar: View {
     public enum Size { case small, large }
     let size: Size
@@ -285,20 +286,17 @@ public struct AIAvatar: View {
 
     public var body: some View {
         let dim: CGFloat = size == .small ? DS.Avatar.size : DS.Avatar.sizeLarge
-        let iconSize: CGFloat = size == .small ? 16 : 44
+        let iconSize: CGFloat = size == .small ? 15 : 42
         ZStack {
             Circle()
                 .fill(DS.Palette.aiGradient)
-            // apple.intelligence — Apple 官方 AI 图标(SF Symbols 6+),
-            // 跟 TabBar AI tab 图标统一,比通用 sparkles 更贴近"AI 助手"语义。
-            Image(systemName: "apple.intelligence")
+            Image(systemName: "steeringwheel")
                 .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(.white)
         }
         .frame(width: dim, height: dim)
         .shadow(color: DS.Palette.primary.opacity(size == .large ? 0.4 : 0.25),
                 radius: size == .large ? 20 : 6, y: size == .large ? 6 : 2)
-        // 装饰头像:VoiceOver 不读"sparkles 图像",bubble label 已涵盖语义
         .accessibilityHidden(true)
     }
 }

@@ -81,6 +81,9 @@ enum WidgetSnapshotBuilder {
         case .fe(let r):
             circuitName = r.circuit.name
             countryCode = r.circuit.country  // FE circuit.country 就是 ISO2 ("DE")
+        case .feWeekend(let w):
+            circuitName = w.rounds.first!.circuit.name
+            countryCode = w.rounds.first!.circuit.country
         }
 
         return WidgetSnapshot.NextRace(
@@ -102,7 +105,8 @@ enum WidgetSnapshotBuilder {
         case .f1(let r):     raw = r.sessions
         case .motogp(let r): raw = r.sessions
         case .wssp(let r):   raw = r.sessions
-        case .fe(let r):     raw = r.sessions
+        case .fe(let r):          raw = r.sessions
+        case .feWeekend(let w):   raw = w.rounds.first!.sessions
         }
         return raw.map {
             WidgetSnapshot.SessionInfo(

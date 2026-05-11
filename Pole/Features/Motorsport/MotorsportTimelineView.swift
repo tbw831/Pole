@@ -27,6 +27,23 @@ final class MotorsportTimelineViewModel {
 
     private(set) var state: State = .idle
 
+    /// 把连续同赛道的 FE round 合并为 feWeekend（与 FERoundListViewModel 同逻辑）。
+    private static func mergeFERounds(_ rounds: [FERound]) -> [AnyMotorsportRound] {
+        var result: [AnyMotorsportRound] = []
+        var buffer: [FERound] = []
+        for round in rounds {
+            if let last = buffer.last, last.circuit.name != round.circuit.name {
+                result.append(buffer.count > 1 ? .feWeekend(FEWeekend(rounds: buffer)) : .fe(buffer[0]))
+                buffer = []
+            }
+            buffer.append(round)
+        }
+        if let last = buffer.last {
+            result.append(buffer.count > 1 ? .feWeekend(FEWeekend(rounds: buffer)) : .fe(last))
+        }
+        return result
+    }
+
     func load() async {
         state = .loading
         // 三 series 并发拉,任一失败不阻塞其他;失败 series 当成空数组处理
@@ -40,7 +57,7 @@ final class MotorsportTimelineViewModel {
             f1.map(AnyMotorsportRound.f1)
             + motogp.map(AnyMotorsportRound.motogp)
             + wssp.map(AnyMotorsportRound.wssp)
-            + fe.map(AnyMotorsportRound.fe)
+            + Self.mergeFERounds(fe)
 
         // 只保留"未结束"的(进行中 + 未开始)——已结束的去对应 series 单独 tab 看
         let now = Date()
@@ -86,7 +103,8 @@ struct MotorsportTimelineView: View {
                 .navigationDestination(for: MotoGPSessionRef.self) { MotoGPSessionResultsView(ref: $0) }
                 .navigationDestination(for: WSBKRound.self) { WSBKRoundDetailView(round: $0) }
                 .navigationDestination(for: WSSPSessionWithResults.self) { WSSPSessionResultsView(item: $0) }
-                .navigationDestination(for: FERound.self) { FERoundDetailView(round: $0) }
+                .navigationDestination(for: FERound.self) { FERoundDetailView(route: .single($0)) }
+                .navigationDestination(for: FERoute.self) { FERoundDetailView(route: $0) }
                 .navigationDestination(for: FESessionRef.self) { FESessionResultsView(ref: $0) }
         }
     }
@@ -140,6 +158,8 @@ struct MotorsportTimelineView: View {
             NavigationLink(value: r) { TimelineRow(snapshot: snap) }.buttonStyle(.plain)
         case .fe(let r):
             NavigationLink(value: r) { TimelineRow(snapshot: snap) }.buttonStyle(.plain)
+        case .feWeekend(let w):
+            NavigationLink(value: FERoute.weekend(w)) { TimelineRow(snapshot: snap) }.buttonStyle(.plain)
         }
     }
 

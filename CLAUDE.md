@@ -9,6 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Pole** — iOS 赛车多系列追踪 app（SwiftUI + SwiftData，目标 **iOS 26.2**，Swift 5.0，Bundle ID `com.tiebowen.Pole`，App Group `group.com.tiebowen.Pole`，作者署名 ByteDance）。
 
+**零第三方依赖**：纯 Apple 技术栈，无 SPM / CocoaPods / Carthage。所有功能基于系统框架（SwiftUI、SwiftData、WidgetKit、ActivityKit、AppIntents、Speech、EventKit、NaturalLanguage 等）。
+
 覆盖 **F1 / MotoGP / WSSP（WorldSBK 中量级 class）/ Formula E** 四个系列。能力面：赛程 + 积分榜 + 车手详情、本地赛前通知、系统日历写入、天气、新闻聚合（RSS + ZXMOTO 中文站）、DeepSeek LLM tool calling 助手、关注系统、每日冷知识、赛后 AI 复盘、主屏 Widget + 灵动岛 Live Activity、Siri Shortcuts、语音输入。
 
 `Sport` 枚举留了 `basketball / football` 占位但当前**未实现**，`MotorsportSeries` 才是真正在用的"系列"维度。
@@ -18,19 +20,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Linux 上无法构建**（仓库被 checkout 到 Linux 仅供编辑；`build-errors.txt` 已记录 `xcode-select` 报错）。所有 build / test 必须在装 Xcode 26+ 的 Mac 上执行：
 
 ```bash
+# 查看可用 scheme 和 target
+xcodebuild -list -project Pole.xcodeproj
+
 # 全量构建（iOS 模拟器）
 xcodebuild -project Pole.xcodeproj -scheme Pole -destination 'platform=iOS Simulator,name=iPhone 14 Pro' build
 
-# 单元测试（Swift Testing 框架，import Testing / @Test / #expect — 不是 XCTest）
+# 单元测试
 xcodebuild -project Pole.xcodeproj -scheme Pole -destination 'platform=iOS Simulator,name=iPhone 14 Pro' test
 
-# 跑单个 Swift Testing 用例
+# 跑单个测试用例
 xcodebuild test -project Pole.xcodeproj -scheme Pole \
   -destination 'platform=iOS Simulator,name=iPhone 14 Pro' \
   -only-testing:PoleTests/PoleTests/example
 ```
 
-`PoleTests/` 用 Swift Testing；`PoleUITests/` 仍用 XCTest。Linux 端被要求构建时，先告知然后请用户在 Mac 验证。
+**测试框架注意**：`PoleTests/` 用 **Swift Testing**（`import Testing` / `@Test` / `#expect`）；`PoleUITests/` 仍用 **XCTest**。写单元测试时用 Swift Testing API，不要混用 XCTest。Linux 端被要求构建时，先告知然后请用户在 Mac 验证。
 
 ## 架构（四层）
 
@@ -129,7 +134,8 @@ Domain（跨系列抽象，无 wire 格式）
 
 ## 入口与生命周期
 
-- **`PoleApp.swift`**：`@main`，`sharedModelContainer` 注入 8 个 `@Model`（init 失败 fallback in-memory，标 `containerInitFailed`，不闪退）。`scenePhase` 切到 `.active` 时调 `WidgetSnapshotBuilder.refresh()` 刷主屏 widget JSON。
+- **Info.plist**：主 app 用 `GENERATE_INFOPLIST_FILE = YES`（Xcode 自动生成），所有 plist key 通过 `INFOPLIST_KEY_*` build setting 注入。不要手写 Info.plist。
+- **`PoleApp.swift`**：`@main`，`sharedModelContainer` 注入 8 个 `@Model`（init 失败 fallback in-memory，标 `containerInitFailed`，不闪退）。启动时调 `KnowledgeImporter.importIfNeeded()` 扫描 `Resources/Knowledge/` 建 RAG 知识库。`scenePhase` 切到 `.active` 时调 `WidgetSnapshotBuilder.refresh()` 刷主屏 widget JSON。
 - **`ContentView.swift`**：5 Tab（赛车 / 积分榜 / AI / 关注 / 设置），用 iOS 26 系统 `TabView` + `.tabBarMinimizeBehavior(.onScrollDown)`（系统 Liquid Glass tab bar 滚动收缩）。首次启动若通知权限 `notDetermined` 自动弹一次系统授权（用户可拒）。切到 AI tab 通过 `NotificationCenter` post `.resetChatToStarter` 重置会话。Live Activity / 灵动岛点击触发 `OpenRaceDetailIntent` post `.openRaceDetail`，ContentView 切到赛车 tab + 跳详情。
 
 ## Widget Extension（`PoleWidgets/`）
@@ -142,11 +148,14 @@ Domain（跨系列抽象，无 wire 格式）
 5. 两个 target 都加 App Group capability `group.com.tiebowen.Pole`
 6. 主 app 已有 `INFOPLIST_KEY_NSSupportsLiveActivities = YES`
 
+**跨 target 编译**：`Pole/Shared/` 目录下的文件（`AppGroup.swift`、`WidgetSnapshot.swift`、`WidgetSnapshotStore.swift`、`SeriesBrand.swift`）需要同时编译进主 app 和 widget extension 两个 target。修改这些文件时注意两边都要兼容。
+
 主屏 widget 提供 small / medium / large + accessoryRectangular / Circular / Inline 6 种尺寸。
 
 ## 安全 / 密钥
 
-- **DeepSeek API Key** 二级查找：`Info.plist[DSAPIKey]`（推荐 release 路径，xcconfig 通过 `$(DS_API_KEY)` 注入，不入仓库）→ 环境变量 `DS_API_KEY`（本地开发推荐，Xcode scheme env vars，user-specific 自带 gitignore via `xcuserdata/`）。**绝不**在源码硬编码 fallback——commit 进库 / binary reverse 都会泄露。具体本地配置见 `docs/api-key-setup.md`。生产必须改走自有代理服务把 key 留服务端。
+- **DeepSeek API Key** 二级查找：`Info.plist[DSAPIKey]`（推荐 release 路径，xcconfig 通过 `$(DS_API_KEY)` 注入，不入仓库）→ 环境变量 `DS_API_KEY`（本地开发推荐，Xcode scheme env vars）。**绝不**在源码硬编码 fallback——commit 进库 / binary reverse 都会泄露。具体本地配置见 `docs/api-key-setup.md`。生产必须改走自有代理服务把 key 留服务端。
+- **注意**：shared scheme 文件（`xcshareddata/xcschemes/Pole.xcscheme`）中的环境变量值会被 commit。如果 scheme 中包含 API key，应在 commit 前移除或改用 xcconfig 注入。
 - 其他赛事数据源均免认证。
 
 ## 新增赛车系列：实际 ≥10 处改动

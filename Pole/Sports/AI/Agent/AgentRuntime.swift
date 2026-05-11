@@ -10,7 +10,7 @@ public actor AgentRuntime {
     public init(
         llm: LLMClient = .shared,
         tools: [any AgentTool],
-        model: String = "deepseek-chat",
+        model: String = "deepseek-v4-flash",
         maxSteps: Int = 10  // RAG-like 流程: standings + find_round + get_session_results × 2-3 = 4-5 步,
                             // 加 LLM 思考轮次至少留 10 步余量,避免 maxStepsExceeded
     ) {
@@ -44,7 +44,8 @@ public actor AgentRuntime {
             do {
                 for try await chunk in stream {
                     try Task.checkCancellation()
-                    if let c = chunk.contentDelta, !c.isEmpty {
+                    let textDelta = chunk.contentDelta ?? chunk.reasoningContentDelta
+                    if let c = textDelta, !c.isEmpty {
                         contentBuffer += c
                         await onEvent(.assistantTextChunk(c))
                     }

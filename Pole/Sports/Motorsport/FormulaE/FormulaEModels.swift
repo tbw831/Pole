@@ -52,6 +52,54 @@ public nonisolated struct FERound: MotorsportEvent, Identifiable, Hashable, Send
     }
 }
 
+// MARK: - Weekend (double-header grouping)
+
+/// 把同一赛道的多回合 FERound 归为一组（单回合=1 个，双回合=2 个）。
+public nonisolated struct FEWeekend: Identifiable, Hashable, Sendable {
+    public let rounds: [FERound]
+    public var id: String { rounds.first!.circuit.name }
+    public var isDoubleHeader: Bool { rounds.count > 1 }
+
+    /// 赛道名（去掉 "Race 1/2" 后缀的纯赛道标题）。
+    public var headline: String {
+        guard let raw = rounds.first else { return "" }
+        var name = Localization.feRaceName(raw.name)
+        // 去掉 " · Race N" / " · 第 N 场" 后缀
+        name = name.replacingOccurrences(of: #"\s*·\s*(Race|第)\s*\d+\s*(场)?"#, with: "", options: .regularExpression)
+        return name.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// 日期范围文本（单回合只显示一天，双回合显示 "5/10 - 5/11"）。
+    public var dateRangeText: String {
+        let first = rounds.first!.raceDate
+        let last = rounds.last!.raceDate
+        if first == last {
+            return first.formatted(.dateTime.month(.abbreviated).day().beijing())
+        }
+        return "\(first.formatted(.dateTime.month(.abbreviated).day())) – \(last.formatted(.dateTime.month(.abbreviated).day().beijing()))"
+    }
+
+    /// 用于列表卡片的 subheadline（位置信息）。
+    public var subheadline: String {
+        guard let first = rounds.first else { return "" }
+        let countryDisplay = ChineseCountry.fromISO2(first.circuit.country) ?? first.circuit.country
+        return "\(first.circuit.locality), \(countryDisplay)"
+    }
+}
+
+/// FE 路由——单回合或双回合周末，替代直接用 FERound 做 NavigationLink value。
+public nonisolated enum FERoute: Hashable, Sendable, Identifiable {
+    case single(FERound)
+    case weekend(FEWeekend)
+
+    public var id: String {
+        switch self {
+        case .single(let r): return r.id
+        case .weekend(let w): return w.id
+        }
+    }
+}
+
 // MARK: - Standings
 
 public nonisolated struct FEDriver: Identifiable, Hashable, Sendable, Codable {

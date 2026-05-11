@@ -175,7 +175,7 @@ public nonisolated enum Localization {
     public static func feRaceName(_ rawName: String) -> String {
         // 剥年份前缀 + 赞助商
         var cleaned = rawName.replacingOccurrences(of: #"^\d{4}\s*"#, with: "", options: .regularExpression)
-        cleaned = cleaned.replacingOccurrences(of: #"^(Google Cloud|Hankook|ABB|Julius Baer|SABIC|DHL|Tata Communications)\s*"#,
+        cleaned = cleaned.replacingOccurrences(of: #"^(Google Cloud|Hankook|ABB|Julius Baer|SABIC|DHL|Tata Communications|CUPRA)\s*"#,
                                                with: "", options: [.regularExpression, .caseInsensitive])
 
         // 提取 "Race 1" / "Round 2" 等末尾编号后缀(double-header 周末用,保留区分)
@@ -228,6 +228,7 @@ public nonisolated enum Localization {
         if n.contains("seoul")              { return "首尔" }
         if n.contains("new york")           { return "纽约" }
         if n.contains("misano")             { return "米萨诺" }
+        if n.contains("madrid")             { return "马德里" }
         if n.contains("riyadh")             { return "利雅得" }
         // ----- 历史赛站(用户切到旧赛季会用上) -----
         if n.contains("marrakesh") || n.contains("marrakech") { return "马拉喀什" }

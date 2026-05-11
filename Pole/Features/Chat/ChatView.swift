@@ -402,11 +402,7 @@ struct ChatView: View {
                             onRegenerate: {}
                         )
                         .id("__streaming")
-                    }
-                    // 思考中(还没有内容时显示骨架占位)
-                    if vm.isThinking, vm.streamingText.isEmpty {
-                        thinkingPlaceholder
-                            .transition(.opacity)
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                     if !vm.isThinking, !vm.followUps.isEmpty {
                         followUpChips(vm: vm)
@@ -415,23 +411,24 @@ struct ChatView: View {
                     }
                 }
                 .padding(.vertical, DS.Spacing.md)
-                .animation(DS.Motion.bubbleEntry, value: vm.bubbles.count)
-                .animation(DS.Motion.layout, value: vm.followUps)
-                .animation(DS.Motion.layout, value: vm.isThinking)
+                // 不给 bubbles.count 加 .animation() — flushStreamingToBubbles 用
+                // Transaction(disablesAnimations: true) 禁动画,如果这里还挂 .animation()
+                // SwiftUI 会无视 transaction 导致 flush 时也播 spring,跟 scrollTo 叠加 jitter。
             }
             .onChange(of: vm.bubbles.count) { _, _ in
                 if let last = vm.bubbles.last {
-                    withAnimation(DS.Motion.layout) {
-                        proxy.scrollTo(last.id, anchor: .bottom)
-                    }
+                    proxy.scrollTo(last.id, anchor: .bottom)
                 }
             }
-            // 流式中只滚到当前 streaming bubble — 比每个 chunk 重 diff 整个 list 性能好得多
-            .onChange(of: vm.streamingText.count > 0) { _, hasStream in
-                if hasStream {
-                    withAnimation(DS.Motion.layout) {
-                        proxy.scrollTo("__streaming", anchor: .bottom)
-                    }
+            // 流式期间用节拍器驱动连续滚动(每 150ms 一跳)。
+            // 替代原来的 onChange(of: Bool) 只触发一次 — 那个方案文字在长但列表没跟上。
+            .onReceive(
+                vm.isStreaming
+                    ? Timer.publish(every: 0.15, on: .main, in: .common).autoconnect()
+                    : Timer.publish(every: 3600, on: .main, in: .common).autoconnect()
+            ) { _ in
+                if vm.isStreaming {
+                    proxy.scrollTo("__streaming", anchor: .bottom)
                 }
             }
             .onChange(of: vm.followUps) { _, new in
@@ -442,27 +439,6 @@ struct ChatView: View {
                 }
             }
         }
-    }
-
-    /// 思考中骨架(豆包式"正在生成"占位)。
-    private var thinkingPlaceholder: some View {
-        HStack(alignment: .top, spacing: DS.Spacing.sm) {
-            AIAvatar(size: .small)
-            HStack(spacing: 4) {
-                Circle().fill(DS.Palette.primary.opacity(0.6)).frame(width: 6, height: 6)
-                Circle().fill(DS.Palette.primary.opacity(0.4)).frame(width: 6, height: 6)
-                Circle().fill(DS.Palette.primary.opacity(0.2)).frame(width: 6, height: 6)
-                Text(L10n.t(zh: "思考中…", en: "Thinking…"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 4)
-            }
-            .padding(.horizontal, DS.Spacing.md)
-            .padding(.vertical, DS.Spacing.sm)
-            .dsAIBubble()
-            Spacer(minLength: 40)
-        }
-        .padding(.horizontal, DS.Spacing.md)
     }
 
     /// 追问建议 chips —— 竖排,每条一行,点击立即发送。无标题(头部图标已删)。

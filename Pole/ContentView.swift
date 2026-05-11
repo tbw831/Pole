@@ -14,9 +14,7 @@ struct ContentView: View {
             switch self {
             case .motorsport: return "flag.checkered"
             case .standings:  return "list.number"
-            // .ai 不走 SF Symbol,走自定义 AILabelIcon("AI" 两字 + 圆角渐变);
-            // 这个 string 给非 .ai 路径占位,实际 .ai 的 tab label 用 AILabelIcon。
-            case .ai:         return "apple.intelligence"
+            case .ai:         return "bolt.car.fill"
             case .follow:     return "star"
             case .settings:   return "gearshape"
             }

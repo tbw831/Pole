@@ -640,6 +640,10 @@ private struct FEDriverRow: View {
             }
             Spacer()
             PointsBlock(points: standing.points, wins: nil)
+            FollowToggleButton(
+                target: .athlete(id: standing.driver.id, sport: .motorsport, series: "fe"),
+                displayName: standing.driver.fullName
+            )
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(L10n.t(

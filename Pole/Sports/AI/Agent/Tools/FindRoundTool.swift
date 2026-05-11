@@ -111,10 +111,11 @@ public struct FindRoundTool: AgentTool {
             guard let r = args.round else { return #"{"error":"round required"}"# }
             filtered = rounds.filter {
                 switch $0 {
-                case .f1(let race):     return race.round == r
-                case .motogp(let r2):   return r2.round == r
-                case .wssp(let r3):     return r3.round == r
-                case .fe(let r4):       return r4.round == r
+                case .f1(let race):          return race.round == r
+                case .motogp(let r2):        return r2.round == r
+                case .wssp(let r3):          return r3.round == r
+                case .fe(let r4):            return r4.round == r
+                case .feWeekend(let w):      return w.rounds.contains { $0.round == r }
                 }
             }
         case "by_country":
@@ -166,6 +167,12 @@ public struct FindRoundTool: AgentTool {
                 dict["country_code"] = r.countryCode
             }
             if case .fe(let r) = round {
+                dict["round"] = r.round
+                dict["season"] = r.season
+                dict["circuit"] = r.circuit.name
+                dict["country"] = r.circuit.country
+            }
+            if case .feWeekend(let w) = round, let r = w.rounds.first {
                 dict["round"] = r.round
                 dict["season"] = r.season
                 dict["circuit"] = r.circuit.name
@@ -232,20 +239,22 @@ private extension AnyMotorsportRound {
     /// round number — 4 个 case 都有,但是分开 accessor 麻烦,这里统一暴露。
     var round_: Int {
         switch self {
-        case .f1(let race):  return race.round
-        case .motogp(let r): return r.round
-        case .wssp(let r):   return r.round
-        case .fe(let r):     return r.round
+        case .f1(let race):        return race.round
+        case .motogp(let r):       return r.round
+        case .wssp(let r):         return r.round
+        case .fe(let r):           return r.round
+        case .feWeekend(let w):    return w.rounds.first!.round
         }
     }
 
     /// 赛季 — 4 个 case 都有 String season。
     var season: String {
         switch self {
-        case .f1(let race):  return race.season
-        case .motogp(let r): return r.season
-        case .wssp(let r):   return r.season
-        case .fe(let r):     return r.season
+        case .f1(let race):        return race.season
+        case .motogp(let r):       return r.season
+        case .wssp(let r):         return r.season
+        case .fe(let r):           return r.season
+        case .feWeekend(let w):    return w.rounds.first!.season
         }
     }
 }
