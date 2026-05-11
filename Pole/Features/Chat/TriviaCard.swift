@@ -25,12 +25,12 @@ struct TriviaCard: View {
     @ViewBuilder
     private func content(_ text: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "lightbulb.fill")
+            Image(systemName: "flag.checkered.2.crossed")
                 .font(.callout)
-                .foregroundStyle(.yellow)
+                .foregroundStyle(DS.Palette.racingRed)
                 .padding(.top, 2)
             VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.t(zh: "今日冷知识", en: "Today's Trivia"))
+                Text(L10n.t(zh: "📋 PIT NOTE · 冷知识", en: "📋 PIT NOTE · Trivia"))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Text(text)
@@ -40,25 +40,14 @@ struct TriviaCard: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        // content 层卡片不用 glass,避免与 nav bar Liquid Glass 视觉叠加 / 模糊层级。
-        // secondarySystemBackground 在 light/dark 自动适配,黄边表示"小贴士"语义保留。
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color.yellow.opacity(0.25), lineWidth: 0.6)
-        )
-        .padding(.horizontal, 20)
+        .dsHeroBanner()
     }
 
     private var placeholder: some View {
         ProgressView()
             .controlSize(.mini)
-            .padding(.horizontal, 12).padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .padding(.horizontal, 20)
+            .dsHeroBanner()
     }
 
     @MainActor
