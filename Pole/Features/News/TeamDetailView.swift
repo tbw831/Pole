@@ -50,15 +50,18 @@ struct TeamDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: DS.Spacing.xs) {
                     Text(MotorsportNames.teamName(raw: viewModel.teamName, series: viewModel.series))
-                        .font(.title2.weight(.semibold))
+                        .font(DS.Font.heroTitle)
                     Text("\(viewModel.series.shortName) · \(L10n.t(zh: "车队 / 厂商", en: "Team / Manufacturer"))")
-                        .font(.caption)
+                        .font(DS.Font.heroSubtitle)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .dsHeroBanner(seriesAccent: viewModel.series)
             }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
             newsSection
         }
         .dsDetailList()
