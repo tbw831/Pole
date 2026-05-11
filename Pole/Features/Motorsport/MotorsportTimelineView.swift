@@ -117,31 +117,45 @@ struct MotorsportTimelineView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
         case .loaded(let groups):
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
-                    ForEach(groups, id: \.bucket) { group in
-                        Section {
-                            ForEach(group.snapshots) { snap in
-                                row(for: snap)
-                                    .transition(.opacity.combined(with: .move(edge: .top)))
+            if groups.isEmpty {
+                VStack(spacing: DS.Spacing.lg) {
+                    StartLightGrid(mode: .idle, size: 16)
+                    Text(L10n.t(zh: "本月无赛事", en: "No rounds this month"))
+                        .font(DS.Font.heroSubtitle)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 180)
+                .padding()
+                .background(
+                    CheckerStripe(.fill, opacity: 0.04)
+                )
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
+                        ForEach(groups, id: \.bucket) { group in
+                            Section {
+                                ForEach(group.snapshots) { snap in
+                                    row(for: snap)
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
+                                }
+                            } header: {
+                                HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
+                                    Rectangle()
+                                        .fill(DS.Palette.racingRed)
+                                        .frame(width: 3, height: 22)
+                                    Text(group.bucket.label.uppercased())
+                                        .font(DS.Font.heroTitle)
+                                        .foregroundStyle(.primary)
+                                        .tracking(1.2)
+                                    Spacer()
+                                }
+                                .padding(.vertical, DS.Spacing.sm)
                             }
-                        } header: {
-                            HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
-                                Rectangle()
-                                    .fill(DS.Palette.racingRed)
-                                    .frame(width: 3, height: 22)
-                                Text(group.bucket.label.uppercased())
-                                    .font(DS.Font.heroTitle)
-                                    .foregroundStyle(.primary)
-                                    .tracking(1.2)
-                                Spacer()
-                            }
-                            .padding(.vertical, DS.Spacing.sm)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
             }
 
         case .failed(let message):
