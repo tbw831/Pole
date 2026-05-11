@@ -131,7 +131,11 @@ public enum DS {
     public enum Shadow {
         public static let bubble = ShadowStyle(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
         public static let card   = ShadowStyle(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
-        public static let aiHero = ShadowStyle(color: Palette.primary.opacity(0.35), radius: 20, x: 0, y: 6)
+        public static let aiHero = ShadowStyle(color: Palette.racingRed.opacity(0.35), radius: 20, x: 0, y: 6)
+
+        // ===== 新增赛车阴影 =====
+        public static let racingGlow = ShadowStyle(color: Palette.racingRed.opacity(0.55), radius: 16, x: 0, y: 4)
+        public static let carbonInset = ShadowStyle(color: .black.opacity(0.5), radius: 2, x: 0, y: -1)
 
         public struct ShadowStyle: Sendable {
             public let color: Color
