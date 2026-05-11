@@ -152,6 +152,11 @@ public enum DS {
         public static let press: Animation = .spring(response: 0.18, dampingFraction: 0.7)
         /// 流式光标闪烁
         public static let cursorBlink: Animation = .easeInOut(duration: 0.6).repeatForever(autoreverses: true)
+
+        // ===== 新增赛车 motion =====
+        public static let raceEntry: Animation = .spring(response: 0.28, dampingFraction: 0.7)
+        public static let countdown: Animation = .easeIn(duration: 0.4)
+        public static let speedLine: Animation = .linear(duration: 1.2).repeatForever(autoreverses: false)
     }
 
     // MARK: AI 头像 - sparkles 紫渐变球(豆包/元宝同款"主角"识别符)
