@@ -94,3 +94,71 @@ public struct CheckerStripe: View {
     .padding()
     .background(DS.Palette.tarmacBg)
 }
+
+// MARK: - StartLightGrid
+//
+// F1 起跑灯阵列 — 5 个红圆灯。
+// .countdown(litCount: 0..5): 递进点亮,模拟 5-1 倒计时
+// .lightsOut: 全灭,模拟起步瞬间
+// .idle: 全灭,无动画(Empty state 用)
+
+public struct StartLightGrid: View {
+    public enum Mode: Equatable {
+        case countdown(litCount: Int)
+        case lightsOut
+        case idle
+    }
+
+    let mode: Mode
+    var size: CGFloat
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(mode: Mode, size: CGFloat = 14) {
+        self.mode = mode
+        self.size = size
+    }
+
+    public var body: some View {
+        HStack(spacing: size * 0.5) {
+            ForEach(0..<5, id: \.self) { idx in
+                Circle()
+                    .fill(isLit(idx) ? DS.Palette.racingRed : DS.Palette.tarmacHairline)
+                    .frame(width: size, height: size)
+                    .shadow(
+                        color: isLit(idx) ? DS.Palette.racingRed.opacity(0.6) : .clear,
+                        radius: size * 0.4
+                    )
+                    .animation(reduceMotion ? nil : DS.Motion.countdown, value: mode)
+            }
+        }
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private func isLit(_ idx: Int) -> Bool {
+        switch mode {
+        case .idle, .lightsOut: return false
+        case .countdown(let litCount): return idx < litCount
+        }
+    }
+
+    private var accessibilityText: String {
+        switch mode {
+        case .idle: return L10n.t(zh: "起跑灯待机", en: "Start lights idle")
+        case .lightsOut: return L10n.t(zh: "起跑灯熄灭, 比赛已开始", en: "Lights out, race started")
+        case .countdown(let n): return L10n.t(zh: "起跑倒计时 \(n) 灯", en: "Countdown, \(n) lights lit")
+        }
+    }
+}
+
+#Preview("StartLightGrid · all modes") {
+    VStack(spacing: 24) {
+        StartLightGrid(mode: .idle)
+        StartLightGrid(mode: .countdown(litCount: 1))
+        StartLightGrid(mode: .countdown(litCount: 3))
+        StartLightGrid(mode: .countdown(litCount: 5))
+        StartLightGrid(mode: .lightsOut)
+    }
+    .padding(32)
+    .background(DS.Palette.tarmacBg)
+}
