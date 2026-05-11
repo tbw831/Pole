@@ -14,7 +14,7 @@ struct ContentView: View {
             switch self {
             case .motorsport: return "flag.checkered"
             case .standings:  return "list.number"
-            case .ai:         return "bolt.car.fill"
+            case .ai:         return "steeringwheel"
             case .follow:     return "star"
             case .settings:   return "gearshape"
             }

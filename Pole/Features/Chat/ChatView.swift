@@ -242,23 +242,10 @@ struct ChatView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DS.Spacing.lg) {
 
-                // ---------- Greeting hero ----------
-                VStack(spacing: DS.Spacing.lg) {
-                    AIAvatar(size: .large)
-                    Text(vm.greetingHeaderTitle)
-                        .font(DS.Font.heroDisplay)
-                        .foregroundStyle(.primary)
-                    Text(vm.greetingHeaderSubtitle)
-                        .font(DS.Font.numberSmall)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, DS.Spacing.xl)
-                .padding(.horizontal, DS.Spacing.lg)
-
                 // ---------- 今日冷知识 ----------
                 TriviaCard(modelContext: modelContext)
                     .padding(.horizontal, DS.Spacing.lg)
+                    .padding(.top, DS.Spacing.lg)
 
                 // ---------- 猜你想问 标题(顶部,无换一换按钮) ----------
                 Text(L10n.t(zh: "猜你想问", en: "Suggested"))
