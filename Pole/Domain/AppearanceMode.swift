@@ -1,15 +1,10 @@
 import Combine
 import SwiftUI
 
-public enum AppearanceMode: String, CaseIterable, Identifiable, Sendable {
+public enum AppearanceMode: String, CaseIterable, Sendable {
     case dark    // 默认
     case light
     case system
-
-    public var id: String { rawValue }
-
-    // Alias kept for backward compatibility with SettingsView (Tasks 2-3 will migrate to displayLabel)
-    public var displayName: String { displayLabel }
 
     public var colorScheme: ColorScheme? {
         switch self {

@@ -11,10 +11,7 @@ struct PoleApp: App {
     static private(set) var containerInitFailed: Bool = false
 
     @Environment(\.scenePhase) private var scenePhase
-    @AppStorage("appearanceMode") private var appearanceRaw: String = AppearanceMode.system.rawValue
-    private var appearance: AppearanceMode {
-        AppearanceMode(rawValue: appearanceRaw) ?? .system
-    }
+    @StateObject private var appearance = AppearanceStore.shared
 
     private static func makeContainer() -> ModelContainer {
         let schema = Schema([
@@ -45,7 +42,7 @@ struct PoleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(appearance.colorScheme)
+                .preferredColorScheme(appearance.current.colorScheme)
                 .task {
                     // 启动后异步刷新 widget snapshot,不阻塞 UI。
                     WidgetSnapshotBuilder.refresh()

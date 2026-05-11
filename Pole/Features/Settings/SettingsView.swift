@@ -6,7 +6,7 @@ struct SettingsView: View {
     @State private var pendingCount: Int = 0
     @AppStorage("languageMode") private var languageRaw: String = LanguageMode.zh.rawValue
     @AppStorage("liveActivityEnabled") private var liveActivityEnabled: Bool = true
-    @AppStorage("appearanceMode") private var appearanceRaw: String = AppearanceMode.system.rawValue
+    @StateObject private var appearance = AppearanceStore.shared
     @AppStorage("leadTimeRace") private var leadTimeRace: Int = 30
     @AppStorage("leadTimeQualifying") private var leadTimeQualifying: Int = 15
 
@@ -38,33 +38,16 @@ struct SettingsView: View {
                         .font(.caption2)
                 }
 
-                // 外观 — 跟随系统 / 浅色 / 深色(夜间)
                 Section {
-                    ForEach(AppearanceMode.allCases) { mode in
-                        Button {
-                            appearanceRaw = mode.rawValue
-                        } label: {
-                            HStack {
-                                Image(systemName: appearanceIcon(mode))
-                                    .frame(width: 22)
-                                    .foregroundStyle(.secondary)
-                                Text(mode.displayName)
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                if mode.rawValue == appearanceRaw {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.tint)
-                                        .font(.subheadline.weight(.bold))
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
+                    SegmentedPillPicker(
+                        selection: $appearance.current,
+                        items: AppearanceMode.allCases
+                    ) { mode in
+                        Text(mode.displayLabel)
                     }
+                    .padding(.vertical, DS.Spacing.xs)
                 } header: {
                     Text(L10n.t(zh: "外观", en: "Appearance"))
-                } footer: {
-                    Text(L10n.t(zh: "深色模式适合夜间观赛", en: "Dark mode is easier on the eyes at night"))
-                        .font(.caption2)
                 }
 
                 Section(L10n.t(zh: "通知", en: "Notifications")) {
@@ -146,14 +129,6 @@ struct SettingsView: View {
 
     private func leadTimeLabel(_ minutes: Int) -> String {
         L10n.t(zh: "提前 \(minutes) 分钟", en: "\(minutes) min before")
-    }
-
-    private func appearanceIcon(_ mode: AppearanceMode) -> String {
-        switch mode {
-        case .system: return "circle.lefthalf.filled"
-        case .light:  return "sun.max"
-        case .dark:   return "moon"
-        }
     }
 
     private func refresh() async {
