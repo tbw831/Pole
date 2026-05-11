@@ -41,12 +41,19 @@ struct MotoGPRiderDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(standing.rider.displayFullName)
-                            .font(.title2.weight(.semibold))
+                VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+                    Text(standing.rider.displayFullName)
+                        .font(.title2.weight(.semibold))
+                    HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
                         if let n = standing.rider.number {
-                            Text("#\(n)").font(.subheadline.bold()).foregroundStyle(.secondary)
+                            Text("#\(n)")
+                                .font(DS.Font.numberLarge)
+                                .foregroundStyle(MotorsportSeries.motogp.brandColor)
+                        }
+                        if let iso = standing.rider.countryISO {
+                            Text(iso)
+                                .font(DS.Font.numberSmall)
+                                .foregroundStyle(.secondary)
                         }
                     }
                     Text("MotoGP · \(standing.team.displayName)")
@@ -123,9 +130,9 @@ struct MotoGPRiderDetailView: View {
         if case .loaded(let rounds) = viewModel.state, !rounds.isEmpty {
             Section(L10n.t(zh: "各场积分", en: "Points per Round")) {
                 ForEach(rounds) { entry in
-                    HStack(spacing: 10) {
+                    HStack(spacing: DS.Spacing.sm) {
                         Text("R\(entry.round)")
-                            .font(.subheadline.monospacedDigit())
+                            .font(DS.Font.numberSmall)
                             .foregroundStyle(.secondary)
                             .frame(width: 36, alignment: .leading)
                         Text(entry.roundName)
@@ -135,11 +142,11 @@ struct MotoGPRiderDetailView: View {
                         // 同时展示 sprint + race 拆分,方便看是哪个 session 拿的分
                         if entry.sprintPoints > 0 {
                             Text("\(L10n.t(zh: "短赛", en: "Spr")) \(entry.sprintPoints, format: .number)")
-                                .font(.caption2.monospacedDigit())
+                                .font(DS.Font.numberSmall)
                                 .foregroundStyle(.tertiary)
                         }
-                        Text("+\(entry.totalPoints, format: .number) \(L10n.t(zh: "分", en: "pts"))")
-                            .font(.subheadline.monospacedDigit())
+                        Text("+\(entry.totalPoints, format: .number)")
+                            .font(DS.Font.numberMid)
                             .foregroundStyle(entry.totalPoints > 0 ? .primary : .tertiary)
                     }
                 }

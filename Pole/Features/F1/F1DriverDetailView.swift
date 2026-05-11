@@ -118,17 +118,17 @@ struct F1DriverDetailView: View {
         if case .loaded(let rounds) = viewModel.state, !rounds.isEmpty {
             Section(L10n.t(zh: "各场积分", en: "Points per Round")) {
                 ForEach(rounds, id: \.round) { entry in
-                    HStack(spacing: 10) {
+                    HStack(spacing: DS.Spacing.sm) {
                         Text("R\(entry.round)")
-                            .font(.subheadline.monospacedDigit())
+                            .font(DS.Font.numberSmall)
                             .foregroundStyle(.secondary)
                             .frame(width: 36, alignment: .leading)
                         Text(entry.raceName)
                             .font(.subheadline)
                             .lineLimit(1)
                         Spacer()
-                        Text("+\(entry.points, format: .number) \(L10n.t(zh: "分", en: "pts"))")
-                            .font(.subheadline.monospacedDigit())
+                        Text("+\(entry.points, format: .number)")
+                            .font(DS.Font.numberMid)
                             .foregroundStyle(entry.points > 0 ? .primary : .tertiary)
                     }
                 }

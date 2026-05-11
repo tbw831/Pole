@@ -116,9 +116,9 @@ struct WSSPRiderDetailView: View {
         if case .loaded(let rounds) = viewModel.state, !rounds.isEmpty {
             Section(L10n.t(zh: "各场积分", en: "Points per Round")) {
                 ForEach(rounds) { entry in
-                    HStack(spacing: 10) {
+                    HStack(spacing: DS.Spacing.sm) {
                         Text("R\(entry.round)")
-                            .font(.subheadline.monospacedDigit())
+                            .font(DS.Font.numberSmall)
                             .foregroundStyle(.secondary)
                             .frame(width: 36, alignment: .leading)
                         VStack(alignment: .leading, spacing: 2) {
@@ -127,8 +127,8 @@ struct WSSPRiderDetailView: View {
                                 .font(.caption2).foregroundStyle(.tertiary)
                         }
                         Spacer()
-                        Text("+\(Int(entry.totalPoints)) \(L10n.t(zh: "分", en: "pts"))")
-                            .font(.subheadline.monospacedDigit())
+                        Text("+\(Int(entry.totalPoints))")
+                            .font(DS.Font.numberMid)
                             .foregroundStyle(entry.totalPoints > 0 ? .primary : .tertiary)
                     }
                 }

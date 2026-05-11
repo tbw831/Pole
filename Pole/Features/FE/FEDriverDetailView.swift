@@ -41,18 +41,27 @@ struct FEDriverDetailView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+                    HStack(spacing: DS.Spacing.sm) {
                         Text(standing.driver.displayFullName)
                             .font(.title2.weight(.semibold))
-                        if let tla = standing.driver.tla {
-                            Text(tla).font(.subheadline.bold()).foregroundStyle(.secondary)
-                        }
                         Spacer()
                         FollowToggleButton(
                             target: .athlete(id: standing.driver.id, sport: .motorsport, series: "fe"),
                             displayName: standing.driver.fullName
                         )
+                    }
+                    HStack(alignment: .firstTextBaseline, spacing: DS.Spacing.sm) {
+                        if let tla = standing.driver.tla {
+                            Text(tla)
+                                .font(DS.Font.numberLarge)
+                                .foregroundStyle(MotorsportSeries.fe.brandColor)
+                        }
+                        if let iso = standing.driver.countryISO2 {
+                            Text(iso)
+                                .font(DS.Font.numberSmall)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     Text("Formula E · \(MotorsportNames.teamName(raw: standing.teamName, series: .fe))")
                         .font(.caption)
@@ -131,9 +140,9 @@ struct FEDriverDetailView: View {
         if case .loaded(let rounds) = viewModel.state, !rounds.isEmpty {
             Section(L10n.t(zh: "各场积分", en: "Points per Round")) {
                 ForEach(rounds) { entry in
-                    HStack(spacing: 10) {
+                    HStack(spacing: DS.Spacing.sm) {
                         Text("R\(entry.round)")
-                            .font(.subheadline.monospacedDigit())
+                            .font(DS.Font.numberSmall)
                             .foregroundStyle(.secondary)
                             .frame(width: 36, alignment: .leading)
                         Text(Localization.feRaceName(entry.roundName))
@@ -146,8 +155,8 @@ struct FEDriverDetailView: View {
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(MotorsportSeries.fe.brandColor)
                         }
-                        Text("+\(entry.points, format: .number) \(L10n.t(zh: "分", en: "pts"))")
-                            .font(.subheadline.monospacedDigit())
+                        Text("+\(entry.points, format: .number)")
+                            .font(DS.Font.numberMid)
                             .foregroundStyle(entry.points > 0 ? .primary : .tertiary)
                     }
                 }
