@@ -249,21 +249,26 @@ public extension View {
             .listSectionSpacing(DS.Spacing.md)
     }
 
-    /// 通用 list row 卡片包装(积分榜行 / 详情 section item / 关注 row 用)。
-    /// 单卡片 padding 14×12,圆角 16,secondarySystemBackground 底,极淡描边 + 微阴影。
-    func dsListCard() -> some View {
-        self
-            .padding(.horizontal, DS.Spacing.lg - 2)
-            .padding(.vertical, DS.Spacing.md)
-            .background(
-                Color(uiColor: .secondarySystemBackground),
-                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.5)
-            )
-            .shadow(color: .black.opacity(0.04), radius: 4, y: 1)
+    /// 通用 list row 卡片包装。
+    /// - seriesAccent: 传系列后顶部加 3px SeriesTopAccent 色条;nil 时纯净卡片(向后兼容)。
+    func dsListCard(seriesAccent: MotorsportSeries? = nil) -> some View {
+        VStack(spacing: 0) {
+            if let series = seriesAccent {
+                SeriesTopAccent(series: series)
+            }
+            self
+                .padding(.horizontal, DS.Spacing.lg - 2)
+                .padding(.vertical, DS.Spacing.md)
+        }
+        .background(
+            DS.Palette.tarmacFill,
+            in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                .strokeBorder(DS.Palette.tarmacHairline, lineWidth: 0.5)
+        )
+        .shadow(color: .black.opacity(0.04), radius: 4, y: 1)
     }
 }
 
