@@ -71,7 +71,7 @@ final class NotificationScheduler {
                 guard triggerDate > now else { continue }
 
                 let content = UNMutableNotificationContent()
-                content.title = "\(race.headline) — \(session.label)"
+                content.title = "\(race.headline) — \(session.localizedLabel)"
                 content.body = L10n.t(zh: "\(lead) 分钟后开始 · \(race.circuit.name)",
                                        en: "Starts in \(lead) min · \(race.circuit.name)")
                 content.sound = .default

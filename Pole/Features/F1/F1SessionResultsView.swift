@@ -51,7 +51,7 @@ struct F1SessionResultsView: View {
 
     var body: some View {
         content
-            .navigationTitle(viewModel.ref.session.label)
+            .navigationTitle(viewModel.ref.session.localizedLabel)
             .navigationBarTitleDisplayMode(.inline)
             .tint(MotorsportSeries.f1.brandColor)
             .task { await viewModel.loadIfNeeded() }

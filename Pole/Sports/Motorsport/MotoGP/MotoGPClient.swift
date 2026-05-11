@@ -382,7 +382,7 @@ private struct SessionDTO: Sendable, nonisolated Decodable {
             label = "FP\(number ?? 1)"
         case "PR":
             kind = .practice
-            label = "练习"
+            label = "Practice"
         case "WUP":
             kind = .practice
             label = "Warm Up"
@@ -394,7 +394,7 @@ private struct SessionDTO: Sendable, nonisolated Decodable {
             label = "Sprint"
         case "RAC":
             kind = .race
-            label = "正赛"
+            label = "Race"
         default:
             // Pulselive 加新 type 时丢弃这条 session 而不是静默归 practice。
             // 老逻辑把未知 type 当 practice + label = type 让 UI 显示"SPRSHO 练习"误导用户。

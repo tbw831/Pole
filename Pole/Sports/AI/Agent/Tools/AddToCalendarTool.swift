@@ -58,7 +58,7 @@ public struct AddToCalendarTool: AgentTool {
                 return #"{"error":"round not found"}"#
             }
             sessions = race.sessions.map { sess in
-                (sess.label, sess.startTime,
+                (sess.localizedLabel, sess.startTime,
                  sess.startTime.addingTimeInterval(sess.defaultDuration),
                  race.raceName, sess.kind)
             }
@@ -69,7 +69,7 @@ public struct AddToCalendarTool: AgentTool {
             }
             let refs = (try? await MotoGPClient.shared.fetchSessions(eventId: round.id)) ?? []
             sessions = refs.map { ref in
-                (ref.session.label, ref.session.startTime,
+                (ref.session.localizedLabel, ref.session.startTime,
                  ref.session.startTime.addingTimeInterval(ref.session.defaultDuration),
                  round.headline, ref.session.kind)
             }
@@ -82,7 +82,7 @@ public struct AddToCalendarTool: AgentTool {
                 countryCode: round.countryCode, year: round.season
             )) ?? []
             sessions = items.map { item in
-                (item.session.label, item.session.startTime,
+                (item.session.localizedLabel, item.session.startTime,
                  item.session.startTime.addingTimeInterval(item.session.defaultDuration),
                  round.name, item.session.kind)
             }

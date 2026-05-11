@@ -238,7 +238,7 @@ private struct SessionRow: View {
 
     var body: some View {
         HStack(spacing: DS.Spacing.sm) {
-            Text(session.label.uppercased())
+            Text(session.localizedLabel.uppercased())
                 .font(DS.Font.heroSubtitle.weight(.heavy))
                 .tracking(0.5)
                 .frame(width: 100, alignment: .leading)
@@ -250,7 +250,7 @@ private struct SessionRow: View {
             if session.startTime > Date() {
                 CalendarToggleButton(
                     sessionKey: session.id,
-                    title: "F1 \(race.raceName) - \(session.label)",
+                    title: "F1 \(race.raceName) - \(session.localizedLabel)",
                     start: session.startTime,
                     end: session.startTime.addingTimeInterval(session.defaultDuration),
                     notes: race.circuit.name

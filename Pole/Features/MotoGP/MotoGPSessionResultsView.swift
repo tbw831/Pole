@@ -38,7 +38,7 @@ struct MotoGPSessionResultsView: View {
 
     var body: some View {
         content
-            .navigationTitle(viewModel.ref.session.label)
+            .navigationTitle(viewModel.ref.session.localizedLabel)
             .navigationBarTitleDisplayMode(.inline)
             .tint(MotorsportSeries.motogp.brandColor)
             .task { await viewModel.loadIfNeeded() }

@@ -235,10 +235,10 @@ private struct RaceDTO: Sendable, nonisolated Decodable {
         add(FirstPractice,    kind: .practice,       label: "FP1",       slug: "fp1")
         add(SecondPractice,   kind: .practice,       label: "FP2",       slug: "fp2")
         add(ThirdPractice,    kind: .practice,       label: "FP3",       slug: "fp3")
-        add(SprintQualifying, kind: .sprintShootout, label: "Sprint 排位", slug: "sq")
+        add(SprintQualifying, kind: .sprintShootout, label: "Sprint Quali", slug: "sq")
         add(Sprint,           kind: .sprint,         label: "Sprint",    slug: "sprint")
-        add(Qualifying,       kind: .qualifying,     label: "排位赛",     slug: "quali")
-        out.append(Session(id: "\(raceId)-race", kind: .race, label: "正赛", startTime: raceStart))
+        add(Qualifying,       kind: .qualifying,     label: "Qualifying", slug: "quali")
+        out.append(Session(id: "\(raceId)-race", kind: .race, label: "Race", startTime: raceStart))
         return out.sorted { $0.startTime < $1.startTime }
     }
 

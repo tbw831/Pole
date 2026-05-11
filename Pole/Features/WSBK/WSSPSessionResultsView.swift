@@ -42,7 +42,7 @@ struct WSSPSessionResultsView: View {
 
     var body: some View {
         content
-            .navigationTitle(viewModel.item.session.label)
+            .navigationTitle(viewModel.item.session.localizedLabel)
             .navigationBarTitleDisplayMode(.inline)
             .tint(MotorsportSeries.wssp.brandColor)
             .task { await viewModel.loadIfNeeded() }

@@ -233,7 +233,7 @@ private struct SessionRow: View {
 
     var body: some View {
         HStack(spacing: DS.Spacing.sm) {
-            Text(session.label.uppercased())
+            Text(session.localizedLabel.uppercased())
                 .font(DS.Font.heroSubtitle.weight(.heavy))
                 .tracking(0.5)
                 .frame(width: 100, alignment: .leading)
@@ -245,7 +245,7 @@ private struct SessionRow: View {
             if !finished {
                 CalendarToggleButton(
                     sessionKey: session.id,
-                    title: "MotoGP \(round.headline) - \(session.label)",
+                    title: "MotoGP \(round.headline) - \(session.localizedLabel)",
                     start: session.startTime,
                     end: session.startTime.addingTimeInterval(session.defaultDuration),
                     notes: round.circuit.name
