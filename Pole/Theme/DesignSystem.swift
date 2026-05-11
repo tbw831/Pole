@@ -40,46 +40,72 @@ public enum DS {
     // MARK: 颜色
 
     public enum Palette {
-        // ChatView / AI 助手主题色 = iOS 系统蓝 #007AFF(中性,不与 F1 brand 红冲突)。
-        public static let primary    = Color(red: 0.000, green: 0.478, blue: 1.000) // #007AFF iOS 系统蓝
-        public static let primaryDeep = Color(red: 0.000, green: 0.345, blue: 0.690) // 深蓝 #0058B0,按下/strong
-        public static let primarySoft = Color(red: 0.314, green: 0.600, blue: 1.000) // 亮蓝 #5099FF,浅一档
-        public static let primaryFaint = Color(red: 0.000, green: 0.478, blue: 1.000).opacity(0.10) // 蓝淡背景/badge
+        // ===== Racing 红系: 双模通用 =====
+        public static let racingRed     = Color(red: 0.882, green: 0.024, blue: 0)
+        public static let racingRedSoft = Color(red: 1.000, green: 0.122, blue: 0.102)
+        public static let racingRedDeep = Color(red: 0.612, green: 0.020, blue: 0)
+        public static let racingRedFaint = racingRed.opacity(0.10)
 
-        // hero CTA 渐变(蓝色深→浅,跟 ChatView 主题一致)
-        public static let aiGradient = LinearGradient(
-            colors: [primary, primarySoft],
+        public static let racingGradient = LinearGradient(
+            colors: [racingRedDeep, racingRed, racingRedSoft],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
 
-        public static let aiGradientStrong = LinearGradient(
-            colors: [primaryDeep, primary],
+        public static let racingGradientStrong = LinearGradient(
+            colors: [racingRedDeep, racingRed],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
 
-        // 状态色
-        public static let live      = Color(red: 0.937, green: 0.267, blue: 0.267)
-        public static let upcoming  = Color(red: 0.000, green: 0.478, blue: 1.000)
+        // ===== 向后兼容 alias(让 14 处 .primary 引用直接编译通过)=====
+        public static let primary      = racingRed
+        public static let primarySoft  = racingRedSoft
+        public static let primaryDeep  = racingRedDeep
+        public static let primaryFaint = racingRedFaint
+        public static let aiGradient   = racingGradient
+        public static let aiGradientStrong = racingGradientStrong
+
+        // ===== Tarmac 中性: UIColor dynamic 双模 =====
+        public static let tarmacBg = Color(uiColor: UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.055, green: 0.055, blue: 0.063, alpha: 1)
+                : UIColor.systemBackground
+        })
+
+        public static let tarmacFill = Color(uiColor: UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.094, green: 0.094, blue: 0.106, alpha: 1)
+                : UIColor.secondarySystemBackground
+        })
+
+        public static let tarmacCard = Color(uiColor: UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.137, green: 0.137, blue: 0.153, alpha: 1)
+                : UIColor.tertiarySystemBackground
+        })
+
+        public static let tarmacHairline = Color(uiColor: UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor(red: 0.180, green: 0.180, blue: 0.200, alpha: 1)
+                : UIColor.separator
+        })
+
+        public static let decorOnSurface = Color(uiColor: UIColor { trait in
+            trait.userInterfaceStyle == .dark
+                ? UIColor.white.withAlphaComponent(0.08)
+                : UIColor.black.withAlphaComponent(0.06)
+        })
+
+        // ===== 状態色(Dark 下加饱和)=====
+        public static let live      = Color(red: 1.000, green: 0.176, blue: 0.176)
+        public static let upcoming  = Color(red: 0.302, green: 0.659, blue: 1.000)
         public static let finished  = Color(.systemGray)
         public static let postponed = Color.orange
 
-        // AI 消息气泡背景(豆包白底 + 极淡描边)
-        public static var aiBubbleFill: Color {
-            Color(uiColor: .secondarySystemBackground)
-        }
-        public static var aiBubbleStroke: Color {
-            Color.white.opacity(0.10)
-        }
-
-        // 工具卡片(更虚的玻璃感)
-        public static var toolCardFill: Color {
-            Color(uiColor: .tertiarySystemBackground)
-        }
-
-        // 输入区背景(胶囊)
-        public static var inputFill: Color {
-            Color(uiColor: .secondarySystemBackground)
-        }
+        // ===== AI 消息气泡(双模 dynamic)=====
+        public static var aiBubbleFill: Color { tarmacCard }
+        public static var aiBubbleStroke: Color { tarmacHairline }
+        public static var toolCardFill: Color { tarmacCard }
+        public static var inputFill: Color { tarmacFill }
     }
 
     // MARK: 字号
