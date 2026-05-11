@@ -372,13 +372,13 @@ public struct AIAvatar: View {
         let iconSize: CGFloat = size == .small ? 15 : 42
         ZStack {
             Circle()
-                .fill(DS.Palette.aiGradient)
+                .fill(DS.Palette.racingGradient)
             Image(systemName: "steeringwheel")
                 .font(.system(size: iconSize, weight: .semibold))
                 .foregroundStyle(.white)
         }
         .frame(width: dim, height: dim)
-        .shadow(color: DS.Palette.primary.opacity(size == .large ? 0.4 : 0.25),
+        .shadow(color: DS.Palette.racingRed.opacity(size == .large ? 0.4 : 0.25),
                 radius: size == .large ? 20 : 6, y: size == .large ? 6 : 2)
         .accessibilityHidden(true)
     }
