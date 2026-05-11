@@ -246,6 +246,7 @@ private struct FESessionRow: View {
             Text(session.localizedDisplayName.uppercased())
                 .font(DS.Font.heroSubtitle.weight(.heavy))
                 .tracking(0.5)
+                // FE labels longer than other series (e.g. "COMBINED QUALIFYING"), needs wider column
                 .frame(width: 130, alignment: .leading)
             if !session.isSummary {
                 Text(session.startTime)

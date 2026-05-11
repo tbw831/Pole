@@ -226,7 +226,7 @@ private struct SessionRow: View {
             Text(session.label.uppercased())
                 .font(DS.Font.heroSubtitle.weight(.heavy))
                 .tracking(0.5)
-                .frame(width: 110, alignment: .leading)
+                .frame(width: 100, alignment: .leading)
             Text(session.startTime, format: .dateTime.hour().minute().beijing())
                 .font(DS.Font.numberSmall)
                 .foregroundStyle(.secondary)
