@@ -52,6 +52,7 @@ private struct MotorsportCardSurface: ViewModifier {
             // 否则彩条会"溢出"到圆角外面看起来像两块独立 view。
             content
                 .clipShape(RoundedRectangle(cornerRadius: motorsportCardCornerRadius, style: .continuous))
+                .speedLines(color: DS.Palette.live.opacity(0.15), animated: isLive)
                 .glassEffect(
                     isLive ? .regular.tint(BrandPalette.liveRed.opacity(0.35)) : .regular,
                     in: RoundedRectangle(cornerRadius: motorsportCardCornerRadius, style: .continuous)
@@ -79,6 +80,7 @@ private struct MotorsportCardSurface: ViewModifier {
                     .allowsHitTesting(false)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .speedLines(color: DS.Palette.live.opacity(0.15), animated: isLive)
                 .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
                 .shadow(
                     color: isLive ? BrandPalette.liveRed.opacity(0.18) : .clear,

@@ -173,36 +173,41 @@ public struct SpeedLinesOverlay: ViewModifier {
     var color: Color
     var animated: Bool
 
+    @AppStorage("reducedDecor") private var reducedDecor: Bool = false
     @State private var phase: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public func body(content: Content) -> some View {
-        content
-            .overlay {
-                GeometryReader { geo in
-                    Canvas { context, size in
-                        let stripeWidth: CGFloat = 1.5
-                        let gap: CGFloat = 14
-                        let total = size.width + size.height
-                        var x: CGFloat = -size.height + (animated && !reduceMotion ? phase : 0)
-                        while x < total {
-                            var path = Path()
-                            path.move(to: CGPoint(x: x, y: 0))
-                            path.addLine(to: CGPoint(x: x + size.height, y: size.height))
-                            path = path.strokedPath(.init(lineWidth: stripeWidth))
-                            context.fill(path, with: .color(color))
-                            x += gap
+        if reducedDecor {
+            content
+        } else {
+            content
+                .overlay {
+                    GeometryReader { geo in
+                        Canvas { context, size in
+                            let stripeWidth: CGFloat = 1.5
+                            let gap: CGFloat = 14
+                            let total = size.width + size.height
+                            var x: CGFloat = -size.height + (animated && !reduceMotion ? phase : 0)
+                            while x < total {
+                                var path = Path()
+                                path.move(to: CGPoint(x: x, y: 0))
+                                path.addLine(to: CGPoint(x: x + size.height, y: size.height))
+                                path = path.strokedPath(.init(lineWidth: stripeWidth))
+                                context.fill(path, with: .color(color))
+                                x += gap
+                            }
+                            _ = total
                         }
-                        _ = total
                     }
+                    .clipped()
+                    .allowsHitTesting(false)
                 }
-                .clipped()
-                .allowsHitTesting(false)
-            }
-            .onAppear {
-                guard animated && !reduceMotion else { return }
-                withAnimation(DS.Motion.speedLine) { phase = 14 }
-            }
+                .onAppear {
+                    guard animated && !reduceMotion else { return }
+                    withAnimation(DS.Motion.speedLine) { phase = 14 }
+                }
+        }
     }
 }
 
