@@ -109,18 +109,21 @@ public enum DS {
     // MARK: 字号
 
     public enum Font {
-        /// 消息正文 — `.subheadline`(15pt),比 `.callout` 小一档但仍可读;
-        /// 老版本 `.callout` 在 chat 流里偏大,排版显拥挤。
         public static let bubble = SwiftUI.Font.system(.footnote)
         public static let bubbleBold = SwiftUI.Font.system(.footnote, weight: .semibold)
-        /// AI 消息时间戳
         public static let timestamp = SwiftUI.Font.caption2
-        /// 工具步骤标签
         public static let toolLabel = SwiftUI.Font.caption.weight(.semibold)
         public static let toolPreview = SwiftUI.Font.caption2
-        /// Greeting 大标题 — 用 `.title3` 让"早上好"等问候不抢戏
-        public static let heroTitle = SwiftUI.Font.system(.title3, design: .rounded, weight: .bold)
+
+        // ===== 大标题: 去 rounded, 加 Heavy weight =====
+        public static let heroDisplay = SwiftUI.Font.system(.largeTitle, weight: .heavy)
+        public static let heroTitle = SwiftUI.Font.system(.title2, weight: .bold)
         public static let heroSubtitle = SwiftUI.Font.footnote
+
+        // ===== 赛事数字 SF Mono =====
+        public static let numberLarge = SwiftUI.Font.system(size: 32, weight: .heavy, design: .default).monospacedDigit()
+        public static let numberMid = SwiftUI.Font.system(size: 20, weight: .semibold, design: .monospaced)
+        public static let numberSmall = SwiftUI.Font.system(size: 14, weight: .medium, design: .monospaced)
     }
 
     // MARK: 阴影
