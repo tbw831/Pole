@@ -188,7 +188,7 @@ private struct F1DriverStandingRow: View {
                         Text(code).font(.caption2.bold()).foregroundStyle(.tertiary)
                     }
                 }
-                Text(standing.driver.nationality).font(.caption).foregroundStyle(.secondary)
+                Text(standing.constructor.displayName).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
             PointsBlock(points: standing.points, wins: standing.wins)
@@ -200,8 +200,8 @@ private struct F1DriverStandingRow: View {
         // VoiceOver:row 整体一句读完 + 关注按钮单独可点
         .accessibilityElement(children: .contain)
         .accessibilityLabel(L10n.t(
-            zh: "第 \(standing.position) 位 \(standing.driver.displayName) \(standing.driver.nationality) \(Int(standing.points)) 分 \(standing.wins) 胜",
-            en: "P\(standing.position) \(standing.driver.displayName) \(standing.driver.nationality) \(Int(standing.points)) pts \(standing.wins) wins"
+            zh: "第 \(standing.position) 位 \(standing.driver.displayName) \(standing.constructor.displayName) \(Int(standing.points)) 分 \(standing.wins) 胜",
+            en: "P\(standing.position) \(standing.driver.displayName) \(standing.constructor.displayName) \(Int(standing.points)) pts \(standing.wins) wins"
         ))
     }
 }
@@ -212,12 +212,7 @@ private struct F1ConstructorStandingRow: View {
     var body: some View {
         HStack(spacing: 10) {
             PositionBadge(position: standing.position)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(standing.constructor.displayName).font(.subheadline.weight(.medium))
-                }
-                Text(standing.constructor.nationality).font(.caption).foregroundStyle(.secondary)
-            }
+            Text(standing.constructor.displayName).font(.subheadline.weight(.medium))
             Spacer()
             PointsBlock(points: standing.points, wins: standing.wins)
             FollowToggleButton(
