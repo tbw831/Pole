@@ -249,6 +249,25 @@ public extension View {
             .listSectionSpacing(DS.Spacing.md)
     }
 
+    /// `StatusBadge.live` 专用 — 红底脉冲 + 右拖尾棋盘格。
+    func dsLiveBadge() -> some View {
+        HStack(spacing: 4) {
+            self
+            CheckerStripe(.horizontal, cellSize: 3)
+                .frame(width: 8, height: 6)
+        }
+        .padding(.horizontal, DS.Spacing.sm)
+        .padding(.vertical, DS.Spacing.xxs)
+        .background(
+            DS.Palette.live.opacity(0.18),
+            in: Capsule()
+        )
+        .overlay(
+            Capsule().strokeBorder(DS.Palette.live.opacity(0.6), lineWidth: 0.8)
+        )
+        .foregroundStyle(DS.Palette.live)
+    }
+
     /// hero 大卡片(Settings header / RoundDetail / TriviaCard 等):
     /// tarmacBg 底 + speedLines 装饰 + 可选顶部 SeriesTopAccent 色条。
     func dsHeroBanner(seriesAccent: MotorsportSeries? = nil) -> some View {
