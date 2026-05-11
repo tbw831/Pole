@@ -9,6 +9,8 @@ struct SettingsView: View {
     @StateObject private var appearance = AppearanceStore.shared
     @AppStorage("leadTimeRace") private var leadTimeRace: Int = 30
     @AppStorage("leadTimeQualifying") private var leadTimeQualifying: Int = 15
+    @AppStorage("greetingMode") private var greetingModeRaw: String = "racing"
+    @AppStorage("reducedDecor") private var reducedDecor: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -132,6 +134,17 @@ struct SettingsView: View {
                     LabeledContent("MotoGP", value: "Pulselive")
                     LabeledContent("WorldSBK / WSSP", value: "worldsbk.com")
                     LabeledContent("Formula E", value: "Pulselive")
+                }
+                Section(L10n.t(zh: "AI 助手", en: "AI Assistant")) {
+                    Picker(L10n.t(zh: "Greeting 风格", en: "Greeting style"),
+                           selection: $greetingModeRaw) {
+                        Text(L10n.t(zh: "赛车 telemetry", en: "Racing telemetry")).tag("racing")
+                        Text(L10n.t(zh: "友好对话", en: "Friendly")).tag("friendly")
+                    }
+                }
+                Section(L10n.t(zh: "视觉装饰", en: "Visual Decoration")) {
+                    Toggle(L10n.t(zh: "减少装饰", en: "Reduce decoration"),
+                           isOn: $reducedDecor)
                 }
                 Section(L10n.t(zh: "关于", en: "About")) {
                     LabeledContent(L10n.t(zh: "版本", en: "Version")) {
