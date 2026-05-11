@@ -26,15 +26,13 @@ public enum DS {
     // MARK: 圆角
 
     public enum Radius {
-        public static let sm: CGFloat = 8
-        public static let md: CGFloat = 12
-        public static let lg: CGFloat = 16
-        public static let xl: CGFloat = 20
-        public static let xxl: CGFloat = 24
-        /// 气泡圆角(略大,豆包/元宝典型)
-        public static let bubble: CGFloat = 20
-        /// 输入框胶囊
-        public static let pill: CGFloat = 22
+        public static let sm: CGFloat = 4     // 旧 8
+        public static let md: CGFloat = 8     // 旧 12
+        public static let lg: CGFloat = 12    // 旧 16
+        public static let xl: CGFloat = 16    // 旧 20
+        public static let xxl: CGFloat = 20   // 旧 24
+        public static let bubble: CGFloat = 14  // 旧 20
+        public static let pill: CGFloat = 18    // 旧 22
     }
 
     // MARK: 颜色
