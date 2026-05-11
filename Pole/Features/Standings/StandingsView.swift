@@ -147,6 +147,10 @@ private struct F1StandingsContent: View {
                         season: "current"
                     )) {
                         F1DriverStandingRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -154,6 +158,10 @@ private struct F1StandingsContent: View {
                 cardScroll(items: constructors) { standing in
                     NavigationLink(value: TeamNewsRoute(teamName: standing.constructor.name, series: .f1)) {
                         F1ConstructorStandingRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -296,6 +304,10 @@ private struct MotoGPStandingsContent: View {
                 cardScroll(items: riders) { standing in
                     NavigationLink(value: standing) {
                         MotoGPRiderRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -303,6 +315,10 @@ private struct MotoGPStandingsContent: View {
                 cardScroll(items: teams) { standing in
                     NavigationLink(value: TeamNewsRoute(teamName: standing.team.name, series: .motogp)) {
                         MotoGPTeamRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -310,6 +326,10 @@ private struct MotoGPStandingsContent: View {
                 cardScroll(items: constructors) { standing in
                     NavigationLink(value: TeamNewsRoute(teamName: standing.constructor.name, series: .motogp)) {
                         MotoGPConstructorRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -475,6 +495,10 @@ private struct WSSPStandingsContent: View {
                 cardScroll(items: riders) { standing in
                     NavigationLink(value: WSSPRiderDetailRoute(riderName: standing.rider.fullName)) {
                         WSSPRiderRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -482,6 +506,10 @@ private struct WSSPStandingsContent: View {
                 cardScroll(items: builders) { standing in
                     NavigationLink(value: TeamNewsRoute(teamName: standing.builder.name, series: .wssp)) {
                         WSSPBuilderRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -605,6 +633,10 @@ private struct FEStandingsContent: View {
                 cardScroll(items: drivers) { standing in
                     NavigationLink(value: standing) {
                         FEDriverRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -612,6 +644,10 @@ private struct FEStandingsContent: View {
                 cardScroll(items: teams) { standing in
                     NavigationLink(value: TeamNewsRoute(teamName: standing.team.name, series: .fe)) {
                         FETeamRow(standing: standing).dsListCard()
+                            .background(
+                                standing.position == 1 ? DS.Palette.racingRedFaint : Color.clear,
+                                in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -671,10 +707,10 @@ private struct FETeamRow: View {
 private struct PositionBadge: View {
     let position: Int
     var body: some View {
-        Text("\(position)")
-            .font(.headline.monospacedDigit())
-            .foregroundStyle(position <= 3 ? .primary : .secondary)
-            .frame(width: 32, alignment: .center)
+        Text("P\(position)")
+            .font(DS.Font.numberMid.weight(.heavy))
+            .foregroundStyle(position == 1 ? DS.Palette.racingRed : (position <= 3 ? .primary : .secondary))
+            .frame(width: 38, alignment: .leading)
     }
 }
 
@@ -684,8 +720,12 @@ private struct PointsBlock: View {
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 2) {
-            Text("\(points, format: .number) \(L10n.t(zh: "分", en: "pts"))")
-                .font(.subheadline.monospacedDigit())
+            Text("\(points, format: .number)")
+                .font(DS.Font.numberMid)
+                .monospacedDigit()
+            Text(L10n.t(zh: "分", en: "pts"))
+                .font(DS.Font.toolLabel)
+                .foregroundStyle(.secondary)
             if let w = wins, w > 0 {
                 Text("\(w) \(L10n.t(zh: "胜", en: "wins"))").font(.caption2).foregroundStyle(.tertiary)
             }
