@@ -77,6 +77,7 @@ struct ContentView: View {
         // 系列识别仍由各 view 内 `series.brandColor` 局部染色保留
         .id(languageRaw)   // 切语言整树重建,所有 L10n.t 立即刷新
         .onChange(of: selection) { _, newTab in
+            HapticFeedback.lightImpact()
             // 每次切到 AI tab 都让 ChatView 回 starter(greeting),不延续上次会话
             if newTab == .ai {
                 NotificationCenter.default.post(name: .resetChatToStarter, object: nil)

@@ -12,6 +12,8 @@ struct GlassHeroHeader<TopContent: View>: View {
     var enableSpeedLines: Bool
     @ViewBuilder let topAccessory: () -> TopContent
 
+    @State private var appeared = false
+
     init(
         title: String,
         subtitle: String,
@@ -37,6 +39,11 @@ struct GlassHeroHeader<TopContent: View>: View {
             SeriesTopAccent(series: series)
             heroContent
                 .frame(height: 217)  // 220 - 3px accent
+        }
+        .scaleEffect(appeared ? 1.0 : 0.96)
+        .opacity(appeared ? 1.0 : 0.0)
+        .onAppear {
+            withAnimation(DS.Motion.raceEntry) { appeared = true }
         }
     }
 
