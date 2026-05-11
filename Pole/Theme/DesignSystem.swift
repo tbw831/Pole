@@ -249,6 +249,28 @@ public extension View {
             .listSectionSpacing(DS.Spacing.md)
     }
 
+    /// hero 大卡片(Settings header / RoundDetail / TriviaCard 等):
+    /// tarmacBg 底 + speedLines 装饰 + 可选顶部 SeriesTopAccent 色条。
+    func dsHeroBanner(seriesAccent: MotorsportSeries? = nil) -> some View {
+        VStack(spacing: 0) {
+            if let series = seriesAccent {
+                SeriesTopAccent(series: series)
+            }
+            self
+                .padding(DS.Spacing.lg)
+        }
+        .background(
+            DS.Palette.tarmacBg,
+            in: RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous)
+                .strokeBorder(DS.Palette.tarmacHairline, lineWidth: 0.5)
+        )
+        .speedLines()
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.lg, style: .continuous))
+    }
+
     /// 通用 list row 卡片包装。
     /// - seriesAccent: 传系列后顶部加 3px SeriesTopAccent 色条;nil 时纯净卡片(向后兼容)。
     func dsListCard(seriesAccent: MotorsportSeries? = nil) -> some View {
