@@ -14,6 +14,24 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section {
+                    VStack(alignment: .leading, spacing: DS.Spacing.xs) {
+                        Text("POLE")
+                            .font(DS.Font.heroDisplay)
+                            .foregroundStyle(.white)
+                            .tracking(2)
+                        Text(L10n.t(zh: "赛车追踪", en: "Race tracker"))
+                            .font(DS.Font.numberSmall)
+                            .foregroundStyle(.white.opacity(0.7))
+                        CheckerStripe(.horizontal, cellSize: 4)
+                            .frame(height: 6)
+                            .padding(.top, DS.Spacing.xs)
+                    }
+                    .dsHeroBanner()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                }
+
+                Section {
                     ForEach(LanguageMode.allCases) { mode in
                         Button {
                             languageRaw = mode.rawValue
@@ -116,7 +134,11 @@ struct SettingsView: View {
                     LabeledContent("Formula E", value: "Pulselive")
                 }
                 Section(L10n.t(zh: "关于", en: "About")) {
-                    LabeledContent(L10n.t(zh: "版本", en: "Version"), value: appVersion)
+                    LabeledContent(L10n.t(zh: "版本", en: "Version")) {
+                        Text(appVersion)
+                            .font(DS.Font.numberSmall)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             .navigationTitle(L10n.t(zh: "设置", en: "Settings"))
