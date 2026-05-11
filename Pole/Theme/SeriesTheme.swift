@@ -40,12 +40,8 @@ public enum BrandPalette {
     /// 紫色不符合赛车视觉语言,2026 改造去掉。
     public static let appAccent = Color(red: 0.882, green: 0.024, blue: 0.000)   // #E10600 F1 红
 
-    /// hero CTA 渐变 — 红到亮红
-    public static let aiGradient = LinearGradient(
-        colors: [Color(red: 0.882, green: 0.024, blue: 0.000),    // #E10600
-                 Color(red: 1.000, green: 0.267, blue: 0.267)],   // #FF4444
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
+    // hero CTA 渐变 — 红到亮红(统一走 DS.Palette.racingGradient 避免重复定义)
+    public static let aiGradient = DS.Palette.racingGradient
 
     /// 状态色:live / upcoming / finished / postponed
     public static let liveRed     = Color(red: 0.937, green: 0.267, blue: 0.267)
