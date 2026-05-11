@@ -24,14 +24,17 @@ struct MotorsportCard<Content: View, Trailing: View>: View {
     }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            content()
-            Spacer(minLength: 0)
-            trailing()
+        VStack(spacing: 0) {
+            SeriesTopAccent(series: series)
+            HStack(alignment: .center, spacing: 12) {
+                content()
+                Spacer(minLength: 0)
+                trailing()
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .modifier(MotorsportCardSurface(isLive: isLive))
     }
 }
