@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleSharedKit
 
 /// 主 app → widget snapshot 的桥。每次 app 启动 / 数据变化时调 refresh()。
 /// - 跨四系列查"最早未结束"的 race(用 weekendStart 排序)。
