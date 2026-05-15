@@ -20,6 +20,7 @@ public nonisolated enum SharedURLSession {
         config.httpAdditionalHeaders = ["User-Agent": "Mozilla/5.0 (Pole iOS)"]
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
+        config.waitsForConnectivity = true
         // 不让 cookies 跟到 share extension / 其它 app
         config.httpCookieStorage = nil
         return URLSession(configuration: config)

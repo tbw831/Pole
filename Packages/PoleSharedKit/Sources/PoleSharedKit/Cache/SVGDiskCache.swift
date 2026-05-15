@@ -14,6 +14,10 @@ public actor SVGDiskCache {
     private let cacheDir: URL
     private let session: URLSession
 
+    private var writeCountSinceEvict = 0
+    private let evictEvery = 50
+    private let maxEntries = 200
+
     private init() {
         let baseCacheDir = FileManager.default.urls(
             for: .cachesDirectory, in: .userDomainMask
@@ -25,6 +29,8 @@ public actor SVGDiskCache {
 
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
+        config.waitsForConnectivity = true
+        config.allowsExpensiveNetworkAccess = false
         self.session = URLSession(configuration: config)
     }
 
@@ -40,7 +46,8 @@ public actor SVGDiskCache {
             return cacheFile
         }
         let (data, _) = try await session.data(from: url)
-        try data.write(to: cacheFile)
+        try data.write(to: cacheFile, options: .atomic)
+        evictIfNeededOpportunistically()
         return cacheFile
     }
 
@@ -50,5 +57,29 @@ public actor SVGDiskCache {
         var hash: UInt64 = 5381
         for byte in key.utf8 { hash = hash &* 33 &+ UInt64(byte) }
         return String(format: "%016llx.svg", hash)
+    }
+
+    private func evictIfNeededOpportunistically() {
+        writeCountSinceEvict += 1
+        guard writeCountSinceEvict >= evictEvery else { return }
+        writeCountSinceEvict = 0
+        evictIfNeeded()
+    }
+
+    private func evictIfNeeded() {
+        let fm = FileManager.default
+        guard let entries = try? fm.contentsOfDirectory(
+            at: cacheDir,
+            includingPropertiesForKeys: [.contentModificationDateKey]
+        ) else { return }
+        guard entries.count > maxEntries else { return }
+        let sorted = entries.compactMap { url -> (URL, Date)? in
+            let date = (try? url.resourceValues(forKeys: [.contentModificationDateKey])
+                .contentModificationDate) ?? .distantPast
+            return (url, date)
+        }.sorted { $0.1 > $1.1 }  // newest first
+        for (url, _) in sorted.dropFirst(maxEntries) {
+            try? fm.removeItem(at: url)
+        }
     }
 }
