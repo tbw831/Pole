@@ -96,10 +96,24 @@ public actor AgentRuntime {
             let results = await withTaskGroup(of: (AgentToolCall, String).self, returning: [(AgentToolCall, String)].self) { group in
                 for call in toolCalls {
                     group.addTask { [tools] in
+                        // 用户取消(ChatViewModel.stop 调 currentRunTask?.cancel)→ 子任务立即短路返回 cancelled 哨兵,
+                        // 避免在用户已停的情况下继续跑慢的 standings fetch / calendar 写入。
+                        func cancelledResult() -> (AgentToolCall, String) {
+                            let payload: [String: Any] = [
+                                "error": "cancelled",
+                                "tool": call.name,
+                                "message": "user_cancelled"
+                            ]
+                            let data = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
+                            return (call, String(data: data, encoding: .utf8) ?? "{}")
+                        }
+                        if Task.isCancelled { return cancelledResult() }
                         let result: String
                         if let tool = tools[call.name] {
                             do {
                                 result = try await tool.execute(argumentsJSON: call.arguments)
+                            } catch is CancellationError {
+                                return cancelledResult()
                             } catch {
                                 let errPayload: [String: Any] = [
                                     "error": "tool_execution_failed",
@@ -115,6 +129,7 @@ public actor AgentRuntime {
                             let data = (try? JSONSerialization.data(withJSONObject: errPayload)) ?? Data()
                             result = String(data: data, encoding: .utf8) ?? "{}"
                         }
+                        if Task.isCancelled { return cancelledResult() }
                         return (call, result)
                     }
                 }
