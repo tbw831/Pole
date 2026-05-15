@@ -20,6 +20,10 @@ public enum WidgetSnapshotBuilder {
     private static let refreshDebounce: TimeInterval = 600
     private static var lastRefreshAt: Date?
 
+    /// 当前在飞的 refresh Task 句柄。新 refresh 会先 cancel 旧的,
+    /// 避免 FollowStore.onChange 等高频触发场景下多个 build() 并发写 WidgetSnapshotStore。
+    private static var refreshTask: Task<Void, Never>?
+
     /// 异步生成并写入 snapshot。
     /// - Parameter force: true 时跳过防抖窗口,确保数据变更立即反映。
     public static func refresh(force: Bool = false) {
@@ -28,7 +32,8 @@ public enum WidgetSnapshotBuilder {
             return
         }
         lastRefreshAt = now
-        Task {
+        refreshTask?.cancel()
+        refreshTask = Task {
             let snapshot = await build()
             WidgetSnapshotStore.write(snapshot)
         }
