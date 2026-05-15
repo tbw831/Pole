@@ -452,12 +452,12 @@ public struct ChatView: View {
             }
             // 流式期间用节拍器驱动连续滚动(每 150ms 一跳)。
             // 替代原来的 onChange(of: Bool) 只触发一次 — 那个方案文字在长但列表没跟上。
-            .onReceive(
-                vm.isStreaming
-                    ? Timer.publish(every: 0.15, on: .main, in: .common).autoconnect()
-                    : Timer.publish(every: 3600, on: .main, in: .common).autoconnect()
-            ) { _ in
-                if vm.isStreaming {
+            // .task(id: isStreaming) 自然在 streaming 翻 false 时取消;空闲时零唤醒。
+            .task(id: vm.isStreaming) {
+                guard vm.isStreaming else { return }
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .milliseconds(150))
+                    guard !Task.isCancelled else { return }
                     proxy.scrollTo("__streaming", anchor: .bottom)
                 }
             }
