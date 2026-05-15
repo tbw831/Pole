@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 import PoleDesignSystem
 import PoleDomain
+import PoleMotorsportKit
 
 @MainActor
 @Observable

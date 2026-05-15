@@ -1,6 +1,5 @@
 import Foundation
 import PoleDomain
-import PoleDesignSystem
 
 /// 跨 series 时间线/统一查询用的包装类型——SwiftUI ForEach 不能直接用
 /// `any MotorsportEvent`,enum 包装让 NavigationLink / ForEach 都能用。

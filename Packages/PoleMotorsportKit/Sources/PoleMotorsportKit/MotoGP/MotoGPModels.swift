@@ -1,6 +1,5 @@
 import Foundation
 import PoleDomain
-import PoleDesignSystem
 
 // MARK: - Round
 

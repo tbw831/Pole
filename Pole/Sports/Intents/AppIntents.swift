@@ -2,6 +2,7 @@ import Foundation
 import AppIntents
 import SwiftUI
 import PoleDomain
+import PoleMotorsportKit
 
 // MARK: - 1. NextRaceIntent — "下一场 X 在哪"
 

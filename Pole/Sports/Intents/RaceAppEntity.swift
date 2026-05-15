@@ -1,6 +1,7 @@
 import Foundation
 import AppIntents
 import PoleDomain
+import PoleMotorsportKit
 
 /// 跨 4 系列的赛事 AppEntity — 让 Siri / Spotlight / Shortcuts 都能引用某场赛。
 ///

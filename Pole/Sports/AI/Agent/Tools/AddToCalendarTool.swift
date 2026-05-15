@@ -1,5 +1,6 @@
 import Foundation
 import PoleDomain
+import PoleMotorsportKit
 
 /// `add_to_calendar` —— 把某场比赛(可指定 sessions 类型)加入苹果日历。
 /// EventKit 是 @MainActor,execute 内部 hop。

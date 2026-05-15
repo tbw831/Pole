@@ -1,7 +1,7 @@
 import Foundation
 import os
 import PoleDomain
-import PoleDesignSystem
+import PoleSharedKit
 
 // MARK: - Errors
 

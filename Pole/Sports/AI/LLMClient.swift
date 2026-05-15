@@ -1,6 +1,7 @@
 import Foundation
 import os
 import PoleDomain
+import PoleSharedKit
 
 private enum LLMLogger {
     nonisolated static let log = Logger(subsystem: "com.tiebowen.Pole", category: "LLMClient")

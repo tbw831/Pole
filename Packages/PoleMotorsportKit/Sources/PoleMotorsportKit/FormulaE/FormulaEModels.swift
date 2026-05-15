@@ -1,6 +1,5 @@
 import Foundation
 import PoleDomain
-import PoleDesignSystem
 
 // MARK: - Round
 
@@ -61,6 +60,10 @@ public nonisolated struct FEWeekend: Identifiable, Hashable, Sendable {
     public let rounds: [FERound]
     public var id: String { rounds.first!.circuit.name }
     public var isDoubleHeader: Bool { rounds.count > 1 }
+
+    public init(rounds: [FERound]) {
+        self.rounds = rounds
+    }
 
     /// 赛道名（去掉 "Race 1/2" 后缀的纯赛道标题）。
     public var headline: String {
@@ -206,6 +209,11 @@ public nonisolated struct FESessionRef: Hashable, Sendable, Identifiable {
     public let round: FERound
     public let session: FESession
     public var id: String { "\(round.id)-\(session.id)" }
+
+    public init(round: FERound, session: FESession) {
+        self.round = round
+        self.session = session
+    }
 }
 
 // MARK: - 单 driver 整季 round-by-round 积分(给积分趋势图用)

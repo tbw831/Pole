@@ -1,6 +1,5 @@
 import Foundation
 import PoleDomain
-import PoleDesignSystem
 
 // MARK: - 赛车手
 
@@ -187,6 +186,11 @@ public nonisolated struct F1QualifyingResult: Identifiable, Hashable, Sendable, 
 public nonisolated struct F1SessionResultsRef: Hashable, Sendable {
     public let race: F1Race
     public let session: Session
+
+    public init(race: F1Race, session: Session) {
+        self.race = race
+        self.session = session
+    }
 }
 
 // MARK: - 车手赛季每场积分(趋势图用)
