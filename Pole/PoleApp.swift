@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleSharedKit
 
 @main
 struct PoleApp: App {
@@ -11,7 +12,8 @@ struct PoleApp: App {
     static private(set) var containerInitFailed: Bool = false
 
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var appearance = AppearanceStore.shared
+    @State private var appearance = AppearanceStore.shared
+    @State private var env = AppEnv.bootstrap()
 
     private static func makeContainer() -> ModelContainer {
         let schema = Schema([
@@ -43,6 +45,8 @@ struct PoleApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(appearance.current.colorScheme)
+                .environment(env)
+                .environment(appearance)
                 .task {
                     // 启动后异步刷新 widget snapshot,不阻塞 UI。
                     WidgetSnapshotBuilder.refresh()
