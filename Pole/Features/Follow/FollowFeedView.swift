@@ -4,6 +4,7 @@ import UIKit   // UIPasteboard for context menu "copy name"
 import PoleDesignSystem
 import PoleDomain
 import PoleMotorsportKit
+import PoleUI
 
 struct FollowFeedView: View {
     @Environment(\.modelContext) private var context

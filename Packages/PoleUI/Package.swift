@@ -13,11 +13,19 @@ let package = Package(
         .package(path: "../PoleDomain"),
         .package(path: "../PoleMotorsportKit"),
         .package(path: "../PoleAIKit"),
+        .package(path: "../PoleWeatherKit"),
     ],
     targets: [
         .target(
             name: "PoleUI",
-            dependencies: ["PoleSharedKit", "PoleDesignSystem", "PoleDomain", "PoleMotorsportKit", "PoleAIKit"]
+            dependencies: [
+                "PoleSharedKit",
+                "PoleDesignSystem",
+                "PoleDomain",
+                "PoleMotorsportKit",
+                "PoleAIKit",
+                "PoleWeatherKit",
+            ]
         ),
         .testTarget(name: "PoleUITests", dependencies: ["PoleUI"]),
     ]

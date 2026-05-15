@@ -5,13 +5,17 @@ import PoleDomain
 /// 统一状态徽章——LIVE 状态加微弱 pulse 动画。
 /// 用户开启"减少动态效果"(`accessibilityReduceMotion`)时改静态高亮圆点,
 /// 不再 60Hz 重绘,符合 HIG 可访问性规范。
-struct StatusBadge: View {
-    let status: EventStatus
+public struct StatusBadge: View {
+    public let status: EventStatus
 
     @State private var pulse = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
+    public init(status: EventStatus) {
+        self.status = status
+    }
+
+    public var body: some View {
         if status == .live {
             HStack(spacing: 4) {
                 Circle()

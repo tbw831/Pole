@@ -1,5 +1,8 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
 import WebKit
+#endif
 import PoleSharedKit
 
 /// SwiftUI wrapper 用 WKWebView 渲染 SVG——AsyncImage / UIImage 都不支持 SVG,
@@ -7,11 +10,16 @@ import PoleSharedKit
 ///
 /// 顶层 View 先经 `SVGDiskCache` 把 URL 解析成 file:// 本地路径再交给 WKWebView,
 /// 第二次进同一页面 < 50ms(无网络)。bundle 内 file:// URL 直接透传。
-struct SVGImageView: View {
-    let url: URL
+public struct SVGImageView: View {
+    public let url: URL
     @State private var resolvedURL: URL?
 
-    var body: some View {
+    public init(url: URL) {
+        self.url = url
+    }
+
+    public var body: some View {
+        #if canImport(UIKit)
         Group {
             if let local = resolvedURL {
                 _SVGWebView(url: local)
@@ -22,9 +30,13 @@ struct SVGImageView: View {
         .task(id: url) {
             resolvedURL = try? await SVGDiskCache.shared.localFileURL(for: url)
         }
+        #else
+        Color.clear
+        #endif
     }
 }
 
+#if canImport(UIKit)
 /// **直接 load(URLRequest) 会让 SVG 显示在 WebView 左上角**(默认无 CSS 居中)。
 /// 这里用 HTML wrapper 包一层 flex 容器 + `object-fit: contain` 让 SVG 在容器内
 /// **等比缩放居中**,适配任何 banner 尺寸。
@@ -107,3 +119,4 @@ private struct _SVGWebView: UIViewRepresentable {
         webView.loadHTMLString(html, baseURL: baseURL)
     }
 }
+#endif

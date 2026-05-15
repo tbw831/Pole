@@ -5,11 +5,16 @@ import PoleDomain
 /// 简版车手 profile — 只接 (name + series),无 standing 对象。
 /// 关注页点 MotoGP / FE 车手时跳这里(关注表只持久化 id+name,没 standing snapshot)。
 /// 不显示赛季 stats(没数据来源),只显示标题 + Wikipedia/LLM 简介。
-struct SimpleDriverProfileView: View {
-    let name: String
-    let series: MotorsportSeries
+public struct SimpleDriverProfileView: View {
+    public let name: String
+    public let series: MotorsportSeries
 
-    var body: some View {
+    public init(name: String, series: MotorsportSeries) {
+        self.name = name
+        self.series = series
+    }
+
+    public var body: some View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 4) {
@@ -25,17 +30,24 @@ struct SimpleDriverProfileView: View {
         }
         .dsDetailList()
         .navigationTitle(MotorsportNames.driverFullName(rawFullName: name, series: series))
+        #if canImport(UIKit)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .tint(series.brandColor)
     }
 }
 
 /// FollowFeedView 用的轻量 route — name + series,跳进 SimpleDriverProfileView。
-struct SimpleDriverRoute: Hashable {
-    let name: String
-    let seriesRaw: String
+public struct SimpleDriverRoute: Hashable {
+    public let name: String
+    public let seriesRaw: String
 
-    var series: MotorsportSeries? {
+    public init(name: String, seriesRaw: String) {
+        self.name = name
+        self.seriesRaw = seriesRaw
+    }
+
+    public var series: MotorsportSeries? {
         MotorsportSeries(rawValue: seriesRaw)
     }
 }

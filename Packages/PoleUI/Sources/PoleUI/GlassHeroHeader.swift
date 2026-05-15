@@ -1,23 +1,26 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import PoleDesignSystem
 import PoleDomain
 import PoleSharedKit
 
 /// 详情页顶部 hero header——大 banner + 底部黑色渐变 + 玻璃浮层文字。
 /// 支持 banner image / SVG image,失败时 fallback 系列彩色渐变作为背景。
-struct GlassHeroHeader<TopContent: View>: View {
-    let title: String
-    let subtitle: String
-    let series: MotorsportSeries
-    let bannerURL: URL?
-    let svgURL: URL?
-    let badge: EventStatus?
-    var enableSpeedLines: Bool
-    @ViewBuilder let topAccessory: () -> TopContent
+public struct GlassHeroHeader<TopContent: View>: View {
+    public let title: String
+    public let subtitle: String
+    public let series: MotorsportSeries
+    public let bannerURL: URL?
+    public let svgURL: URL?
+    public let badge: EventStatus?
+    public var enableSpeedLines: Bool
+    @ViewBuilder public let topAccessory: () -> TopContent
 
     @State private var appeared = false
 
-    init(
+    public init(
         title: String,
         subtitle: String,
         series: MotorsportSeries,
@@ -37,7 +40,7 @@ struct GlassHeroHeader<TopContent: View>: View {
         self.topAccessory = topAccessory
     }
 
-    var body: some View {
+    public var body: some View {
         baseHeroZStack
             .frame(height: 220)
             .scaleEffect(appeared ? 1.0 : 0.96)
@@ -115,7 +118,7 @@ struct GlassHeroHeader<TopContent: View>: View {
 }
 
 extension GlassHeroHeader where TopContent == EmptyView {
-    init(
+    public init(
         title: String,
         subtitle: String,
         series: MotorsportSeries,
@@ -133,6 +136,7 @@ extension GlassHeroHeader where TopContent == EmptyView {
     }
 }
 
+#if canImport(UIKit)
 /// Disk-cached async banner image。第一次走网络 + 写盘,后续直接读 disk,< 50ms 渲染。
 private struct CachedAsyncBanner: View {
     let url: URL
@@ -160,3 +164,20 @@ private struct CachedAsyncBanner: View {
         }
     }
 }
+#else
+/// Fallback for non-UIKit platforms (e.g. macOS Linux SDK builds during package indexing).
+/// Just shows the fallback content; real iOS app uses the UIKit version above.
+private struct CachedAsyncBanner: View {
+    let url: URL
+    let fallback: AnyView
+
+    init<F: View>(url: URL, @ViewBuilder fallback: () -> F) {
+        self.url = url
+        self.fallback = AnyView(fallback())
+    }
+
+    var body: some View {
+        fallback
+    }
+}
+#endif

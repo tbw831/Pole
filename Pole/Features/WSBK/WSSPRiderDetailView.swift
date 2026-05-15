@@ -3,6 +3,7 @@ import Charts
 import PoleDesignSystem
 import PoleDomain
 import PoleMotorsportKit
+import PoleUI
 
 @MainActor
 @Observable

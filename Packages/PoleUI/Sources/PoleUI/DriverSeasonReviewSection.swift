@@ -15,17 +15,27 @@ import PoleAIKit
 /// - 已缓存 → 直接展开看内容
 /// - 生成失败 → 错误 + 重试
 /// - 展开 + 有内容 → footer "由 AI 生成,仅供参考"
-struct DriverSeasonReviewSection: View {
-    let driverName: String
-    let series: MotorsportSeries
-    let dataProvider: @Sendable () async throws -> String
+public struct DriverSeasonReviewSection: View {
+    public let driverName: String
+    public let series: MotorsportSeries
+    public let dataProvider: @Sendable () async throws -> String
 
     @State private var content: String?
     @State private var isExpanded: Bool = false
     @State private var loading = false
     @State private var errorMessage: String?
 
-    var body: some View {
+    public init(
+        driverName: String,
+        series: MotorsportSeries,
+        dataProvider: @escaping @Sendable () async throws -> String
+    ) {
+        self.driverName = driverName
+        self.series = series
+        self.dataProvider = dataProvider
+    }
+
+    public var body: some View {
         Section {
             // 头部 row — 整行可点(展开/折叠),跟 RaceRecap / CircuitHighlight 一致
             Button {

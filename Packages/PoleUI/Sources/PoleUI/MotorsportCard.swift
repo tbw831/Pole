@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import PoleDesignSystem
 import PoleDomain
 
@@ -7,13 +10,13 @@ private let motorsportCardCornerRadius: CGFloat = DS.Radius.xl
 /// 通用赛车卡片容器——中央 content + 右侧 trailing accessory。
 /// 卡片本体玻璃材质 + 16pt 圆角 + 微阴影,LIVE 状态加红色 stroke。
 /// 系列识别:不再用左侧彩条,完全靠 row 内 series shortName 文字的 brandColor 染色区分。
-struct MotorsportCard<Content: View, Trailing: View>: View {
-    let series: MotorsportSeries
-    let isLive: Bool
-    @ViewBuilder let content: () -> Content
-    @ViewBuilder let trailing: () -> Trailing
+public struct MotorsportCard<Content: View, Trailing: View>: View {
+    public let series: MotorsportSeries
+    public let isLive: Bool
+    @ViewBuilder public let content: () -> Content
+    @ViewBuilder public let trailing: () -> Trailing
 
-    init(
+    public init(
         series: MotorsportSeries,
         isLive: Bool = false,
         @ViewBuilder content: @escaping () -> Content,
@@ -25,7 +28,7 @@ struct MotorsportCard<Content: View, Trailing: View>: View {
         self.trailing = trailing
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             SeriesTopAccent(color: series.brandColor)
             HStack(alignment: .center, spacing: 12) {
@@ -48,7 +51,7 @@ private struct MotorsportCardSurface: ViewModifier {
     let isLive: Bool
 
     func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, *) {
             // glassEffect(in:) 只定义材质形状,不 clip view content。
             // 必须显式 clipShape 让 HStack 第一项的彩条左侧矩形角被裁成卡片圆角弧,
             // 否则彩条会"溢出"到圆角外面看起来像两块独立 view。
@@ -62,7 +65,11 @@ private struct MotorsportCardSurface: ViewModifier {
             content
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color(.systemBackground))
+                        #if canImport(UIKit)
+                        .fill(Color(uiColor: .systemBackground))
+                        #else
+                        .fill(Color.white)
+                        #endif
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)

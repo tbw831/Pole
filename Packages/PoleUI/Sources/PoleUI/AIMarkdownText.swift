@@ -10,11 +10,16 @@ import SwiftUI
 ///
 /// 仅支持 `**bold**`，不处理 `*italic*` / `` `code` `` / 列表 / 表格。
 /// 如 LLM 输出这些，会作为字面字符显示（已在 LLM prompt 里禁止）。
-struct AIMarkdownText: View {
-    let text: String
-    var font: Font = .subheadline
+public struct AIMarkdownText: View {
+    public let text: String
+    public var font: Font
 
-    var body: some View {
+    public init(text: String, font: Font = .subheadline) {
+        self.text = text
+        self.font = font
+    }
+
+    public var body: some View {
         let paragraphs = Self.parseParagraphs(text)
         VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, p in

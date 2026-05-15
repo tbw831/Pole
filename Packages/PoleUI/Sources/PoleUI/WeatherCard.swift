@@ -1,15 +1,21 @@
 import SwiftUI
 import PoleDomain
+import PoleWeatherKit
 
 /// detail header 用的天气小卡片——内嵌 task 自己拉,失败 / 远期赛事(>3 天)隐藏。
-struct WeatherCard: View {
-    let location: String
-    let targetDate: Date
+public struct WeatherCard: View {
+    public let location: String
+    public let targetDate: Date
 
     @State private var snapshot: WeatherSnapshot?
     @State private var loaded = false
 
-    var body: some View {
+    public init(location: String, targetDate: Date) {
+        self.location = location
+        self.targetDate = targetDate
+    }
+
+    public var body: some View {
         Group {
             if let s = snapshot {
                 HStack(spacing: 8) {

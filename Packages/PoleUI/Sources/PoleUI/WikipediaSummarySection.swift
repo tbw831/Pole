@@ -6,9 +6,9 @@ import PoleAIKit
 /// 车手简介 section — 可折叠下拉框。
 /// 默认折叠显示"车手简介 ▾",点击展开第一次自动触发 LLM 生成,缓存在 @State(detail 页生命周期)。
 /// 失败/超时时显示具体错误 + 重试按钮。
-struct WikipediaSummarySection: View {
-    let queryTitle: String      // 车手名(英文/中文)
-    let series: MotorsportSeries
+public struct WikipediaSummarySection: View {
+    public let queryTitle: String      // 车手名(英文/中文)
+    public let series: MotorsportSeries
 
     @State private var isExpanded: Bool = false
     @State private var bio: String?
@@ -16,7 +16,12 @@ struct WikipediaSummarySection: View {
     @State private var loaded = false
     @State private var loading = false
 
-    var body: some View {
+    public init(queryTitle: String, series: MotorsportSeries) {
+        self.queryTitle = queryTitle
+        self.series = series
+    }
+
+    public var body: some View {
         Section {
             // 头部 row — 整行可点(展开/折叠)
             Button {

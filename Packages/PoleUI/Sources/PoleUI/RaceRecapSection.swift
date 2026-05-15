@@ -4,48 +4,59 @@ import PoleDomain
 import PoleDesignSystem
 import PoleAIKit
 
-/// AI 生成的赛道亮点 section — **可折叠**。
-/// 默认折叠显示"赛道亮点 ▾",点击展开第一次自动触发 LLM 生成,缓存后再展开直接显示。
-/// 不同系列在同一赛道(F1 / MotoGP 都跑 Mugello)生成不同亮点,key 含 series。
-struct CircuitHighlightSection: View {
-    let series: MotorsportSeries
-    let circuitName: String
-    let country: String
+/// 赛事概览 section — 跟 CircuitHighlightSection 视觉一致（自定义头部 row + chevron + footer）。
+///
+/// 行为：
+/// - 默认折叠
+/// - 第一次展开且没缓存 → 自动触发 LLM generate（不需要单独"生成"按钮）
+/// - 已缓存 → 展开直接看内容
+/// - 生成失败 → 错误 + 重试
+/// - 展开 + 有内容 → footer "由 AI 生成,仅供参考"
+public struct RaceRecapSection: View {
+    public let eventKey: String
+    public let series: MotorsportSeries
+    public let title: String
+    public let dataProvider: @Sendable () async throws -> String
 
     @Environment(\.modelContext) private var context
-    @Query private var matches: [CircuitHighlight]
+    @Query private var matches: [RaceRecap]
 
     @State private var isExpanded: Bool = false
     @State private var loading = false
     @State private var errorMessage: String?
 
-    init(series: MotorsportSeries, circuitName: String, country: String) {
+    public init(
+        eventKey: String,
+        series: MotorsportSeries,
+        title: String,
+        dataProvider: @escaping @Sendable () async throws -> String
+    ) {
+        self.eventKey = eventKey
         self.series = series
-        self.circuitName = circuitName
-        self.country = country
-        let key = CircuitHighlight.makeKey(series: series, circuitName: circuitName)
-        _matches = Query(filter: #Predicate<CircuitHighlight> { $0.key == key })
+        self.title = title
+        self.dataProvider = dataProvider
+        _matches = Query(filter: #Predicate<RaceRecap> { $0.eventKey == eventKey })
     }
 
-    private var cached: CircuitHighlight? { matches.first }
+    private var cached: RaceRecap? { matches.first }
 
-    var body: some View {
+    public var body: some View {
         Section {
-            // 头部 row — 整行可点(展开/折叠)
+            // 头部 row — 整行可点（展开/折叠），跟 CircuitHighlightSection 视觉一致
             Button {
                 withAnimation(.easeOut(duration: 0.2)) {
                     isExpanded.toggle()
                 }
-                // 第一次展开且没缓存 → 自动触发生成(用户不用再点一次"看亮点")
+                // 第一次展开且没缓存 → 自动触发生成
                 if isExpanded && cached == nil && !loading && errorMessage == nil {
                     Task { await generate() }
                 }
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "flag.checkered.2.crossed")
+                    Image(systemName: "trophy")
                         .foregroundStyle(series.brandColor)
                         .frame(width: 28, alignment: .center)
-                    Text(L10n.t(zh: "赛道亮点", en: "Circuit Highlight"))
+                    Text(L10n.t(zh: "赛事概览", en: "Race Summary"))
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.primary)
                     Spacer(minLength: 8)
@@ -60,8 +71,8 @@ struct CircuitHighlightSection: View {
 
             // 展开的内容
             if isExpanded {
-                if let entry = cached {
-                    content(entry)
+                if let recap = cached {
+                    content(recap)
                 } else if loading {
                     ProgressView().controlSize(.small)
                 } else if let msg = errorMessage {
@@ -82,9 +93,9 @@ struct CircuitHighlightSection: View {
     }
 
     @ViewBuilder
-    private func content(_ entry: CircuitHighlight) -> some View {
+    private func content(_ recap: RaceRecap) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            AIMarkdownText(text: entry.content, font: .subheadline)
+            AIMarkdownText(text: recap.content, font: .subheadline)
             HStack {
                 Spacer()
                 Button {
@@ -104,22 +115,22 @@ struct CircuitHighlightSection: View {
         loading = true
         errorMessage = nil
         do {
-            let content = try await LLMClient.shared.generateCircuitHighlight(
-                circuitName: circuitName, country: country, series: series
+            let dataJSON = try await dataProvider()
+            let content = try await LLMClient.shared.generateRaceRecap(
+                title: title, dataContextJSON: dataJSON
             )
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else {
-                errorMessage = L10n.t(zh: "AI 没返回内容,稍后再试", en: "AI returned empty; try later")
+            guard !content.isEmpty else {
+                errorMessage = L10n.t(zh: "AI 没返回内容,稍后再试", en: "AI returned empty content; try again later")
                 loading = false
                 return
             }
-            let entry = CircuitHighlight(
-                key: CircuitHighlight.makeKey(series: series, circuitName: circuitName),
+            let recap = RaceRecap(
+                eventKey: eventKey,
                 series: series.rawValue,
-                circuitName: circuitName,
-                content: trimmed
+                title: title,
+                content: content
             )
-            context.insert(entry)
+            context.insert(recap)
             try? context.save()
         } catch {
             errorMessage = L10n.t(zh: "生成失败:\(error.localizedDescription)",
