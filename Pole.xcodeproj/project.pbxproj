@@ -12,6 +12,10 @@
 		2BC931072FA70F0100DBA5C3 /* PoleDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931082FA70F0100DBA5C3 /* PoleDomain */; };
 		2BC9310A2FA70F0100DBA5C3 /* PoleMotorsportKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9310B2FA70F0100DBA5C3 /* PoleMotorsportKit */; };
 		2BC9310D2FA70F0100DBA5C3 /* PoleAIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */; };
+		2BC931102FA70F0100DBA5C3 /* PoleUI in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931112FA70F0100DBA5C3 /* PoleUI */; };
+		2BC931132FA70F0100DBA5C3 /* PoleNewsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931142FA70F0100DBA5C3 /* PoleNewsKit */; };
+		2BC931162FA70F0100DBA5C3 /* PoleWeatherKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931172FA70F0100DBA5C3 /* PoleWeatherKit */; };
+		2BC931192FA70F0100DBA5C3 /* PoleSpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +69,10 @@
 				2BC931072FA70F0100DBA5C3 /* PoleDomain in Frameworks */,
 				2BC9310A2FA70F0100DBA5C3 /* PoleMotorsportKit in Frameworks */,
 				2BC9310D2FA70F0100DBA5C3 /* PoleAIKit in Frameworks */,
+				2BC931102FA70F0100DBA5C3 /* PoleUI in Frameworks */,
+				2BC931132FA70F0100DBA5C3 /* PoleNewsKit in Frameworks */,
+				2BC931162FA70F0100DBA5C3 /* PoleWeatherKit in Frameworks */,
+				2BC931192FA70F0100DBA5C3 /* PoleSpeechKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +138,10 @@
 				2BC931082FA70F0100DBA5C3 /* PoleDomain */,
 				2BC9310B2FA70F0100DBA5C3 /* PoleMotorsportKit */,
 				2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */,
+				2BC931112FA70F0100DBA5C3 /* PoleUI */,
+				2BC931142FA70F0100DBA5C3 /* PoleNewsKit */,
+				2BC931172FA70F0100DBA5C3 /* PoleWeatherKit */,
+				2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */,
 			);
 			productName = Pole;
 			productReference = 2BC930AB2FA706F600DBA5C3 /* Pole.app */;
@@ -219,6 +231,10 @@
 				2BC931092FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDomain" */,
 				2BC9310C2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleMotorsportKit" */,
 				2BC9310F2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleAIKit" */,
+				2BC931122FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleUI" */,
+				2BC931152FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleNewsKit" */,
+				2BC931182FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleWeatherKit" */,
+				2BC9311B2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSpeechKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BC930AC2FA706F600DBA5C3 /* Products */;
@@ -629,6 +645,22 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/PoleAIKit;
 		};
+		2BC931122FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleUI;
+		};
+		2BC931152FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleNewsKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleNewsKit;
+		};
+		2BC931182FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleWeatherKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleWeatherKit;
+		};
+		2BC9311B2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSpeechKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleSpeechKit;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -651,6 +683,22 @@
 		2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PoleAIKit;
+		};
+		2BC931112FA70F0100DBA5C3 /* PoleUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleUI;
+		};
+		2BC931142FA70F0100DBA5C3 /* PoleNewsKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleNewsKit;
+		};
+		2BC931172FA70F0100DBA5C3 /* PoleWeatherKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleWeatherKit;
+		};
+		2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleSpeechKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

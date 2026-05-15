@@ -18,25 +18,26 @@ struct PoleApp: App {
     @State private var env = AppEnv.bootstrap()
 
     private static func makeContainer() -> ModelContainer {
-        let schema = Schema([
-            FollowedItem.self,
-            AddedCalendarEvent.self,
-            ChatSession.self,
-            ChatMessage.self,
-            DailyTrivia.self,
-            RaceRecap.self,
-            CircuitHighlight.self,
-            KnowledgeChunk.self,    // RAG 知识库 chunk(向量+原文)
-        ])
+        // 用 PoleMigrationPlan(SchemaV1)而不是 inline Schema(...) —
+        // 后续破坏性 schema 变动可以加 MigrationStage 而不需要改这里的 init。
+        let schema = Schema(versionedSchema: SchemaV1.self)
         // 第一次试持久化
         let persistent = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        if let c = try? ModelContainer(for: schema, configurations: [persistent]) {
+        if let c = try? ModelContainer(
+            for: schema,
+            migrationPlan: PoleMigrationPlan.self,
+            configurations: persistent
+        ) {
             return c
         }
         // schema 升级失败 → 退到 in-memory,标记 flag,不闪退
         Self.containerInitFailed = true
         let inMemory = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        if let c = try? ModelContainer(for: schema, configurations: [inMemory]) {
+        if let c = try? ModelContainer(
+            for: schema,
+            migrationPlan: PoleMigrationPlan.self,
+            configurations: inMemory
+        ) {
             return c
         }
         // 连 in-memory 都建不了那真没救了
