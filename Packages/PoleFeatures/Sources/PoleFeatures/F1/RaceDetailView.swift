@@ -42,7 +42,6 @@ public struct RaceDetailView: View {
         #endif
         .tint(MotorsportSeries.f1.brandColor)
         .sensoryFeedback(.success, trigger: liveActivityStartCounter)
-        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // 注:F1SessionResultsRef 的 navigationDestination 注册在 RaceListView 的
         // NavigationStack 上,不在这里——子 view 内部嵌套注册会让 SwiftUI 路径解析
         // 出现"返回时多出一层"的 bug。

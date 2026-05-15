@@ -60,7 +60,6 @@ public struct MotoGPRoundDetailView: View {
         #endif
         .tint(MotorsportSeries.motogp.brandColor)
         .task { await viewModel.loadSessionsIfNeeded() }
-        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // navigationDestination 注册在 MotoGPRoundListView 的 NavigationStack 上,不在这里
     }
 

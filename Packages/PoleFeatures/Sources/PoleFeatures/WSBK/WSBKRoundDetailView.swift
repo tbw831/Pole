@@ -59,7 +59,6 @@ public struct WSBKRoundDetailView: View {
         #endif
         .tint(MotorsportSeries.wssp.brandColor)
         .task { await viewModel.loadSessionsIfNeeded() }
-        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // navigationDestination 注册在 WSBKRoundListView 的 NavigationStack 上,不在这里
     }
 

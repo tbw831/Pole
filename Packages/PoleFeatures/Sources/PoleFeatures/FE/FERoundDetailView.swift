@@ -75,7 +75,6 @@ public struct FERoundDetailView: View {
         #endif
         .tint(MotorsportSeries.fe.brandColor)
         .task { await viewModel.loadSessions() }
-        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in }
         // navigationDestination 注册在 outer NavigationStack 上,不在这里
     }
 
