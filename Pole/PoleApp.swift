@@ -55,9 +55,10 @@ struct PoleApp: App {
                     FollowStore.onChange = { WidgetSnapshotBuilder.refresh(force: true) }
                     // 启动后异步刷新 widget snapshot,不阻塞 UI。
                     WidgetSnapshotBuilder.refresh()
-                    // RAG 知识库懒导入:首次启动 embed 全部 chunk(~10-20s),已导入则直接 return。
-                    // KnowledgeImporter 内部 actor 串行,真正耗时的 embed 在 EmbeddingService actor
-                    // 不在 MainActor,所以 await 不阻 UI(只是 yield 给 SwiftUI 继续渲染)。
+                    // RAG 知识库延迟到 background,避免阻塞首屏(spec section 5.1)。
+                    // 1.5s 让 UI 先稳;低优先级让 importer 不抢主线程渲染资源。
+                    // 仍走 MainActor task(ModelContext 不 Sendable),只是 sleep 让出首屏。
+                    try? await Task.sleep(for: .seconds(1.5))
                     await KnowledgeImporter.importIfNeeded(
                         context: Self.sharedModelContainer.mainContext
                     )

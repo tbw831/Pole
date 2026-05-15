@@ -31,7 +31,8 @@ final class MotorsportTimelineViewModel {
     private(set) var state: State = .idle
 
     /// 把连续同赛道的 FE round 合并为 feWeekend（与 FERoundListViewModel 同逻辑）。
-    private static func mergeFERounds(_ rounds: [FERound]) -> [AnyMotorsportRound] {
+    /// `nonisolated` 让 withTaskGroup 内的 detached task 也能调用(纯函数,无状态)。
+    nonisolated static func mergeFERounds(_ rounds: [FERound]) -> [AnyMotorsportRound] {
         var result: [AnyMotorsportRound] = []
         var buffer: [FERound] = []
         for round in rounds {
@@ -49,38 +50,53 @@ final class MotorsportTimelineViewModel {
 
     func load() async {
         state = .loading
-        // 三 series 并发拉,任一失败不阻塞其他;失败 series 当成空数组处理
-        async let f1Task = (try? await JolpicaClient.shared.fetchSeasonRaces()) ?? []
-        async let motogpTask = (try? await MotoGPClient.shared.fetchSeasonRounds()) ?? []
-        async let wsspTask = (try? await WSBKClient.shared.fetchSeasonRounds()) ?? []
-        async let feTask = (try? await FormulaEClient.shared.fetchSeasonRounds()) ?? []
-        let (f1, motogp, wssp, fe) = await (f1Task, motogpTask, wsspTask, feTask)
-
-        let combined: [AnyMotorsportRound] =
-            f1.map(AnyMotorsportRound.f1)
-            + motogp.map(AnyMotorsportRound.motogp)
-            + wssp.map(AnyMotorsportRound.wssp)
-            + Self.mergeFERounds(fe)
-
-        // 只保留"未结束"的(进行中 + 未开始)——已结束的去对应 series 单独 tab 看
+        // yield-as-they-come: 4 series 并发,F1(~200ms)先返回就立刻刷新 UI,
+        // 不再等最慢的 WSBK(~2s)。withTaskGroup 让每个 series 完成时 append + 重排 + 设 state。
+        // (spec section 5.2: 用户可见首屏 1.8s 提前。)
+        var combined: [AnyMotorsportRound] = []
         let now = Date()
-        let upcoming = combined.filter { $0.weekendEnd >= now }
 
-        // live 排第一,其余按 weekendStart 升序
-        let sorted = upcoming.sorted { a, b in
-            let aLive = a.currentStatus == .live
-            let bLive = b.currentStatus == .live
-            if aLive != bLive { return aLive }
-            return a.weekendStart < b.weekendStart
+        await withTaskGroup(of: [AnyMotorsportRound].self) { group in
+            group.addTask(priority: .userInitiated) {
+                let races = (try? await JolpicaClient.shared.fetchSeasonRaces()) ?? []
+                return races.map(AnyMotorsportRound.f1)
+            }
+            group.addTask(priority: .userInitiated) {
+                let rounds = (try? await MotoGPClient.shared.fetchSeasonRounds()) ?? []
+                return rounds.map(AnyMotorsportRound.motogp)
+            }
+            group.addTask(priority: .userInitiated) {
+                let rounds = (try? await WSBKClient.shared.fetchSeasonRounds()) ?? []
+                return rounds.map(AnyMotorsportRound.wssp)
+            }
+            group.addTask(priority: .userInitiated) {
+                let rounds = (try? await FormulaEClient.shared.fetchSeasonRounds()) ?? []
+                return MotorsportTimelineViewModel.mergeFERounds(rounds)
+            }
+
+            for await partial in group {
+                guard !partial.isEmpty else { continue }
+                combined.append(contentsOf: partial)
+
+                // 只保留未结束 + live 优先排序 + 分桶,然后 push state(增量刷新)
+                let upcoming = combined.filter { $0.weekendEnd >= now }
+                let sorted = upcoming.sorted { a, b in
+                    let aLive = a.currentStatus == .live
+                    let bLive = b.currentStatus == .live
+                    if aLive != bLive { return aLive }
+                    return a.weekendStart < b.weekendStart
+                }
+                if !sorted.isEmpty {
+                    let groups = MotorsportTimelineView.groupByBucket(sorted, now: now)
+                    state = .loaded(groups: groups)
+                }
+            }
         }
 
-        if sorted.isEmpty {
+        // 4 个 series 全部完成后:如果 combined 全空(或全已结束)→ 显示失败态。
+        if case .loading = state {
             state = .failed(message: L10n.t(zh: "所有系列数据都拉不到,检查网络",
                                             en: "Failed to load any series, check network"))
-        } else {
-            // 一次性算分桶 — view body 直接 ForEach(groups) 不再每帧重算
-            let groups = MotorsportTimelineView.groupByBucket(sorted, now: now)
-            state = .loaded(groups: groups)
         }
     }
 }
