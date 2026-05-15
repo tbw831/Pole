@@ -16,7 +16,7 @@ public struct RaceAppEntity: AppEntity {
         TypeDisplayRepresentation(name: "赛事")
     }
 
-    public static var defaultQuery = RaceEntityQuery()
+    public static let defaultQuery = RaceEntityQuery()
 
     public var id: String                          // "f1:2025-1" / "motogp:abc-uuid"
     public var seriesRaw: String                   // "f1" / "motogp" / "wssp" / "fe"
@@ -125,7 +125,7 @@ public enum SeriesParameter: String, AppEnum {
         TypeDisplayRepresentation(name: "赛车系列")
     }
 
-    public static var caseDisplayRepresentations: [SeriesParameter: DisplayRepresentation] = [
+    public static let caseDisplayRepresentations: [SeriesParameter: DisplayRepresentation] = [
         .f1:     DisplayRepresentation(title: "F1"),
         .motogp: DisplayRepresentation(title: "MotoGP"),
         .wsbk:   DisplayRepresentation(title: "WorldSBK"),

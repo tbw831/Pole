@@ -10,12 +10,12 @@ import PoleAIKit
 /// 「嘿 Siri,下一场 F1 在哪」/「Pole 最近的赛车」。
 /// 默认 .all,Siri 给跨系列最近一场。
 public struct NextRaceIntent: AppIntent {
-    public static var title: LocalizedStringResource = "下一场比赛"
-    public static var description = IntentDescription(
+    public static let title: LocalizedStringResource = "下一场比赛"
+    public static let description = IntentDescription(
         "查询某系列的下一场即将开始的比赛",
         categoryName: "查询"
     )
-    public static var openAppWhenRun: Bool = false
+    public static let openAppWhenRun: Bool = false
 
     @Parameter(title: "系列", default: .all)
     public var series: SeriesParameter
@@ -51,12 +51,12 @@ public struct NextRaceIntent: AppIntent {
 // MARK: - 2. AddWeekendRacesIntent — "把这周末赛事加日历"
 
 public struct AddWeekendRacesIntent: AppIntent {
-    public static var title: LocalizedStringResource = "本周末赛事加日历"
-    public static var description = IntentDescription(
+    public static let title: LocalizedStringResource = "本周末赛事加日历"
+    public static let description = IntentDescription(
         "把本周末所有系列的正赛加到 iOS 日历",
         categoryName: "日历"
     )
-    public static var openAppWhenRun: Bool = false
+    public static let openAppWhenRun: Bool = false
 
     public init() {}
 
@@ -94,12 +94,12 @@ public struct AddWeekendRacesIntent: AppIntent {
 // MARK: - 3. DriverFormIntent — "X 最近怎么样"
 
 public struct DriverFormIntent: AppIntent {
-    public static var title: LocalizedStringResource = "车手近况"
-    public static var description = IntentDescription(
+    public static let title: LocalizedStringResource = "车手近况"
+    public static let description = IntentDescription(
         "用 AI 分析某车手最近表现",
         categoryName: "查询"
     )
-    public static var openAppWhenRun: Bool = false
+    public static let openAppWhenRun: Bool = false
 
     @Parameter(title: "车手姓名", description: "如 Verstappen / 维斯塔潘 / Hamilton")
     public var driverName: String
@@ -126,12 +126,12 @@ public struct DriverFormIntent: AppIntent {
 // MARK: - 4. StandingsIntent — "F1 积分榜前几"
 
 public struct StandingsIntent: AppIntent {
-    public static var title: LocalizedStringResource = "积分榜"
-    public static var description = IntentDescription(
+    public static let title: LocalizedStringResource = "积分榜"
+    public static let description = IntentDescription(
         "读出某系列车手积分榜前 5",
         categoryName: "查询"
     )
-    public static var openAppWhenRun: Bool = false
+    public static let openAppWhenRun: Bool = false
 
     @Parameter(title: "系列", default: .f1)
     public var series: SeriesParameter
@@ -191,12 +191,12 @@ public struct StandingsIntent: AppIntent {
 // MARK: - 5. WeekendScheduleIntent — "本周末有什么比赛"
 
 public struct WeekendScheduleIntent: AppIntent {
-    public static var title: LocalizedStringResource = "本周末赛程"
-    public static var description = IntentDescription(
+    public static let title: LocalizedStringResource = "本周末赛程"
+    public static let description = IntentDescription(
         "列出未来 7 天所有系列的比赛",
         categoryName: "查询"
     )
-    public static var openAppWhenRun: Bool = false
+    public static let openAppWhenRun: Bool = false
 
     public init() {}
 
@@ -232,9 +232,9 @@ public struct WeekendScheduleIntent: AppIntent {
 /// Live Activity 上的"打开 detail"按钮触发 — 跳进 app 对应 race detail。
 /// 通过 NotificationCenter post 一个事件,主 app NavigationStack 监听跳转。
 public struct OpenRaceDetailIntent: AppIntent {
-    public static var title: LocalizedStringResource = "打开赛事详情"
-    public static var description = IntentDescription("从锁屏 / 灵动岛跳到赛事 detail 页")
-    public static var openAppWhenRun: Bool = true
+    public static let title: LocalizedStringResource = "打开赛事详情"
+    public static let description = IntentDescription("从锁屏 / 灵动岛跳到赛事 detail 页")
+    public static let openAppWhenRun: Bool = true
 
     @Parameter(title: "赛事")
     public var race: RaceAppEntity
@@ -259,9 +259,9 @@ public struct OpenRaceDetailIntent: AppIntent {
 
 /// Live Activity 上"停止跟看"按钮 — 关掉当前 Live Activity。
 public struct StopLiveActivityIntent: AppIntent {
-    public static var title: LocalizedStringResource = "停止赛事跟看"
-    public static var description = IntentDescription("关掉当前 Live Activity")
-    public static var openAppWhenRun: Bool = false
+    public static let title: LocalizedStringResource = "停止赛事跟看"
+    public static let description = IntentDescription("关掉当前 Live Activity")
+    public static let openAppWhenRun: Bool = false
 
     public init() {}
 

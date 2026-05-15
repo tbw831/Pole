@@ -9,7 +9,11 @@ import ActivityKit
 /// - 上一个完成的 session 的 top 3(SessionResult fetch 后 update)
 ///
 /// 不是 F1 TV 那种秒级实时,但对"周末看到比赛进行到哪"是够用的体验。
-public struct RaceLiveActivityAttributes: ActivityAttributes {
+///
+/// **并发说明**: `nonisolated` 显式跳过项目默认 `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`。
+/// ActivityKit 的 `Activity.update()`/`end()` 是 @concurrent,如果 Attributes/State 是 MainActor
+/// 隔离的,跨 actor 传递会触发 Swift 6 数据竞争警告。所有字段都是 Sendable 值类型,无 UI 状态。
+public nonisolated struct RaceLiveActivityAttributes: ActivityAttributes {
 
     public typealias ContentState = State
 
@@ -31,7 +35,7 @@ public struct RaceLiveActivityAttributes: ActivityAttributes {
     }
 
     /// 动态状态 — 周期 update 这里。
-    public struct State: Codable, Hashable, Sendable {
+    public nonisolated struct State: Codable, Hashable, Sendable {
         /// 赛事大状态。
         public let phase: Phase
         /// 当前 session 标签(估算或已知,如 "FP1" / "Q3" / "Race")。

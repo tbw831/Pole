@@ -81,5 +81,5 @@ public struct PoleShortcuts: AppShortcutsProvider {
     }
 
     /// 推荐分类(Shortcuts app 显示用)。
-    public static var shortcutTileColor: ShortcutTileColor = .purple
+    public static let shortcutTileColor: ShortcutTileColor = .purple
 }

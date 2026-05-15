@@ -134,11 +134,15 @@ public final class RaceLiveActivityCoordinator {
 
     private func tickAll() async {
         for activity in Activity<RaceLiveActivityAttributes>.activities {
-            await tickOne(activity)
+            await Self.tickOne(activity)
         }
     }
 
-    private func tickOne(_ activity: Activity<RaceLiveActivityAttributes>) async {
+    /// `@concurrent` + `nonisolated static` 显式跑在 cooperative thread pool 而不是 MainActor —
+    /// Activity 的 `end()`/`update()` 是 @concurrent,跟着调用方走 isolation 会触发"task-isolated
+    /// → @concurrent"数据竞争警告。Activity 本身 Sendable,放 @concurrent 上下文直接调安全。
+    @concurrent
+    private nonisolated static func tickOne(_ activity: Activity<RaceLiveActivityAttributes>) async {
         let attrs = activity.attributes
         let now = Date()
 
