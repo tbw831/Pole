@@ -16,6 +16,7 @@
 		2BC931132FA70F0100DBA5C3 /* PoleNewsKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931142FA70F0100DBA5C3 /* PoleNewsKit */; };
 		2BC931162FA70F0100DBA5C3 /* PoleWeatherKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931172FA70F0100DBA5C3 /* PoleWeatherKit */; };
 		2BC931192FA70F0100DBA5C3 /* PoleSpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */; };
+		2BC9311C2FA70F0100DBA5C3 /* PoleFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9311D2FA70F0100DBA5C3 /* PoleFeatures */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 				2BC931132FA70F0100DBA5C3 /* PoleNewsKit in Frameworks */,
 				2BC931162FA70F0100DBA5C3 /* PoleWeatherKit in Frameworks */,
 				2BC931192FA70F0100DBA5C3 /* PoleSpeechKit in Frameworks */,
+				2BC9311C2FA70F0100DBA5C3 /* PoleFeatures in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +144,7 @@
 				2BC931142FA70F0100DBA5C3 /* PoleNewsKit */,
 				2BC931172FA70F0100DBA5C3 /* PoleWeatherKit */,
 				2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */,
+				2BC9311D2FA70F0100DBA5C3 /* PoleFeatures */,
 			);
 			productName = Pole;
 			productReference = 2BC930AB2FA706F600DBA5C3 /* Pole.app */;
@@ -235,6 +238,7 @@
 				2BC931152FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleNewsKit" */,
 				2BC931182FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleWeatherKit" */,
 				2BC9311B2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSpeechKit" */,
+				2BC9311E2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleFeatures" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BC930AC2FA706F600DBA5C3 /* Products */;
@@ -661,6 +665,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/PoleSpeechKit;
 		};
+		2BC9311E2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleFeatures" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleFeatures;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -699,6 +707,10 @@
 		2BC9311A2FA70F0100DBA5C3 /* PoleSpeechKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PoleSpeechKit;
+		};
+		2BC9311D2FA70F0100DBA5C3 /* PoleFeatures */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleFeatures;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
