@@ -68,12 +68,16 @@ struct PoleApp: App {
                     // RaceLiveActivityCoordinator —— 改成 NotificationCenter 解耦。
                     subscribeLiveActivityBridges()
                     // RAG 知识库延迟到 background,避免阻塞首屏(spec section 5.1)。
-                    // 1.5s 让 UI 先稳;低优先级让 importer 不抢主线程渲染资源。
-                    // 仍走 MainActor task(ModelContext 不 Sendable),只是 sleep 让出首屏。
-                    try? await Task.sleep(for: .seconds(1.5))
-                    await KnowledgeImporter.importIfNeeded(
-                        context: Self.sharedModelContainer.mainContext
-                    )
+                    // Task.detached → 不继承 MainActor,embedding(NLContextualEmbedding)+
+                    // SwiftData 写全在 background queue 跑。importer 内部用自己的 fresh
+                    // ModelContext(per-thread 创建,绑同一个 Container,持久化语义一致)。
+                    // 1.5s 让 UI 先稳;.background priority 让 importer 不抢主线程渲染资源。
+                    Task.detached(priority: .background) {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        await KnowledgeImporter.importIfNeededInBackground(
+                            container: PoleApp.sharedModelContainer
+                        )
+                    }
                 }
         }
         .modelContainer(Self.sharedModelContainer)

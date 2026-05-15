@@ -24,12 +24,31 @@ import PoleDomain
 /// ```
 /// **chunk 切分**:按一级标题 `# ` 切 — 每个 # 块就是一个 chunk。
 /// 想拆得更细的话, content 里再按段落空行二次切(可选)。
-@MainActor
+///
+/// **并发**:整个 enum 不带 `@MainActor`,扫盘+embed+SwiftData 写都在 caller 的 task 上下文跑。
+/// 推荐用 `Task.detached(priority: .background)` + `importIfNeededInBackground(container:)`,
+/// 避免在 MainActor 上跑 embedding 阻塞首屏。
 public enum KnowledgeImporter {
+    /// 后台友好入口 — 给定 `ModelContainer`,内部创建独立 `ModelContext`(非 main),
+    /// 适合 `Task.detached(priority: .background)` 直接调,不抢主线程。
+    /// `ModelContext` 是 per-thread,所以每个 background task 用自己的 fresh context;
+    /// 写入会持久化到同一个 underlying store(Container 共享)。
+    public static func importIfNeededInBackground(
+        container: ModelContainer,
+        bundle: Bundle = .main,
+        force: Bool = false
+    ) async {
+        let context = ModelContext(container)
+        await importIfNeeded(context: context, bundle: bundle, force: force)
+    }
+
     /// 入口 — 检查是否已导入,没导入就扫 Bundle 全量灌库。
     /// `force=true` 时清库重导(开发期 / 知识库内容更新后用)。
     /// `bundle` 默认 `.main`(主 app bundle 持有 Resources/Knowledge/*.md)。Package 化后必须显式
     /// 传入主 app bundle,因为 PoleAIKit 自己的 module bundle 里没有这些 md。
+    ///
+    /// 注意:`ModelContext` 不 `Sendable`,caller 需保证 context 与当前 task 在同一 actor / thread。
+    /// 想从 background task 跑请用 `importIfNeededInBackground(container:)`。
     public static func importIfNeeded(context: ModelContext, bundle: Bundle = .main, force: Bool = false) async {
         if force {
             // 清库重导:fetch all + delete all
