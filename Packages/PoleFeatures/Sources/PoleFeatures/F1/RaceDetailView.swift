@@ -8,7 +8,7 @@ import PoleUI
 // MARK: - View
 
 public struct RaceDetailView: View {
-    let race: F1Race
+    let race: F1Round
     @AppStorage("liveActivityEnabled") private var liveActivityEnabled: Bool = true
 
     @State private var liveActivityStartCounter: Int = 0
@@ -17,7 +17,7 @@ public struct RaceDetailView: View {
     /// 不是每帧 body 重新 grouping(以前是 `var groupedSessions: [...] { ... }` 每次 body 重算)。
     private let groupedSessionsCached: [(Date, [Session])]
 
-    public init(race: F1Race) {
+    public init(race: F1Round) {
         self.race = race
         let calendar = Calendar.current
         let groups = Dictionary(grouping: race.sessions) { session in
@@ -244,7 +244,7 @@ public struct RaceDetailView: View {
 
 private struct SessionRow: View {
     let session: Session
-    let race: F1Race
+    let race: F1Round
 
     public var body: some View {
         HStack(spacing: DS.Spacing.sm) {

@@ -40,7 +40,7 @@ public nonisolated struct F1Constructor: Identifiable, Hashable, Sendable, Codab
 
 // MARK: - 大奖赛
 
-public nonisolated struct F1Race: MotorsportEvent, Identifiable, Hashable, Sendable, Codable {
+public nonisolated struct F1Round: MotorsportEvent, Identifiable, Hashable, Sendable, Codable {
     public let id: String              // "2025-1"（季+轮）
     public let leagueId: String        // "f1-2025"
     public let season: String          // "2025"
@@ -184,10 +184,10 @@ public nonisolated struct F1QualifyingResult: Identifiable, Hashable, Sendable, 
 /// 详情页 race/quali/sprint 行 NavigationLink 用的值——同时携带 race 和 session,
 /// 让 results view 知道拉哪个 endpoint。
 public nonisolated struct F1SessionResultsRef: Hashable, Sendable {
-    public let race: F1Race
+    public let race: F1Round
     public let session: Session
 
-    public init(race: F1Race, session: Session) {
+    public init(race: F1Round, session: Session) {
         self.race = race
         self.session = session
     }

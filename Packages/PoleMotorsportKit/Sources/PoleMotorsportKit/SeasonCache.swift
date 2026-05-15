@@ -7,9 +7,9 @@ import Foundation
 /// 用法(client actor 内):
 /// ```swift
 /// public actor JolpicaClient {
-///     private let racesCache = SeasonCache<[F1Race]>(ttl: 3600)   // 1h
+///     private let racesCache = SeasonCache<[F1Round]>(ttl: 3600)   // 1h
 ///
-///     public func fetchSeasonRaces() async throws -> [F1Race] {
+///     public func fetchSeasonRaces() async throws -> [F1Round] {
 ///         try await racesCache.fetchOr(key: "current") {
 ///             try await self._fetchSeasonRacesFromNetwork()
 ///         }

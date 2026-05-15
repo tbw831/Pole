@@ -39,12 +39,12 @@ public actor JolpicaClient {
 
     // MARK: - Cache 层(避免 Timeline + RaceList + AI agent 各拉一份重复数据)
 
-    private let racesCache    = SeasonCache<[F1Race]>(ttl: 3600)              // 赛历 1h
+    private let racesCache    = SeasonCache<[F1Round]>(ttl: 3600)              // 赛历 1h
     private let standingsCache = SeasonCache<[F1DriverStanding]>(ttl: 300)     // 积分榜 5min
     private let constructorsCache = SeasonCache<[F1ConstructorStanding]>(ttl: 300)
 
     /// 当年（或指定赛季）所有大奖赛。season 传 "current" 表示当年。
-    public func fetchSeasonRaces(season: String = "current") async throws -> [F1Race] {
+    public func fetchSeasonRaces(season: String = "current") async throws -> [F1Round] {
         try await racesCache.fetchOr(key: season) {
             let url = self.baseURL.appendingPathComponent("\(season).json")
             let response: RaceListResponse = try await self.fetch(url: url)
@@ -209,14 +209,14 @@ private struct RaceDTO: Sendable, nonisolated Decodable {
     let Sprint: SessionDTO?
     let SprintQualifying: SessionDTO?         // 2024+ sprint 周替代 SprintShootout
 
-    nonisolated func toDomain(leagueId: String) -> F1Race? {
+    nonisolated func toDomain(leagueId: String) -> F1Round? {
         guard let roundInt = Int(round) else { return nil }
         guard let raceStart = Self.parseDate(date: date, time: time) else { return nil }
         let circuit = Circuit.toDomain()
         let raceId = "\(season)-\(round)"
         let sessions = buildSessions(raceId: raceId, raceStart: raceStart)
         let status: EventStatus = raceStart > Date() ? .upcoming : .finished
-        return F1Race(
+        return F1Round(
             id: raceId,
             leagueId: leagueId,
             season: season,

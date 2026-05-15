@@ -1,7 +1,7 @@
 import Foundation
 
 /// 赛车赛事抽象——一站大奖赛/一个比赛周末。
-/// F1Race、MotoGPRound、WSBKRound 都实现此协议，让"赛车周末时间线"页面无需关心具体系列。
+/// F1Round、MotoGPRound、WSBKRound 都实现此协议，让"赛车周末时间线"页面无需关心具体系列。
 ///
 /// 同 SportEvent，故意不继承 Identifiable，避免 SwiftUI 把 Identifiable 默认 @MainActor 隔离
 /// 后与 Sendable 在 Swift 6 严格并发下冲突。具体类型自带 id 即自动满足 Identifiable。

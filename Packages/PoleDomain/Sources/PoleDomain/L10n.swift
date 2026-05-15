@@ -5,7 +5,7 @@ import Foundation
 // 项目开启了 Swift 6 严格并发(或 main-actor-by-default 模块推断),enum 默认会推断成
 // @MainActor。但 L10n 实际上只读 UserDefaults / Locale.current —— 都是 thread-safe,
 // 根本不需要 MainActor 隔离。把整个 enum + 嵌套类型标 nonisolated 让它能从
-// `nonisolated struct F1Race` 等纯领域类型调用,不引入隔离冲突。
+// `nonisolated struct F1Round` 等纯领域类型调用,不引入隔离冲突。
 //
 // 注意:Sendable conformance 也必须 nonisolated(默认 isolated conformance 会导致
 // "main actor-isolated conformance of 'Language' to 'Equatable'" 警告)。

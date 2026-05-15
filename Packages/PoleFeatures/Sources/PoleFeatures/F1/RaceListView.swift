@@ -12,7 +12,7 @@ public final class RaceListViewModel {
     enum State {
         case idle
         case loading
-        case loaded(races: [F1Race])
+        case loaded(races: [F1Round])
         case failed(message: String)
     }
 
@@ -79,7 +79,7 @@ public struct RaceListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
-            .navigationDestination(for: F1Race.self) { race in
+            .navigationDestination(for: F1Round.self) { race in
                 RaceDetailView(race: race)
             }
             .navigationDestination(for: F1SessionResultsRef.self) { ref in
@@ -95,7 +95,7 @@ public struct RaceListView: View {
 // MARK: - Row
 
 private struct RaceRow: View {
-    let race: F1Race
+    let race: F1Round
 
     public var body: some View {
         MotorsportCard(series: .f1, isLive: race.currentStatus == .live) {

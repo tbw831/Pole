@@ -67,7 +67,7 @@ public nonisolated enum EventStatus: String, Codable, Sendable {
 ///
 /// 注意：此协议不继承 Identifiable，避免与 Sendable 在 Swift 6 严格并发下冲突
 /// （SwiftUI 让 Identifiable conformance 默认 @MainActor 隔离）。
-/// 具体类型（F1Race 等）只要拥有 `id` 属性即自动满足 Identifiable，可独立给 SwiftUI 使用。
+/// 具体类型（F1Round 等）只要拥有 `id` 属性即自动满足 Identifiable，可独立给 SwiftUI 使用。
 public nonisolated protocol SportEvent: Sendable {
     nonisolated var id: String { get }
     nonisolated var sport: Sport { get }

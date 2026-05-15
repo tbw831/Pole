@@ -119,7 +119,7 @@ public struct MotorsportTimelineView: View {
                     }
                 }
                 .refreshable { await viewModel.load() }
-                .navigationDestination(for: F1Race.self) { RaceDetailView(race: $0) }
+                .navigationDestination(for: F1Round.self) { RaceDetailView(race: $0) }
                 .navigationDestination(for: F1SessionResultsRef.self) { F1SessionResultsView(ref: $0) }
                 .navigationDestination(for: MotoGPRound.self) { MotoGPRoundDetailView(round: $0) }
                 .navigationDestination(for: MotoGPSessionRef.self) { MotoGPSessionResultsView(ref: $0) }

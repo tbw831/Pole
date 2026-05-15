@@ -4,7 +4,7 @@ import PoleDomain
 /// 跨 series 时间线/统一查询用的包装类型——SwiftUI ForEach 不能直接用
 /// `any MotorsportEvent`,enum 包装让 NavigationLink / ForEach 都能用。
 public nonisolated enum AnyMotorsportRound: Hashable, Sendable, Identifiable {
-    case f1(F1Race)
+    case f1(F1Round)
     case motogp(MotoGPRound)
     case wssp(WSBKRound)
     case fe(FERound)

@@ -41,7 +41,7 @@ public enum WidgetSnapshotBuilder {
 
     /// 同步入口(供 testing / 手动触发)。返回构建结果但不写入。
     public static func build() async -> WidgetSnapshot {
-        async let f1Rounds: [F1Race]       = (try? await f1.fetchSeasonRaces()) ?? []
+        async let f1Rounds: [F1Round]       = (try? await f1.fetchSeasonRaces()) ?? []
         async let motoGPRounds: [MotoGPRound] = (try? await motogp.fetchSeasonRounds()) ?? []
         async let wsbkRounds: [WSBKRound]  = (try? await wsbk.fetchSeasonRounds()) ?? []
         async let feRounds: [FERound]      = (try? await fe.fetchSeasonRounds()) ?? []

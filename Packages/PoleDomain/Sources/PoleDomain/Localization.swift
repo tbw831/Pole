@@ -3,7 +3,7 @@ import Foundation
 /// 全局中文显示 mapping —— 各 series 的 race / round 名、country code、status 等。
 /// model 的 headline / subheadline 在拼接显示前先过这里。
 ///
-/// `nonisolated` —— 让 nonisolated 的 F1Race / MotoGPRound / WSBKRound / FERound 等
+/// `nonisolated` —— 让 nonisolated 的 F1Round / MotoGPRound / WSBKRound / FERound 等
 /// 领域类型能在 headline / subheadline computed property 里直接调用。底层只读
 /// L10n.effective(也是 nonisolated)+ 静态 dict,无任何 MainActor 状态。
 public nonisolated enum Localization {
