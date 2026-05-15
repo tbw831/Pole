@@ -13,6 +13,10 @@ struct PoleApp: App {
     /// `containerInitFailed` 提示用户"本地数据迁移失败,已切换临时存储"。
     static let sharedModelContainer: ModelContainer = makeContainer()
     static private(set) var containerInitFailed: Bool = false
+    /// Live Activity NotificationCenter observer tokens — 保留引用以便后续(理论上)
+    /// removeObserver,同时用 isEmpty 做幂等保护防止 scene 重连或 .task 重新触发时
+    /// 重复挂载 observer 导致一次 post 触发多次 Live Activity 启动。
+    @MainActor private static var liveActivityObservers: [NSObjectProtocol] = []
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var appearance = AppearanceStore.shared
@@ -86,14 +90,16 @@ struct PoleApp: App {
     /// 用通知解耦。
     @MainActor
     private func subscribeLiveActivityBridges() {
-        NotificationCenter.default.addObserver(
+        // 幂等:已注册过就跳过,避免 scene 重连或 .task 重新触发时重复挂 observer
+        guard PoleApp.liveActivityObservers.isEmpty else { return }
+        let stopToken = NotificationCenter.default.addObserver(
             forName: .stopAllLiveActivities, object: nil, queue: .main
         ) { _ in
             Task { @MainActor in
                 await RaceLiveActivityCoordinator.shared.stopAll()
             }
         }
-        NotificationCenter.default.addObserver(
+        let startToken = NotificationCenter.default.addObserver(
             forName: .startLiveActivityForRace, object: nil, queue: .main
         ) { note in
             guard let info = note.userInfo,
@@ -113,5 +119,6 @@ struct PoleApp: App {
                 _ = RaceLiveActivityCoordinator.shared.start(from: entity)
             }
         }
+        PoleApp.liveActivityObservers = [stopToken, startToken]
     }
 }
