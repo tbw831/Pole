@@ -17,6 +17,8 @@ public final class FEDriverDetailViewModel {
 
     let driverId: String
     private(set) var state: State = .idle
+    /// 累计积分曲线 — 在 load() 进入 .loaded 时算一次,Chart 直接读。
+    private(set) var cumulative: [FECumulativePoint] = []
 
     public init(driverId: String) {
         self.driverId = driverId
@@ -27,8 +29,19 @@ public final class FEDriverDetailViewModel {
     func load() async {
         state = .loading
         let rounds = await FormulaEClient.shared.fetchDriverRoundPoints(driverId: driverId)
+        var sum: Double = 0
+        cumulative = rounds.map { e in
+            sum += e.points
+            return FECumulativePoint(round: e.round, cumulative: sum)
+        }
         state = .loaded(rounds: rounds)
     }
+}
+
+struct FECumulativePoint: Identifiable {
+    let round: Int
+    let cumulative: Double
+    var id: Int { round }
 }
 
 /// Formula E 车手详情 — 跟 F1DriverDetailView 同款结构(头部 → 简介 → 趋势图 → 赛季回顾 → 各场积分)。
@@ -118,7 +131,7 @@ public struct FEDriverDetailView: View {
                 }
             } else {
                 Section(L10n.t(zh: "累计积分趋势", en: "Cumulative Points Trend")) {
-                    Chart(cumulativeData(rounds)) { entry in
+                    Chart(viewModel.cumulative) { entry in
                         LineMark(
                             x: .value("Round", entry.round),
                             y: .value("Points", entry.cumulative)
@@ -219,18 +232,4 @@ public struct FEDriverDetailView: View {
         )
     }
 
-    /// 累计积分曲线数据点
-    private func cumulativeData(_ rounds: [FEDriverRoundPoints]) -> [CumulativePoint] {
-        var sum: Double = 0
-        return rounds.map { e in
-            sum += e.points
-            return CumulativePoint(round: e.round, cumulative: sum)
-        }
-    }
-
-    private struct CumulativePoint: Identifiable {
-        let round: Int
-        let cumulative: Double
-        var id: Int { round }
-    }
 }

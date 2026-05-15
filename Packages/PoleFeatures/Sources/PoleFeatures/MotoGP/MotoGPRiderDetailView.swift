@@ -17,6 +17,8 @@ public final class MotoGPRiderDetailViewModel {
 
     let riderId: String
     private(set) var state: State = .idle
+    /// 累计积分曲线(race + sprint 都计入)— 在 load() 进入 .loaded 时算一次,Chart 直接读。
+    private(set) var cumulative: [MotoGPCumulativePoint] = []
 
     public init(riderId: String) {
         self.riderId = riderId
@@ -27,8 +29,19 @@ public final class MotoGPRiderDetailViewModel {
     func load() async {
         state = .loading
         let rounds = await MotoGPClient.shared.fetchRiderRoundPoints(riderId: riderId)
+        var sum: Double = 0
+        cumulative = rounds.map { e in
+            sum += e.totalPoints
+            return MotoGPCumulativePoint(round: e.round, cumulative: sum)
+        }
         state = .loaded(rounds: rounds)
     }
+}
+
+struct MotoGPCumulativePoint: Identifiable {
+    let round: Int
+    let cumulative: Double
+    var id: Int { round }
 }
 
 /// MotoGP 车手详情 — 跟 F1DriverDetailView 同款结构(头部 → 简介 → 趋势图 → 赛季回顾 → 各场积分)。
@@ -108,7 +121,7 @@ public struct MotoGPRiderDetailView: View {
                 }
             } else {
                 Section(L10n.t(zh: "累计积分趋势", en: "Cumulative Points Trend")) {
-                    Chart(cumulativeData(rounds)) { entry in
+                    Chart(viewModel.cumulative) { entry in
                         LineMark(
                             x: .value("Round", entry.round),
                             y: .value("Points", entry.cumulative)
@@ -209,18 +222,4 @@ public struct MotoGPRiderDetailView: View {
         )
     }
 
-    /// 累计积分曲线数据点(race + sprint 都计入)
-    private func cumulativeData(_ rounds: [MotoGPRiderRoundPoints]) -> [CumulativePoint] {
-        var sum: Double = 0
-        return rounds.map { e in
-            sum += e.totalPoints
-            return CumulativePoint(round: e.round, cumulative: sum)
-        }
-    }
-
-    private struct CumulativePoint: Identifiable {
-        let round: Int
-        let cumulative: Double
-        var id: Int { round }
-    }
 }

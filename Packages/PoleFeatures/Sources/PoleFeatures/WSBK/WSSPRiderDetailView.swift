@@ -17,6 +17,8 @@ public final class WSSPRiderDetailViewModel {
 
     let riderName: String           // standings 大写 fullname"JAUME MASIA"
     private(set) var state: State = .idle
+    /// 累计积分曲线 — 在 load() 进入 .loaded 时算一次,Chart 直接读。
+    private(set) var cumulative: [WSSPCumulativePoint] = []
 
     public init(riderName: String) {
         self.riderName = riderName
@@ -29,8 +31,19 @@ public final class WSSPRiderDetailViewModel {
     func load() async {
         state = .loading
         let rounds = await WSBKClient.shared.fetchSSPRiderRoundPoints(riderLastName: lastName)
+        var sum: Double = 0
+        cumulative = rounds.map { e in
+            sum += e.totalPoints
+            return WSSPCumulativePoint(round: e.round, cumulative: sum)
+        }
         state = .loaded(rounds: rounds)
     }
+}
+
+struct WSSPCumulativePoint: Identifiable {
+    let round: Int
+    let cumulative: Double
+    var id: Int { round }
 }
 
 public struct WSSPRiderDetailView: View {
@@ -94,7 +107,7 @@ public struct WSSPRiderDetailView: View {
                 }
             } else {
                 Section(L10n.t(zh: "累计积分趋势", en: "Cumulative Points Trend")) {
-                    Chart(cumulativeData(rounds)) { entry in
+                    Chart(viewModel.cumulative) { entry in
                         LineMark(
                             x: .value("Round", entry.round),
                             y: .value("Points", entry.cumulative)
@@ -173,17 +186,4 @@ public struct WSSPRiderDetailView: View {
         }
     }
 
-    private func cumulativeData(_ rounds: [WSSPRiderRoundPoints]) -> [CumulativePoint] {
-        var sum: Double = 0
-        return rounds.map { e in
-            sum += e.totalPoints
-            return CumulativePoint(round: e.round, cumulative: sum)
-        }
-    }
-
-    private struct CumulativePoint: Identifiable {
-        let round: Int
-        let cumulative: Double
-        var id: Int { round }
-    }
 }

@@ -19,6 +19,8 @@ public final class F1DriverDetailViewModel {
     let driverName: String
     let season: String
     private(set) var state: State = .idle
+    /// 累计积分曲线 — 在 load() 进入 .loaded 时算一次,Chart 直接读,避免每次 body re-eval 重新扫一遍 rounds。
+    private(set) var cumulative: [F1CumulativePoint] = []
 
     public init(driverId: String, driverName: String, season: String) {
         self.driverId = driverId
@@ -33,11 +35,23 @@ public final class F1DriverDetailViewModel {
                 season: season,
                 driverId: driverId
             )
+            var sum: Double = 0
+            cumulative = rounds.map { e in
+                sum += e.points
+                return F1CumulativePoint(round: e.round, cumulative: sum)
+            }
             state = .loaded(rounds: rounds)
         } catch {
+            cumulative = []
             state = .failed(message: error.localizedDescription)
         }
     }
+}
+
+struct F1CumulativePoint: Identifiable {
+    let round: Int
+    let cumulative: Double
+    var id: Int { round }
 }
 
 public struct F1DriverDetailView: View {
@@ -96,7 +110,7 @@ public struct F1DriverDetailView: View {
                 }
             } else {
                 Section(L10n.t(zh: "累计积分趋势", en: "Cumulative Points Trend")) {
-                    Chart(cumulativeData(rounds)) { entry in
+                    Chart(viewModel.cumulative) { entry in
                         LineMark(
                             x: .value("Round", entry.round),
                             y: .value("Points", entry.cumulative)
@@ -166,18 +180,4 @@ public struct F1DriverDetailView: View {
         }
     }
 
-    /// 累计积分曲线数据点
-    private func cumulativeData(_ rounds: [F1DriverRoundPoints]) -> [CumulativePoint] {
-        var sum: Double = 0
-        return rounds.map { e in
-            sum += e.points
-            return CumulativePoint(round: e.round, cumulative: sum)
-        }
-    }
-
-    private struct CumulativePoint: Identifiable {
-        let round: Int
-        let cumulative: Double
-        var id: Int { round }
-    }
 }

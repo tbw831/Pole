@@ -12,6 +12,9 @@ public struct FollowFeedView: View {
     public init() {}
     @Environment(\.modelContext) private var context
     @Query(sort: \FollowedItem.addedAt, order: .reverse) private var items: [FollowedItem]
+    /// 按 series 分组的缓存 — 用 .onChange(of: items, initial: true) 在 items 变化时刷一次,
+    /// 避免每次 body re-eval 都重跑 Dictionary(grouping:) + sort + map。
+    @State private var grouped: [(String, [FollowedItem])] = []
 
     public var body: some View {
         NavigationStack {
@@ -35,6 +38,12 @@ public struct FollowFeedView: View {
                     if let s = route.series {
                         SimpleDriverProfileView(name: route.name, series: s)
                     }
+                }
+                .onChange(of: items, initial: true) { _, newItems in
+                    let buckets = Dictionary(grouping: newItems, by: \.seriesRaw)
+                    grouped = buckets
+                        .sorted { $0.key < $1.key }
+                        .map { ($0.key, $0.value) }
                 }
         }
     }
@@ -78,14 +87,6 @@ public struct FollowFeedView: View {
                 .padding(.vertical, DS.Spacing.sm)
             }
         }
-    }
-
-    /// 按 series 分组,组内按 addedAt 倒序(已经由 @Query 排好,只需保持稳定)。
-    private var grouped: [(String, [FollowedItem])] {
-        let buckets = Dictionary(grouping: items, by: \.seriesRaw)
-        return buckets
-            .sorted { $0.key < $1.key }
-            .map { ($0.key, $0.value) }
     }
 
     private func seriesLabel(_ raw: String) -> String {
