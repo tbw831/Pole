@@ -1,6 +1,7 @@
 import Foundation
 import os
 import PoleDomain
+import PoleDesignSystem
 
 nonisolated fileprivate let jolpicaLog = Logger(subsystem: "com.tiebowen.Pole", category: "JolpicaClient")
 

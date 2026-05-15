@@ -2,6 +2,7 @@ import Foundation
 import PDFKit
 import os
 import PoleDomain
+import PoleDesignSystem
 
 nonisolated fileprivate let wsbkLog = Logger(subsystem: "com.tiebowen.Pole", category: "WSBKClient")
 

@@ -7,8 +7,14 @@ let package = Package(
     products: [
         .library(name: "PoleDesignSystem", targets: ["PoleDesignSystem"]),
     ],
+    dependencies: [
+        .package(path: "../PoleDomain"),
+    ],
     targets: [
-        .target(name: "PoleDesignSystem"),
+        .target(
+            name: "PoleDesignSystem",
+            dependencies: ["PoleDomain"]
+        ),
         .testTarget(name: "PoleDesignSystemTests", dependencies: ["PoleDesignSystem"]),
     ]
 )

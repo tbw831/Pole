@@ -1,5 +1,4 @@
 import SwiftUI
-import PoleDesignSystem
 import PoleDomain
 
 /// 每个 series 一个品牌主题——颜色 + 渐变 + 字体 hint。

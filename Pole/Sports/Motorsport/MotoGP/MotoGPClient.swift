@@ -1,6 +1,7 @@
 import Foundation
 import os
 import PoleDomain
+import PoleDesignSystem
 
 // MARK: - Errors
 
