@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleDesignSystem
 
 struct ContentView: View {
     /// 监听语言切换 — 切换时整体 .id(languageRaw) 重建子树,所有 L10n.t 文案立即刷新。

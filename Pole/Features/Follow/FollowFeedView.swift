@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import UIKit   // UIPasteboard for context menu "copy name"
+import PoleDesignSystem
 
 struct FollowFeedView: View {
     @Environment(\.modelContext) private var context
@@ -154,8 +155,8 @@ private struct FollowedRowLink: View {
 private struct FollowedRow: View {
     let item: FollowedItem
 
-    private var seriesAccent: MotorsportSeries? {
-        MotorsportSeries(rawValue: item.seriesRaw)
+    private var seriesAccent: Color? {
+        MotorsportSeries(rawValue: item.seriesRaw)?.brandColor
     }
 
     var body: some View {

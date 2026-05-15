@@ -6,17 +6,17 @@ import SwiftUI
 // 用法: 在 dsListCard / MotorsportCard / driver / team 卡片顶部叠加。
 
 public struct SeriesTopAccent: View {
-    let series: MotorsportSeries
+    let color: Color
     var height: CGFloat = 3
 
-    public init(series: MotorsportSeries, height: CGFloat = 3) {
-        self.series = series
+    public init(color: Color, height: CGFloat = 3) {
+        self.color = color
         self.height = height
     }
 
     public var body: some View {
         LinearGradient(
-            colors: [series.brandColor, series.brandColor.opacity(0.0)],
+            colors: [color, color.opacity(0.0)],
             startPoint: .leading,
             endPoint: .trailing
         )
@@ -26,12 +26,12 @@ public struct SeriesTopAccent: View {
     }
 }
 
-#Preview("SeriesTopAccent · all series") {
+#Preview("SeriesTopAccent · sample colors") {
     VStack(spacing: 8) {
-        SeriesTopAccent(series: .f1)
-        SeriesTopAccent(series: .motogp)
-        SeriesTopAccent(series: .wssp)
-        SeriesTopAccent(series: .fe)
+        SeriesTopAccent(color: .red)
+        SeriesTopAccent(color: .orange)
+        SeriesTopAccent(color: .green)
+        SeriesTopAccent(color: .teal)
     }
     .padding()
     .background(DS.Palette.tarmacBg)
@@ -144,9 +144,27 @@ public struct StartLightGrid: View {
 
     private var accessibilityText: String {
         switch mode {
-        case .idle: return L10n.t(zh: "起跑灯待机", en: "Start lights idle")
-        case .lightsOut: return L10n.t(zh: "起跑灯熄灭, 比赛已开始", en: "Lights out, race started")
-        case .countdown(let n): return L10n.t(zh: "起跑倒计时 \(n) 灯", en: "Countdown, \(n) lights lit")
+        case .idle: return DSLocale.t(zh: "起跑灯待机", en: "Start lights idle")
+        case .lightsOut: return DSLocale.t(zh: "起跑灯熄灭, 比赛已开始", en: "Lights out, race started")
+        case .countdown(let n): return DSLocale.t(zh: "起跑倒计时 \(n) 灯", en: "Countdown, \(n) lights lit")
+        }
+    }
+}
+
+// MARK: - DSLocale
+//
+// 包内极简语言查询 — 与主 app `L10n` 行为一致(读 UserDefaults["languageMode"]),
+// 但避免 DesignSystem 包依赖主 app。供包内可访问性文案使用。
+
+internal enum DSLocale {
+    static func t(zh: String, en: String) -> String {
+        let raw = UserDefaults.standard.string(forKey: "languageMode") ?? "zh"
+        switch raw {
+        case "en": return en
+        case "auto":
+            let lang = Locale.current.language.languageCode?.identifier ?? ""
+            return lang.hasPrefix("zh") ? zh : en
+        default: return zh
         }
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import PoleDesignSystem
 
 /// 详情页顶部 hero header——大 banner + 底部黑色渐变 + 玻璃浮层文字。
 /// 支持 banner image / SVG image,失败时 fallback 系列彩色渐变作为背景。

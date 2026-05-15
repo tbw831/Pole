@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 
 // MARK: - Design System
 //
@@ -64,6 +66,7 @@ public enum DS {
         public static let aiGradientStrong = racingGradientStrong
 
         // ===== Tarmac 中性: UIColor dynamic 双模 =====
+        #if canImport(UIKit)
         public static let tarmacBg = Color(uiColor: UIColor { trait in
             trait.userInterfaceStyle == .dark
                 ? UIColor(red: 0.055, green: 0.055, blue: 0.063, alpha: 1)
@@ -93,6 +96,14 @@ public enum DS {
                 ? UIColor.white.withAlphaComponent(0.08)
                 : UIColor.black.withAlphaComponent(0.06)
         })
+        #else
+        // macOS / 非 UIKit 环境的静态色板兜底(swift build on Mac 用)。
+        public static let tarmacBg = Color(red: 0.055, green: 0.055, blue: 0.063)
+        public static let tarmacFill = Color(red: 0.094, green: 0.094, blue: 0.106)
+        public static let tarmacCard = Color(red: 0.137, green: 0.137, blue: 0.153)
+        public static let tarmacHairline = Color(red: 0.180, green: 0.180, blue: 0.200)
+        public static let decorOnSurface = Color.white.opacity(0.08)
+        #endif
 
         // ===== 状態色(Dark 下加饱和)=====
         public static let live      = Color(red: 1.000, green: 0.176, blue: 0.176)
@@ -178,7 +189,7 @@ public extension View {
     /// AI 消息卡片 — iOS 26 Liquid Glass 自带 specular + 自适应对比;旧 SDK 兜底浅底卡片。
     @ViewBuilder
     func dsAIBubble() -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, *) {
             self.glassEffect(
                 .regular,
                 in: RoundedRectangle(cornerRadius: DS.Radius.bubble, style: .continuous)
@@ -203,7 +214,7 @@ public extension View {
     /// 在 iOS 26 上与同屏 glassEffect 共存导致 glass-on-material 视觉错乱。
     @ViewBuilder
     func dsGlassPill() -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, *) {
             self.glassEffect(.regular, in: Capsule())
         } else {
             self
@@ -215,7 +226,7 @@ public extension View {
     /// 工具步骤卡片 — Liquid Glass 一行替代 material + stroke 双层装饰。
     @ViewBuilder
     func dsToolCard() -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, *) {
             self.glassEffect(
                 .regular,
                 in: RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous)
@@ -241,12 +252,19 @@ public extension View {
 
     /// Detail 页统一 list 风格(豆包/元宝典型):insetGrouped + 隐藏 row 分隔线 + 透明背景。
     /// 4 个 RoundDetail/DriverDetail 都加这个 modifier。
+    @ViewBuilder
     func dsDetailList() -> some View {
+        #if os(iOS)
         self
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .background(DS.Palette.tarmacBg)
             .listSectionSpacing(DS.Spacing.md)
+        #else
+        self
+            .scrollContentBackground(.hidden)
+            .background(DS.Palette.tarmacBg)
+        #endif
     }
 
     /// `StatusBadge.live` 专用 — 红底脉冲 + 右拖尾棋盘格。
@@ -271,7 +289,7 @@ public extension View {
     /// hero 大卡片(Settings header / RoundDetail / TriviaCard 等):
     /// tarmacBg 底,无 speedLines / SeriesTopAccent — 用户反馈装饰过多。
     /// seriesAccent 参数保留兼容,但当前实现不渲染顶条。
-    func dsHeroBanner(seriesAccent: MotorsportSeries? = nil) -> some View {
+    func dsHeroBanner(seriesAccent: Color? = nil) -> some View {
         self
             .padding(DS.Spacing.lg)
             .background(
@@ -285,11 +303,11 @@ public extension View {
     }
 
     /// 通用 list row 卡片包装。
-    /// - seriesAccent: 传系列后顶部加 3px SeriesTopAccent 色条;nil 时纯净卡片(向后兼容)。
-    func dsListCard(seriesAccent: MotorsportSeries? = nil) -> some View {
+    /// - seriesAccent: 传品牌色后顶部加 3px SeriesTopAccent 色条;nil 时纯净卡片(向后兼容)。
+    func dsListCard(seriesAccent: Color? = nil) -> some View {
         VStack(spacing: 0) {
-            if let series = seriesAccent {
-                SeriesTopAccent(series: series)
+            if let accent = seriesAccent {
+                SeriesTopAccent(color: accent)
             }
             self
                 .padding(.horizontal, DS.Spacing.lg - 2)
@@ -472,26 +490,34 @@ public extension View {
 public enum HapticFeedback {
     /// 轻微触感 — 适合工具步骤完成、单个 step done 这种"小成就"
     public static func lightImpact() {
+        #if canImport(UIKit)
         let g = UIImpactFeedbackGenerator(style: .light)
         g.impactOccurred()
+        #endif
     }
 
     /// 柔软触感 — 工具开始,比 light 更轻
     public static func softImpact() {
+        #if canImport(UIKit)
         let g = UIImpactFeedbackGenerator(style: .soft)
         g.impactOccurred()
+        #endif
     }
 
     /// success — 整轮 agent 完成
     public static func success() {
+        #if canImport(UIKit)
         let g = UINotificationFeedbackGenerator()
         g.notificationOccurred(.success)
+        #endif
     }
 
     /// warning — 失败 / 取消
     public static func warning() {
+        #if canImport(UIKit)
         let g = UINotificationFeedbackGenerator()
         g.notificationOccurred(.warning)
+        #endif
     }
 }
 

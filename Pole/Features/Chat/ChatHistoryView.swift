@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleDesignSystem
 
 /// 历史会话列表——从 sheet 弹出。
 /// - 默认模式：点击切换会话，左滑单条删除

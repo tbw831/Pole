@@ -3,6 +3,7 @@ import SwiftData
 // Timer.publish(...).autoconnect() 来自 Combine — SwiftUI 不再自动 re-export Combine,
 // ToolGroupView 用 .onReceive 订阅 timer 计时必须显式 import。
 import Combine
+import PoleDesignSystem
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
