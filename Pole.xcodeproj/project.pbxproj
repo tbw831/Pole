@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2BC931052FA70F0100DBA5C3 /* PoleSharedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931032FA70F0100DBA5C3 /* PoleSharedKit */; };
+		2BC931062FA70F0100DBA5C3 /* PoleDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2BC930BB2FA706F700DBA5C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BC931052FA70F0100DBA5C3 /* PoleSharedKit in Frameworks */,
+				2BC931062FA70F0100DBA5C3 /* PoleDesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,8 @@
 			);
 			name = Pole;
 			packageProductDependencies = (
+				2BC931032FA70F0100DBA5C3 /* PoleSharedKit */,
+				2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */,
 			);
 			productName = Pole;
 			productReference = 2BC930AB2FA706F600DBA5C3 /* Pole.app */;
@@ -195,6 +204,10 @@
 			);
 			mainGroup = 2BC930A22FA706F600DBA5C3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2BC931012FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSharedKit" */,
+				2BC931022FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDesignSystem" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BC930AC2FA706F600DBA5C3 /* Products */;
 			projectDirPath = "";
@@ -582,6 +595,28 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2BC931012FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSharedKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleSharedKit;
+		};
+		2BC931022FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleDesignSystem;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2BC931032FA70F0100DBA5C3 /* PoleSharedKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleSharedKit;
+		};
+		2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleDesignSystem;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2BC930A32FA706F600DBA5C3 /* Project object */;
 }
