@@ -5,6 +5,7 @@ import SwiftData
 import Combine
 import PoleDesignSystem
 import PoleDomain
+import PoleAIKit
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext

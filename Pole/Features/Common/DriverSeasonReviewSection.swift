@@ -1,6 +1,7 @@
 import SwiftUI
 import PoleDomain
 import PoleDesignSystem
+import PoleAIKit
 
 /// 车手赛季表现 AI 总结 — 折叠 section,视觉跟 RaceRecapSection / CircuitHighlightSection
 /// 一致(自定义 Button 头 + chevron + footer)。

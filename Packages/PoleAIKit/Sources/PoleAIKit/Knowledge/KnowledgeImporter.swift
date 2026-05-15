@@ -28,7 +28,9 @@ import PoleDomain
 public enum KnowledgeImporter {
     /// 入口 — 检查是否已导入,没导入就扫 Bundle 全量灌库。
     /// `force=true` 时清库重导(开发期 / 知识库内容更新后用)。
-    public static func importIfNeeded(context: ModelContext, force: Bool = false) async {
+    /// `bundle` 默认 `.main`(主 app bundle 持有 Resources/Knowledge/*.md)。Package 化后必须显式
+    /// 传入主 app bundle,因为 PoleAIKit 自己的 module bundle 里没有这些 md。
+    public static func importIfNeeded(context: ModelContext, bundle: Bundle = .main, force: Bool = false) async {
         if force {
             // 清库重导:fetch all + delete all
             let descriptor = FetchDescriptor<KnowledgeChunk>()
@@ -45,7 +47,7 @@ public enum KnowledgeImporter {
         }
 
         // 扫 Bundle 内 Resources/Knowledge 目录
-        guard let urls = bundleMarkdownFiles() else {
+        guard let urls = bundleMarkdownFiles(bundle: bundle) else {
             print("[KnowledgeImporter] no markdown files found in Bundle Resources/Knowledge")
             return
         }
@@ -71,9 +73,9 @@ public enum KnowledgeImporter {
     /// 2. Bundle.urls(subdirectory:) 顶层(部分 Folder Reference 子集场景)
     /// 3. 平铺扫所有 .md,文件名以已知 series prefix 开头才认(Group 模式 fallback,
     ///    要求文件名形如 `f1-rules.md` / `motogp-circuits.md` 等)
-    private static func bundleMarkdownFiles() -> [URL]? {
+    private static func bundleMarkdownFiles(bundle: Bundle) -> [URL]? {
         // 路径 1: FileManager 递归(Folder Reference 模式最可靠)
-        let knowledgeURL = Bundle.main.bundleURL.appendingPathComponent("Knowledge")
+        let knowledgeURL = bundle.bundleURL.appendingPathComponent("Knowledge")
         if FileManager.default.fileExists(atPath: knowledgeURL.path) {
             var urls: [URL] = []
             if let enumerator = FileManager.default.enumerator(
@@ -93,13 +95,13 @@ public enum KnowledgeImporter {
         }
 
         // 路径 2: subdirectory API(部分场景顶层有 .md)
-        if let urls = Bundle.main.urls(forResourcesWithExtension: "md", subdirectory: "Knowledge") {
+        if let urls = bundle.urls(forResourcesWithExtension: "md", subdirectory: "Knowledge") {
             let filtered = urls.filter { $0.lastPathComponent.lowercased() != "readme.md" }
             if !filtered.isEmpty { return filtered }
         }
 
         // 路径 3: 平铺(Group 模式 fallback)— 文件名前缀决定 series
-        if let urls = Bundle.main.urls(forResourcesWithExtension: "md", subdirectory: nil) {
+        if let urls = bundle.urls(forResourcesWithExtension: "md", subdirectory: nil) {
             let knownPrefixes = ["f1-", "motogp-", "wsbk-", "fe-", "general-"]
             let filtered = urls.filter { url in
                 let name = url.lastPathComponent.lowercased()

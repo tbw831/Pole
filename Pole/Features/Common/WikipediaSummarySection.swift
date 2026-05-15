@@ -1,6 +1,7 @@
 import SwiftUI
 import PoleDomain
 import PoleDesignSystem
+import PoleAIKit
 
 /// 车手简介 section — 可折叠下拉框。
 /// 默认折叠显示"车手简介 ▾",点击展开第一次自动触发 LLM 生成,缓存在 @State(detail 页生命周期)。

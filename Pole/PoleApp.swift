@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import PoleSharedKit
 import PoleDomain
+import PoleAIKit
 
 @main
 struct PoleApp: App {
