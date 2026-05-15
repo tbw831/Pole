@@ -32,6 +32,9 @@ public nonisolated struct Session: Hashable, Sendable, Codable, Identifiable {
     public let label: String        // UI 直显："FP1" / "Q3" / "Sprint" / "Race 2" / "Superpole Race"
     public let startTime: Date
     public let durationMinutes: Int?
+    /// 子 class — 同周末多 class(MotoGP/Moto2/Moto3 / SBK/WSSP / WEC Hypercar/LMGT3)用此字段区分。
+    /// 单一 class 系列(F1/FE)留 nil。UI 渲染 session row 时若 cls != nil 加 class chip 前缀。
+    public let cls: MotorsportClass?
 
     /// 在中文模式下将 session 名翻译为中文；英文模式 pass-through 返回 `label`。
     /// FP1/FP2/FP3/Q1/Q2/Q3 等带数字编号的 label 直接透传，不做翻译。
@@ -55,12 +58,20 @@ public nonisolated struct Session: Hashable, Sendable, Codable, Identifiable {
         }
     }
 
-    public init(id: String, kind: Kind, label: String, startTime: Date, durationMinutes: Int? = nil) {
+    public init(
+        id: String,
+        kind: Kind,
+        label: String,
+        startTime: Date,
+        durationMinutes: Int? = nil,
+        cls: MotorsportClass? = nil
+    ) {
         self.id = id
         self.kind = kind
         self.label = label
         self.startTime = startTime
         self.durationMinutes = durationMinutes
+        self.cls = cls
     }
 
     /// 默认 session 时长——给 EventKit end date 用,不同 session 类型给不同时长。

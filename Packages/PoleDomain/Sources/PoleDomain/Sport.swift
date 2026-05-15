@@ -29,6 +29,72 @@ public nonisolated enum Sport: String, Codable, CaseIterable, Identifiable, Send
     }
 }
 
+// MARK: - MotorsportClass
+
+/// 系列内的子 class。例如 MotoGP 周末同场地举办 MotoGP/Moto2/Moto3 三个 class,
+/// WSBK 周末同场地举办 SBK + WSSP 两个 class,WEC 同场比赛分 Hypercar + LMGT3。
+/// F1 / FE / 单一 class 系列对应 `.f1` / `.fe`,`Session.cls` 可为 nil。
+///
+/// `parentSeries` 反向映射回 `MotorsportSeries`,用于决定 host 系列 picker / 通知开关。
+public nonisolated enum MotorsportClass: String, Sendable, Codable, Hashable, CaseIterable {
+    // MotoGP 家族
+    case motogp
+    case moto2
+    case moto3
+    case motoe              // 留位,本期不实施
+
+    // WSBK 家族
+    case sbk                // Superbike 顶级
+    case wssp               // World SSP 中量级
+    case ssp300             // 留位,本期不实施
+
+    // 单一 class 系列(沿用 enum 作占位)
+    case f1
+    case fe
+
+    // WEC 双 class case 由 WEC 接入 PR(Agent C)添加,与 MotorsportSeries.wec 同步上线。
+
+    /// host 系列 — 用于 picker 归属、通知 toggle 父级开关、UI 主题色。
+    public var parentSeries: MotorsportSeries {
+        switch self {
+        case .motogp, .moto2, .moto3, .motoe:                  return .motogp
+        case .sbk, .wssp, .ssp300:                             return .wssp
+        case .f1:                                              return .f1
+        case .fe:                                              return .fe
+        }
+    }
+
+    /// 国际通用品牌名,L10n 不切。
+    public var displayName: String {
+        switch self {
+        case .motogp:        return "MotoGP"
+        case .moto2:         return "Moto2"
+        case .moto3:         return "Moto3"
+        case .motoe:         return "MotoE"
+        case .sbk:           return "WorldSBK"
+        case .wssp:          return "WorldSSP"
+        case .ssp300:        return "WorldSSP300"
+        case .f1:            return "Formula 1"
+        case .fe:            return "Formula E"
+        }
+    }
+
+    /// 极短形式(用于 session row 左侧 class chip),最多 3 字符。
+    public var shortName: String {
+        switch self {
+        case .motogp:        return "MGP"
+        case .moto2:         return "M2"
+        case .moto3:         return "M3"
+        case .motoe:         return "ME"
+        case .sbk:           return "SBK"
+        case .wssp:          return "SSP"
+        case .ssp300:        return "300"
+        case .f1:            return "F1"
+        case .fe:            return "FE"
+        }
+    }
+}
+
 // MARK: - League
 
 /// 联赛 / 系列赛的某个赛季。F1 2025 整年作为一个 League（"f1-2025"），MotoGP/WSBK/NBA/英超同理。
