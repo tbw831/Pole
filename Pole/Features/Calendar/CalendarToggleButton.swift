@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleDomain
 
 /// 单个 session 的"加入日历"开关。
 /// 用 `sessionKey`(formula 见各 detail view 调用方)做唯一键,SwiftData @Query 监听同 key
@@ -61,17 +62,4 @@ struct CalendarToggleButton: View {
 }
 
 // MARK: - Helpers
-
-extension Session {
-    /// 默认 session 时长——给 EventKit end date 用,不同 session 类型给不同时长。
-    var defaultDuration: TimeInterval {
-        switch kind {
-        case .race:           return 2 * 3600        // 2h
-        case .sprint:         return 45 * 60          // 45min
-        case .superpoleRace:  return 30 * 60          // 30min
-        case .qualifying:     return 60 * 60          // 1h
-        case .sprintShootout: return 30 * 60
-        case .practice:       return 60 * 60
-        }
-    }
-}
+// `Session.defaultDuration` 已迁移到 PoleDomain 的 Session.swift,所有调用方共用。

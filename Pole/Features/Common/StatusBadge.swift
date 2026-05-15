@@ -1,4 +1,6 @@
 import SwiftUI
+import PoleDesignSystem
+import PoleDomain
 
 /// 统一状态徽章——LIVE 状态加微弱 pulse 动画。
 /// 用户开启"减少动态效果"(`accessibilityReduceMotion`)时改静态高亮圆点,

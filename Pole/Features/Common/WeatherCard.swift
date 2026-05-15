@@ -1,4 +1,5 @@
 import SwiftUI
+import PoleDomain
 
 /// detail header 用的天气小卡片——内嵌 task 自己拉,失败 / 远期赛事(>3 天)隐藏。
 struct WeatherCard: View {

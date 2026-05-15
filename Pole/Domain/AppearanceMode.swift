@@ -1,5 +1,5 @@
-import Combine
 import SwiftUI
+import PoleDomain
 
 public enum AppearanceMode: String, CaseIterable, Sendable {
     case dark    // 默认
@@ -24,11 +24,12 @@ public enum AppearanceMode: String, CaseIterable, Sendable {
 }
 
 @MainActor
-public final class AppearanceStore: ObservableObject {
-    public static let shared = AppearanceStore()
+@Observable
+public final class AppearanceStore {
+    @MainActor public static let shared = AppearanceStore()
     private let key = "appearanceMode"
 
-    @Published public var current: AppearanceMode {
+    public var current: AppearanceMode {
         didSet { UserDefaults.standard.set(current.rawValue, forKey: key) }
     }
 

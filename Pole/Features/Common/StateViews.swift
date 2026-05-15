@@ -1,4 +1,6 @@
 import SwiftUI
+import PoleDesignSystem
+import PoleDomain
 
 /// 通用错误态组件 — 统一图标 / 标题 / 重试 CTA 风格。
 /// 用法:`ErrorView(message: vm.errorMessage) { Task { await vm.load() } }`。

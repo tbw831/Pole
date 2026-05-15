@@ -1,4 +1,6 @@
 import SwiftUI
+import PoleDesignSystem
+import PoleDomain
 
 @MainActor
 @Observable
@@ -58,7 +60,7 @@ struct TeamDetailView: View {
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .dsHeroBanner(seriesAccent: viewModel.series)
+                .dsHeroBanner(seriesAccent: viewModel.series.brandColor)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)

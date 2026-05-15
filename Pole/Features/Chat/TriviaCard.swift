@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+import PoleDesignSystem
+import PoleDomain
+import PoleAIKit
 
 /// 首屏"今日冷知识"卡片——AI 每天生成一条,缓存到 SwiftData。
 /// 同一天再开 app 不重复调 API。失败/没数据则不显示卡片(自然降级)。

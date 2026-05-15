@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2BC931052FA70F0100DBA5C3 /* PoleSharedKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931032FA70F0100DBA5C3 /* PoleSharedKit */; };
+		2BC931062FA70F0100DBA5C3 /* PoleDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */; };
+		2BC931072FA70F0100DBA5C3 /* PoleDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC931082FA70F0100DBA5C3 /* PoleDomain */; };
+		2BC9310A2FA70F0100DBA5C3 /* PoleMotorsportKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9310B2FA70F0100DBA5C3 /* PoleMotorsportKit */; };
+		2BC9310D2FA70F0100DBA5C3 /* PoleAIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2BC930BB2FA706F700DBA5C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +60,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BC931052FA70F0100DBA5C3 /* PoleSharedKit in Frameworks */,
+				2BC931062FA70F0100DBA5C3 /* PoleDesignSystem in Frameworks */,
+				2BC931072FA70F0100DBA5C3 /* PoleDomain in Frameworks */,
+				2BC9310A2FA70F0100DBA5C3 /* PoleMotorsportKit in Frameworks */,
+				2BC9310D2FA70F0100DBA5C3 /* PoleAIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +125,11 @@
 			);
 			name = Pole;
 			packageProductDependencies = (
+				2BC931032FA70F0100DBA5C3 /* PoleSharedKit */,
+				2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */,
+				2BC931082FA70F0100DBA5C3 /* PoleDomain */,
+				2BC9310B2FA70F0100DBA5C3 /* PoleMotorsportKit */,
+				2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */,
 			);
 			productName = Pole;
 			productReference = 2BC930AB2FA706F600DBA5C3 /* Pole.app */;
@@ -195,6 +213,13 @@
 			);
 			mainGroup = 2BC930A22FA706F600DBA5C3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2BC931012FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSharedKit" */,
+				2BC931022FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDesignSystem" */,
+				2BC931092FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDomain" */,
+				2BC9310C2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleMotorsportKit" */,
+				2BC9310F2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleAIKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2BC930AC2FA706F600DBA5C3 /* Products */;
 			projectDirPath = "";
@@ -582,6 +607,52 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2BC931012FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleSharedKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleSharedKit;
+		};
+		2BC931022FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleDesignSystem;
+		};
+		2BC931092FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleDomain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleDomain;
+		};
+		2BC9310C2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleMotorsportKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleMotorsportKit;
+		};
+		2BC9310F2FA70F0100DBA5C3 /* XCLocalSwiftPackageReference "Packages/PoleAIKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PoleAIKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2BC931032FA70F0100DBA5C3 /* PoleSharedKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleSharedKit;
+		};
+		2BC931042FA70F0100DBA5C3 /* PoleDesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleDesignSystem;
+		};
+		2BC931082FA70F0100DBA5C3 /* PoleDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleDomain;
+		};
+		2BC9310B2FA70F0100DBA5C3 /* PoleMotorsportKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleMotorsportKit;
+		};
+		2BC9310E2FA70F0100DBA5C3 /* PoleAIKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PoleAIKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2BC930A32FA706F600DBA5C3 /* Project object */;
 }

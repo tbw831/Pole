@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// SwiftData 操作 ChatSession / ChatMessage 的 helper。所有方法 MainActor。
 @MainActor

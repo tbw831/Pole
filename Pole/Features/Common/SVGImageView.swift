@@ -1,13 +1,34 @@
 import SwiftUI
 import WebKit
+import PoleSharedKit
 
 /// SwiftUI wrapper 用 WKWebView 渲染 SVG——AsyncImage / UIImage 都不支持 SVG,
 /// WKWebView 是 iOS 上最简单(无第三方依赖)的方案。
 ///
+/// 顶层 View 先经 `SVGDiskCache` 把 URL 解析成 file:// 本地路径再交给 WKWebView,
+/// 第二次进同一页面 < 50ms(无网络)。bundle 内 file:// URL 直接透传。
+struct SVGImageView: View {
+    let url: URL
+    @State private var resolvedURL: URL?
+
+    var body: some View {
+        Group {
+            if let local = resolvedURL {
+                _SVGWebView(url: local)
+            } else {
+                Color.clear  // 没解析完前透明,避免闪屏
+            }
+        }
+        .task(id: url) {
+            resolvedURL = try? await SVGDiskCache.shared.localFileURL(for: url)
+        }
+    }
+}
+
 /// **直接 load(URLRequest) 会让 SVG 显示在 WebView 左上角**(默认无 CSS 居中)。
 /// 这里用 HTML wrapper 包一层 flex 容器 + `object-fit: contain` 让 SVG 在容器内
 /// **等比缩放居中**,适配任何 banner 尺寸。
-struct SVGImageView: UIViewRepresentable {
+private struct _SVGWebView: UIViewRepresentable {
     let url: URL
 
     func makeUIView(context: Context) -> WKWebView {

@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+import PoleDomain
+import PoleDesignSystem
+import PoleAIKit
 
 /// AI 生成的赛道亮点 section — **可折叠**。
 /// 默认折叠显示"赛道亮点 ▾",点击展开第一次自动触发 LLM 生成,缓存后再展开直接显示。

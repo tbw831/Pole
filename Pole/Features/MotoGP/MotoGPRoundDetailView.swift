@@ -1,5 +1,8 @@
 import SwiftUI
 import Combine
+import PoleDesignSystem
+import PoleDomain
+import PoleMotorsportKit
 
 // MARK: - ViewModel
 
@@ -87,7 +90,7 @@ struct MotoGPRoundDetailView: View {
                 }
             }
             .padding(.vertical, DS.Spacing.sm)
-            .dsHeroBanner(seriesAccent: .motogp)
+            .dsHeroBanner(seriesAccent: MotorsportSeries.motogp.brandColor)
         }
         .listRowInsets(EdgeInsets())
         .listRowBackground(Color.clear)
@@ -139,7 +142,7 @@ struct MotoGPRoundDetailView: View {
                     return String(data: data, encoding: .utf8) ?? "{}"
                 }
             )
-            .dsHeroBanner(seriesAccent: .motogp)
+            .dsHeroBanner(seriesAccent: MotorsportSeries.motogp.brandColor)
         }
     }
 

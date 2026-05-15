@@ -1,4 +1,6 @@
 import SwiftUI
+import PoleDesignSystem
+import PoleDomain
 
 private let motorsportCardCornerRadius: CGFloat = DS.Radius.xl
 
@@ -25,7 +27,7 @@ struct MotorsportCard<Content: View, Trailing: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            SeriesTopAccent(series: series)
+            SeriesTopAccent(color: series.brandColor)
             HStack(alignment: .center, spacing: 12) {
                 content()
                 Spacer(minLength: 0)

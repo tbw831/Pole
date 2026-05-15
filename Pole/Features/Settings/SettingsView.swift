@@ -1,19 +1,22 @@
 import SwiftUI
 import UserNotifications
+import PoleDesignSystem
+import PoleDomain
 
 struct SettingsView: View {
     @State private var authStatus: UNAuthorizationStatus = .notDetermined
     @State private var pendingCount: Int = 0
     @AppStorage("languageMode") private var languageRaw: String = LanguageMode.zh.rawValue
     @AppStorage("liveActivityEnabled") private var liveActivityEnabled: Bool = true
-    @StateObject private var appearance = AppearanceStore.shared
+    @State private var appearance = AppearanceStore.shared
     @AppStorage("leadTimeRace") private var leadTimeRace: Int = 30
     @AppStorage("leadTimeQualifying") private var leadTimeQualifying: Int = 15
     @AppStorage("greetingMode") private var greetingModeRaw: String = "racing"
     @AppStorage("reducedDecor") private var reducedDecor: Bool = false
 
     var body: some View {
-        NavigationStack {
+        @Bindable var appearance = appearance
+        return NavigationStack {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: DS.Spacing.xs) {

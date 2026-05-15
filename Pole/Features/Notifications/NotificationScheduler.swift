@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import UserNotifications
+import PoleDomain
 
 /// 本地通知调度——为赛车 sessions 注册赛前提醒。
 /// 策略 hardcode(仅自用):

@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+import PoleDomain
+import PoleDesignSystem
+import PoleAIKit
 
 /// 赛事概览 section — 跟 CircuitHighlightSection 视觉一致（自定义头部 row + chevron + footer）。
 ///

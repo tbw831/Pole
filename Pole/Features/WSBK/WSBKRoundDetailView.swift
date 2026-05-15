@@ -1,5 +1,8 @@
 import SwiftUI
 import Combine
+import PoleDesignSystem
+import PoleDomain
+import PoleMotorsportKit
 
 @MainActor
 @Observable
@@ -86,7 +89,7 @@ struct WSBKRoundDetailView: View {
                 }
             }
             .padding(.vertical, DS.Spacing.sm)
-            .dsHeroBanner(seriesAccent: .wssp)
+            .dsHeroBanner(seriesAccent: MotorsportSeries.wssp.brandColor)
         }
         .listRowInsets(EdgeInsets())
         .listRowBackground(Color.clear)
@@ -124,7 +127,7 @@ struct WSBKRoundDetailView: View {
                     return String(data: data, encoding: .utf8) ?? "{}"
                 }
             )
-            .dsHeroBanner(seriesAccent: .wssp)
+            .dsHeroBanner(seriesAccent: MotorsportSeries.wssp.brandColor)
         }
     }
 

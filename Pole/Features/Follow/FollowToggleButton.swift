@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleDomain
 
 /// 单个 FollowTarget 的关注开关。每个 button 用 @Query 监听自己的 key,
 /// SwiftData 写入后会自动重渲染。在 List 行里安全使用。

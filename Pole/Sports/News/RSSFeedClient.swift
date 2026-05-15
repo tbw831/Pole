@@ -1,4 +1,6 @@
 import Foundation
+import PoleDomain
+import PoleSharedKit
 
 public enum RSSError: Error, LocalizedError {
     case invalidResponse(Int)
