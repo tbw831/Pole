@@ -271,9 +271,4 @@ public struct StopLiveActivityIntent: AppIntent {
     }
 }
 
-/// 通知名 — 跨模块跳转用。
-public extension Notification.Name {
-    static let openRaceDetail = Notification.Name("openRaceDetail")
-    /// 用户切到 AI tab — ChatView 收到后回到 starter(greeting)页,放弃当前会话(历史仍在)
-    static let resetChatToStarter = Notification.Name("resetChatToStarter")
-}
+// `Notification.Name` 移到 `PoleDomain.Notifications` 跨包共享(openRaceDetail / resetChatToStarter)。

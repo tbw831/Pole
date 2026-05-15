@@ -1,0 +1,43 @@
+import SwiftUI
+
+public enum AppearanceMode: String, CaseIterable, Sendable {
+    case dark    // 默认
+    case light
+    case system
+
+    public var colorScheme: ColorScheme? {
+        switch self {
+        case .dark:   return .dark
+        case .light:  return .light
+        case .system: return nil
+        }
+    }
+
+    public var displayLabel: String {
+        switch self {
+        case .dark:   return L10n.t(zh: "深色", en: "Dark")
+        case .light:  return L10n.t(zh: "浅色", en: "Light")
+        case .system: return L10n.t(zh: "跟随系统", en: "System")
+        }
+    }
+}
+
+@MainActor
+@Observable
+public final class AppearanceStore {
+    @MainActor public static let shared = AppearanceStore()
+    private let key = "appearanceMode"
+
+    public var current: AppearanceMode {
+        didSet { UserDefaults.standard.set(current.rawValue, forKey: key) }
+    }
+
+    private init() {
+        if let raw = UserDefaults.standard.string(forKey: key),
+           let mode = AppearanceMode(rawValue: raw) {
+            self.current = mode
+        } else {
+            self.current = .dark   // 首次启动默认 Dark
+        }
+    }
+}
