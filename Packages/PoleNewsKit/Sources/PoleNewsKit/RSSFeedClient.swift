@@ -26,6 +26,40 @@ public actor RSSFeedClient {
         self.session = session
     }
 
+    // MARK: - Compiled regex cache (NSRegularExpression is thread-safe after init)
+
+    private nonisolated static let itemRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: #"<item[^>]*>([\s\S]*?)</item>"#)
+    }()
+
+    private nonisolated static let enclosureRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: #"<(?:enclosure|media:content|media:thumbnail)\s+[^>]*url="([^"]+)""#)
+    }()
+
+    private nonisolated static let htmlTagRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: #"<[^>]+>"#)
+    }()
+
+    // Per-tag-name cache for extractTag dynamic patterns. The var needs `nonisolated(unsafe)`
+    // because it is mutable global state outside actor isolation; an NSLock guards all access.
+    private nonisolated(unsafe) static var tagRegexCache: [String: NSRegularExpression] = [:]
+    private nonisolated static let tagRegexCacheLock = NSLock()
+
+    private nonisolated static func tagRegex(for tag: String) -> NSRegularExpression? {
+        tagRegexCacheLock.lock()
+        if let cached = tagRegexCache[tag] {
+            tagRegexCacheLock.unlock()
+            return cached
+        }
+        tagRegexCacheLock.unlock()
+        let pattern = "<\(tag)(?:\\s[^>]*)?>([\\s\\S]*?)</\(tag)>"
+        guard let rx = try? NSRegularExpression(pattern: pattern) else { return nil }
+        tagRegexCacheLock.lock()
+        tagRegexCache[tag] = rx
+        tagRegexCacheLock.unlock()
+        return rx
+    }
+
     public func fetch(url: URL, sourceName: String) async throws -> [NewsItem] {
         var request = URLRequest(url: url)
         request.setValue(
@@ -56,7 +90,7 @@ public actor RSSFeedClient {
     // MARK: - Parsing
 
     private nonisolated static func parseRSS(xml: String, sourceName: String) -> [NewsItem] {
-        guard let itemRegex = try? NSRegularExpression(pattern: #"<item[^>]*>([\s\S]*?)</item>"#) else { return [] }
+        guard let itemRegex = itemRegex else { return [] }
         let nsXml = xml as NSString
         let allRange = NSRange(location: 0, length: nsXml.length)
         let matches = itemRegex.matches(in: xml, range: allRange)
@@ -84,7 +118,7 @@ public actor RSSFeedClient {
 
         // <enclosure url="..." type="image/jpeg"/> 或 <media:content url="..."/>
         var imageUrl: URL? = nil
-        if let r = try? NSRegularExpression(pattern: #"<(?:enclosure|media:content|media:thumbnail)\s+[^>]*url="([^"]+)""#) {
+        if let r = enclosureRegex {
             let nsInner = inner as NSString
             if let m = r.firstMatch(in: inner, range: NSRange(location: 0, length: nsInner.length)),
                m.numberOfRanges == 2 {
@@ -103,8 +137,7 @@ public actor RSSFeedClient {
     }
 
     private nonisolated static func extractTag(_ tag: String, in xml: String) -> String? {
-        let pattern = "<\(tag)(?:\\s[^>]*)?>([\\s\\S]*?)</\(tag)>"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        guard let regex = tagRegex(for: tag) else { return nil }
         let nsXml = xml as NSString
         guard let m = regex.firstMatch(in: xml, range: NSRange(location: 0, length: nsXml.length)),
               m.numberOfRanges == 2 else { return nil }
@@ -120,7 +153,7 @@ public actor RSSFeedClient {
     private nonisolated static func cleanText(_ raw: String) -> String {
         var s = raw
         // 去 HTML tags
-        if let r = try? NSRegularExpression(pattern: #"<[^>]+>"#) {
+        if let r = htmlTagRegex {
             s = r.stringByReplacingMatches(
                 in: s,
                 range: NSRange(location: 0, length: (s as NSString).length),

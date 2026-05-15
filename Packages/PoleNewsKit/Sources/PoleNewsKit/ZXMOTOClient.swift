@@ -14,6 +14,29 @@ public actor ZXMOTOClient {
         self.session = session
     }
 
+    // MARK: - Compiled regex cache (NSRegularExpression is thread-safe after init)
+
+    private nonisolated static let liRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: #"<li>([\s\S]*?)</li>"#)
+    }()
+
+    private nonisolated(unsafe) static var patternCache: [String: NSRegularExpression] = [:]
+    private nonisolated static let patternCacheLock = NSLock()
+
+    private nonisolated static func regex(for pattern: String) -> NSRegularExpression? {
+        patternCacheLock.lock()
+        if let cached = patternCache[pattern] {
+            patternCacheLock.unlock()
+            return cached
+        }
+        patternCacheLock.unlock()
+        guard let rx = try? NSRegularExpression(pattern: pattern) else { return nil }
+        patternCacheLock.lock()
+        patternCache[pattern] = rx
+        patternCacheLock.unlock()
+        return rx
+    }
+
     /// 抓 catid=3(WSBK 张雪赛事动态)新闻 list。
     /// page 默认 1,首页一般 8-10 条最新。
     public func fetchNews(page: Int = 1) async throws -> [NewsItem] {
@@ -41,7 +64,7 @@ public actor ZXMOTOClient {
 
     private nonisolated static func parseLI(html: String, baseURL: URL) -> [NewsItem] {
         // 每个 li 块:含 href / img / title / date
-        guard let liRegex = try? NSRegularExpression(pattern: #"<li>([\s\S]*?)</li>"#) else { return [] }
+        guard let liRegex = liRegex else { return [] }
         let nsHtml = html as NSString
         let allRange = NSRange(location: 0, length: nsHtml.length)
         let matches = liRegex.matches(in: html, range: allRange)
@@ -84,7 +107,7 @@ public actor ZXMOTOClient {
     }
 
     private nonisolated static func firstCapture(_ text: String, pattern: String) -> String? {
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        guard let regex = regex(for: pattern) else { return nil }
         let nsText = text as NSString
         guard let m = regex.firstMatch(in: text, range: NSRange(location: 0, length: nsText.length)),
               m.numberOfRanges >= 2 else { return nil }

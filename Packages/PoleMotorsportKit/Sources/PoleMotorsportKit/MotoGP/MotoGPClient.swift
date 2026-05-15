@@ -328,10 +328,8 @@ private struct EventDTO: Sendable, nonisolated Decodable {
     }
 
     nonisolated func toDomain(round: Int, leagueId: String, seasonYear: Int) -> MotoGPRound? {
-        let dateOnly = ISO8601DateFormatter()
-        dateOnly.formatOptions = [.withFullDate]
-        guard let start = dateOnly.date(from: date_start),
-              let end = dateOnly.date(from: date_end) else { return nil }
+        guard let start = motoGPDateOnlyFormatter.date(from: date_start),
+              let end = motoGPDateOnlyFormatter.date(from: date_end) else { return nil }
 
         let circuit = Circuit(
             id: self.circuit?.id ?? "unknown",
@@ -417,6 +415,16 @@ private enum MotoGPLogger {
     nonisolated static let log = Logger(subsystem: "com.tiebowen.Pole", category: "MotoGPClient")
     nonisolated static func warning(_ msg: String) { log.warning("\(msg, privacy: .public)") }
 }
+
+/// 共享 date-only formatter — 原本 `EventDTO.toDomain` 每个 round 都新建一次 `ISO8601DateFormatter()`,
+/// 一次赛季 fetch ~20 个 round × 2 次 .date(from:) 创建大量临时 formatter。
+/// `ISO8601DateFormatter` 自 iOS 7 起 thread-safe(只读 `.date(from:)`),没标 Sendable 是 Foundation 历史包袱。
+/// `nonisolated(unsafe)` 显式承认 — 只读不写 formatter 配置,read-only 共享安全。参见 `jolpicaIsoFormatter` 同款模式。
+nonisolated(unsafe) fileprivate let motoGPDateOnlyFormatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withFullDate]
+    return f
+}()
 
 // MARK: - Standings DTOs
 

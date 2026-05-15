@@ -388,8 +388,7 @@ public actor WSBKClient {
 
         let nsRange = NSRange(html.startIndex..., in: html)
         let anchors = anchorRegex.matches(in: html, options: [], range: nsRange)
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
+        let formatter = wsbkIsoFormatter
         let totalLength = (html as NSString).length
 
         var sessions: [WSSPSessionWithResults] = []
@@ -859,10 +858,7 @@ public actor WSBKClient {
         let leftRaw = parts[0]
         let rightRaw = parts[1]
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        let formatter = wsbkDateRangeFormatter
 
         guard let endDate = formatter.date(from: "\(rightRaw) \(year)") else { return nil }
 
@@ -877,3 +873,25 @@ public actor WSBKClient {
         return (startDate, endDate)
     }
 }
+
+/// 共享 ISO8601 formatter — HTML parse 路径里每场赛事的 session 列表都会创建一次,
+/// 一次赛季 ~12 round × 多 session 走这条路径,临时 formatter 数量可观。
+/// `ISO8601DateFormatter` 自 iOS 7 起 thread-safe(只读 `.date(from:)`)。
+/// `nonisolated(unsafe)` 显式承认 — 只读不写,read-only 共享安全。参见 `jolpicaIsoFormatter` 同款模式。
+nonisolated(unsafe) fileprivate let wsbkIsoFormatter: ISO8601DateFormatter = {
+    let f = ISO8601DateFormatter()
+    f.formatOptions = [.withInternetDateTime]
+    return f
+}()
+
+/// 共享 `"d MMM yyyy"` formatter — `parseDateRange` 每个 round 调一次 × 2 次 .date(from:),
+/// 原本每 round 新建一个 DateFormatter(比 ISO8601 更重)。
+/// `DateFormatter` 在新 Swift Concurrency 中已是 `Sendable`,直接 fileprivate let 即可复用。
+/// `en_US_POSIX` locale 保证英文月份名(Feb / May / Jun)在任何用户区域设置下都能解析。
+fileprivate let wsbkDateRangeFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateFormat = "d MMM yyyy"
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.timeZone = TimeZone(secondsFromGMT: 0)
+    return f
+}()
