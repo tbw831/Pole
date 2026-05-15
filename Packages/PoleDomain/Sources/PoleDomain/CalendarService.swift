@@ -4,17 +4,17 @@ import EventKit
 /// EventKit 写入封装——每个 session 独立加日历事件,iOS 17+ 用 write-only 权限。
 /// 写入用户 default calendar,同时挂个 -30min 提醒。
 @MainActor
-final class CalendarService {
-    static let shared = CalendarService()
+public final class CalendarService {
+    public static let shared = CalendarService()
 
     private let store = EKEventStore()
 
-    var authStatus: EKAuthorizationStatus {
+    public var authStatus: EKAuthorizationStatus {
         EKEventStore.authorizationStatus(for: .event)
     }
 
     @discardableResult
-    func requestAccess() async -> Bool {
+    public func requestAccess() async -> Bool {
         do {
             return try await store.requestWriteOnlyAccessToEvents()
         } catch {
@@ -23,7 +23,7 @@ final class CalendarService {
     }
 
     /// 创建 event,返回 EKEvent identifier(成功) 或 nil(失败/拒绝)。
-    func addEvent(title: String, start: Date, end: Date, notes: String? = nil) async -> String? {
+    public func addEvent(title: String, start: Date, end: Date, notes: String? = nil) async -> String? {
         guard await ensureAccess() else { return nil }
         let event = EKEvent(eventStore: store)
         event.title = title
@@ -43,7 +43,7 @@ final class CalendarService {
 
     /// 移除已添加的 event(用 identifier 在 EventStore 找)。
     @discardableResult
-    func removeEvent(identifier: String) async -> Bool {
+    public func removeEvent(identifier: String) async -> Bool {
         guard await ensureAccess() else { return false }
         guard let event = store.event(withIdentifier: identifier) else { return false }
         do {

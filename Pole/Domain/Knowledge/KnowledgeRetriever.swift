@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import NaturalLanguage
+import PoleDomain
 
 /// 知识库 cosine 相似度检索 — 给 RetrieveKnowledgeTool / 任何想做语义搜索的地方用。
 ///

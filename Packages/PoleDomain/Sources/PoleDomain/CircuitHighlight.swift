@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import PoleDomain
 
 /// AI 生成的赛道亮点缓存。一条对应一个"赛道 + 系列"组合。
 ///
@@ -11,14 +10,14 @@ import PoleDomain
 /// - `content` 是 LLM 输出的纯文本(无 markdown,200 字以内)。
 /// - 一旦生成长期有效,赛道特点不会变。
 @Model
-final class CircuitHighlight {
-    @Attribute(.unique) var key: String
-    var series: String
-    var circuitName: String
-    var content: String
-    var createdAt: Date
+public final class CircuitHighlight {
+    @Attribute(.unique) public var key: String
+    public var series: String
+    public var circuitName: String
+    public var content: String
+    public var createdAt: Date
 
-    init(key: String, series: String, circuitName: String, content: String, createdAt: Date = .now) {
+    public init(key: String, series: String, circuitName: String, content: String, createdAt: Date = .now) {
         self.key = key
         self.series = series
         self.circuitName = circuitName
@@ -27,7 +26,7 @@ final class CircuitHighlight {
     }
 
     /// 标准化 key 生成。circuit name slug + series。
-    static func makeKey(series: MotorsportSeries, circuitName: String) -> String {
+    public static func makeKey(series: MotorsportSeries, circuitName: String) -> String {
         let slug = circuitName
             .lowercased()
             .replacingOccurrences(of: " ", with: "-")

@@ -1,20 +1,19 @@
 import Foundation
 import SwiftData
-import PoleDomain
 
 /// SwiftData 持久化的"关注"行。一行 = 一个 FollowTarget。
 /// `key` 强约束唯一，避免重复 follow。
 @Model
-final class FollowedItem {
-    @Attribute(.unique) var key: String
-    var sportRaw: String
-    var seriesRaw: String
-    var kindRaw: String         // "athlete" / "team" / "league"
-    var refId: String
-    var displayName: String     // 关注时一并存好,离线也能展示("Max Verstappen" / "Red Bull")
-    var addedAt: Date
+public final class FollowedItem {
+    @Attribute(.unique) public var key: String
+    public var sportRaw: String
+    public var seriesRaw: String
+    public var kindRaw: String         // "athlete" / "team" / "league"
+    public var refId: String
+    public var displayName: String     // 关注时一并存好,离线也能展示("Max Verstappen" / "Red Bull")
+    public var addedAt: Date
 
-    init(target: FollowTarget, displayName: String, addedAt: Date = .now) {
+    public init(target: FollowTarget, displayName: String, addedAt: Date = .now) {
         self.key = Self.makeKey(target)
         self.sportRaw = target.sport.rawValue
         self.seriesRaw = target.series
@@ -24,11 +23,11 @@ final class FollowedItem {
         self.addedAt = addedAt
     }
 
-    static func makeKey(_ target: FollowTarget) -> String {
+    public static func makeKey(_ target: FollowTarget) -> String {
         "\(target.series):\(target.kindLabel):\(target.rawId)"
     }
 
-    var target: FollowTarget? {
+    public var target: FollowTarget? {
         guard let sport = Sport(rawValue: sportRaw) else { return nil }
         switch kindRaw {
         case "athlete": return .athlete(id: refId, sport: sport, series: seriesRaw)
@@ -44,7 +43,7 @@ extension FollowedItem {
     /// 这里按 `kindRaw` + `seriesRaw` 过 `MotorsportNames` 转中文（zh 模式）。
     /// 给 ChatViewModel ListFollowedTool fetcher / starter prompts followedNames /
     /// followedPrompts 用，让 LLM 上下文也是用户当前语言。
-    var localizedDisplayName: String {
+    public var localizedDisplayName: String {
         guard let series = MotorsportSeries(rawValue: seriesRaw) else { return displayName }
         switch kindRaw {
         case "athlete":

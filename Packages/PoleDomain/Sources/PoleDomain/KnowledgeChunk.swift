@@ -9,19 +9,19 @@ import SwiftData
 ///
 /// 跟 ChatMessage 等 @Model 一起注册进 PoleApp.sharedModelContainer 的 Schema。
 @Model
-final class KnowledgeChunk {
-    @Attribute(.unique) var id: UUID
-    var text: String              // chunk 原文(给 LLM 看的内容)
-    var source: String            // "F1/rules.md#drs"-类似面包屑,显示给用户/调试用
-    var seriesRaw: String?        // "f1"/"motogp"/"wsbk"/"fe"/nil(跨系列通用)
-    var topic: String?            // "rules"/"circuit"/"history"/"strategy" 用于 filter 不同主题
+public final class KnowledgeChunk {
+    @Attribute(.unique) public var id: UUID
+    public var text: String              // chunk 原文(给 LLM 看的内容)
+    public var source: String            // "F1/rules.md#drs"-类似面包屑,显示给用户/调试用
+    public var seriesRaw: String?        // "f1"/"motogp"/"wsbk"/"fe"/nil(跨系列通用)
+    public var topic: String?            // "rules"/"circuit"/"history"/"strategy" 用于 filter 不同主题
     /// 向量(Float32 序列化)— Apple NLContextualEmbedding 维度通常 512;
     /// 用 Float 而非 Double 节省 50% 存储,cosine 精度足够。
     /// 500 chunk × 512 维 × 4 bytes = 1MB,完全可接受。
-    var vectorData: Data
-    var createdAt: Date
+    public var vectorData: Data
+    public var createdAt: Date
 
-    init(
+    public init(
         id: UUID = UUID(),
         text: String,
         source: String,
@@ -41,7 +41,7 @@ final class KnowledgeChunk {
 
     /// 反序列化 vectorData → [Float]。每次读会 alloc 新 array,fetch 后建议
     /// 在 retriever 内一次性转换避免反复 unsafeBytes。
-    var vector: [Float] {
+    public var vector: [Float] {
         vectorData.withUnsafeBytes { buf -> [Float] in
             let count = buf.count / MemoryLayout<Float>.size
             let floatBuf = buf.bindMemory(to: Float.self)
@@ -50,7 +50,7 @@ final class KnowledgeChunk {
     }
 
     /// 序列化 [Float] → Data — Importer 写入时用。
-    static func encodeVector(_ v: [Float]) -> Data {
+    public static func encodeVector(_ v: [Float]) -> Data {
         v.withUnsafeBufferPointer { Data(buffer: $0) }
     }
 }

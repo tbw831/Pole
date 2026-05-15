@@ -3,24 +3,24 @@ import SwiftData
 
 /// 一条聊天消息——对应 ChatViewModel.Bubble 的三种 case。
 @Model
-final class ChatMessage {
-    @Attribute(.unique) var id: UUID
-    var roleRaw: String         // "user" / "assistant" / "tool_step"
-    var text: String
-    var toolName: String?
-    var toolStatusRaw: String?  // "running" / "done" / "failed"(仅 tool_step)
-    var toolPreview: String?
+public final class ChatMessage {
+    @Attribute(.unique) public var id: UUID
+    public var roleRaw: String         // "user" / "assistant" / "tool_step"
+    public var text: String
+    public var toolName: String?
+    public var toolStatusRaw: String?  // "running" / "done" / "failed"(仅 tool_step)
+    public var toolPreview: String?
     /// 进度文案 — running 时 LLM 看不到,纯 UI 展示("正在查找 F1 西班牙站...")
-    var toolRunningHint: String?
+    public var toolRunningHint: String?
     /// tool 开始时间(仅 tool_step)— 用于显示耗时
-    var toolStartedAt: Date?
+    public var toolStartedAt: Date?
     /// tool 结束时间(仅 tool_step)— done/failed 后用于显示 finishedAt - startedAt
-    var toolFinishedAt: Date?
-    var createdAt: Date
+    public var toolFinishedAt: Date?
+    public var createdAt: Date
 
-    var session: ChatSession?
+    public var session: ChatSession?
 
-    init(
+    public init(
         id: UUID = UUID(),
         role: Role,
         text: String,
@@ -44,14 +44,14 @@ final class ChatMessage {
         self.createdAt = createdAt
     }
 
-    enum Role: String { case user, assistant, tool_step }
-    enum ToolStatus: String { case running, done, failed }
+    public enum Role: String { case user, assistant, tool_step }
+    public enum ToolStatus: String { case running, done, failed }
 
-    var role: Role { Role(rawValue: roleRaw) ?? .assistant }
-    var toolStatus: ToolStatus? { toolStatusRaw.flatMap(ToolStatus.init) }
+    public var role: Role { Role(rawValue: roleRaw) ?? .assistant }
+    public var toolStatus: ToolStatus? { toolStatusRaw.flatMap(ToolStatus.init) }
 
     /// done/failed 时返回耗时秒数(用于 UI 显示),否则 nil。
-    var toolDuration: TimeInterval? {
+    public var toolDuration: TimeInterval? {
         guard let s = toolStartedAt, let e = toolFinishedAt else { return nil }
         return max(0, e.timeIntervalSince(s))
     }

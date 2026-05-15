@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import NaturalLanguage
+import PoleDomain
 
 /// 启动时把 `Resources/Knowledge/**/*.md` 切 chunk → embed → 写入 SwiftData。
 ///

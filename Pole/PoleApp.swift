@@ -49,6 +49,9 @@ struct PoleApp: App {
                 .environment(env)
                 .environment(appearance)
                 .task {
+                    // PoleDomain.FollowStore 是 package，不依赖主 app 的 WidgetSnapshotBuilder；
+                    // 这里把"关注列表变更"和"widget snapshot 刷新"挂起来。
+                    FollowStore.onChange = { WidgetSnapshotBuilder.refresh(force: true) }
                     // 启动后异步刷新 widget snapshot,不阻塞 UI。
                     WidgetSnapshotBuilder.refresh()
                     // RAG 知识库懒导入:首次启动 embed 全部 chunk(~10-20s),已导入则直接 return。
