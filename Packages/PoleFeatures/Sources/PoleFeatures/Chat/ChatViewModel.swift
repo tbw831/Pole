@@ -79,8 +79,17 @@ public final class ChatViewModel {
 
     /// 把 bubbles 折叠成 RenderItem 列表 — 连续的 toolStep 合并成一个 toolGroup。
     /// 提到 ViewModel 作 derived 属性(view 不再每次 body 重算时调 view 内的 renderItems);
-    /// SwiftUI @Observable 不自动 cache 但访问点单一,语义清晰。
-    var renderedItems: [ChatView.RenderItem] {
+    /// **缓存优化**: 此前是 computed property,流式期间 view body 每次重算都会全 bubbles
+    /// 数组扫一遍折叠 toolGroup。改为 stored cached property,只在 bubbles 真变(append /
+    /// 状态翻转 / 删除)时通过 `refreshRenderedItems()` 重算。streamingText 改不触发刷新——
+    /// 流式 bubble 由 chatList 独立渲染(不进 bubbles 数组),renderedItems 在流式期间稳定不变。
+    private(set) var renderedItems: [ChatView.RenderItem] = []
+
+    /// 重新折叠 bubbles → renderedItems。
+    /// 每次 mutate bubbles 后必须 call 一次,否则 view 看不到新内容。
+    /// streamingText / streamingId 不影响 renderedItems(流式 bubble 独立渲染),
+    /// 流式结束 flushStreamingToBubbles 时会 append 进 bubbles 再触发本方法。
+    private func refreshRenderedItems() {
         var items: [ChatView.RenderItem] = []
         var currentSteps: [ChatView.RenderItem.ToolStep] = []
 
@@ -108,7 +117,7 @@ public final class ChatViewModel {
             }
         }
         flush()
-        return items
+        renderedItems = items
     }
 
     // MARK: - 静态文案转发(view 仍按老 API 读)
@@ -175,6 +184,7 @@ public final class ChatViewModel {
         let loaded = persistence.loadSession(session)
         self.bubbles = loaded.bubbles
         self.history = loaded.history
+        refreshRenderedItems()
     }
 
     func startNewSession() {
@@ -185,6 +195,7 @@ public final class ChatViewModel {
         persistence.resetForNewSession()
         session = nil
         currentSessionID = nil
+        refreshRenderedItems()
     }
 
     func deleteSession(_ s: ChatSession) {
@@ -224,6 +235,7 @@ public final class ChatViewModel {
         let toRemove = Array(bubbles[(lastUserIdx + 1)...])
         persistence.deleteMessages(ids: toRemove.map(\.id))
         bubbles.removeSubrange((lastUserIdx + 1)...)
+        refreshRenderedItems()
         persistence.save()
 
         // 重建 history:从 bubbles 里捞出"重发的 user 之前"的 user/assistant 对(忽略 tool step)
@@ -259,6 +271,7 @@ public final class ChatViewModel {
             let errText = L10n.t(zh: "出错了:\(error.localizedDescription)",
                                   en: "Error: \(error.localizedDescription)")
             bubbles.append(.assistant(id: errId, text: errText))
+            refreshRenderedItems()
             persistence.appendText(id: errId, role: .assistant, text: errText, to: session)
             persistence.save()
         }
@@ -282,6 +295,7 @@ public final class ChatViewModel {
         // 把 bubbles 里挂着 running 的 tool step 立即翻成 failed,UI 不要等 cancel 传过去
         let now = Date()
         let cancelLabel = L10n.t(zh: "已取消", en: "Cancelled")
+        var didMutate = false
         for (idx, b) in bubbles.enumerated() {
             if case .toolStep(let id, let name, .running, let preview, let hint, let startedAt, _) = b {
                 bubbles[idx] = .toolStep(
@@ -294,8 +308,10 @@ public final class ChatViewModel {
                     finishedAt: now
                 )
                 persistence.cancelToolStep(id: id, at: now, cancelLabel: cancelLabel)
+                didMutate = true
             }
         }
+        if didMutate { refreshRenderedItems() }
         persistence.save()
         HapticFeedback.warning()
     }
@@ -326,6 +342,7 @@ public final class ChatViewModel {
                 let toRemove = Array(self.bubbles[(lastUserIdx + 1)...])
                 self.persistence.deleteMessages(ids: toRemove.map(\.id))
                 self.bubbles.removeSubrange((lastUserIdx + 1)...)
+                self.refreshRenderedItems()
                 self.persistence.save()
                 let priorBubbles = self.bubbles.prefix(lastUserIdx)
                 let rebuiltHistory: [AgentMessage] = priorBubbles.compactMap { b in
@@ -383,6 +400,7 @@ public final class ChatViewModel {
         transaction.disablesAnimations = true
         withTransaction(transaction) {
             bubbles.append(.assistant(id: id, text: text))
+            refreshRenderedItems()
         }
     }
 
@@ -404,6 +422,7 @@ public final class ChatViewModel {
 
         let userId = UUID()
         bubbles.append(.user(id: userId, text: text))
+        refreshRenderedItems()
         persistence.appendText(id: userId, role: .user, text: text, to: session)
         persistence.save()
 
@@ -442,6 +461,7 @@ public final class ChatViewModel {
             let errText = L10n.t(zh: "出错了:\(error.localizedDescription)",
                                   en: "Error: \(error.localizedDescription)")
             bubbles.append(.assistant(id: errId, text: errText))
+            refreshRenderedItems()
             persistence.appendText(id: errId, role: .assistant, text: errText, to: session)
             persistence.save()
         }
@@ -494,6 +514,7 @@ public final class ChatViewModel {
                 startedAt: now,
                 finishedAt: nil
             ))
+            refreshRenderedItems()
             persistence.appendToolStart(id: id, name: name, hint: hint, startedAt: now, to: session)
             // 触觉反馈:开始一步 — soft impact 给用户"工具开跑"信号
             HapticFeedback.softImpact()
@@ -516,6 +537,7 @@ public final class ChatViewModel {
                     startedAt: startedAt,
                     finishedAt: now
                 )
+                refreshRenderedItems()
                 persistence.updateToolFinished(id: id, isError: isError, preview: preview, finishedAt: now)
                 // 触觉反馈:完成 — success / 失败 → warning
                 if isError {
@@ -528,6 +550,8 @@ public final class ChatViewModel {
         case .assistantTextChunk(let delta):
             // 流式期间只改 streamingText,不动 bubbles 数组(避免 LazyVStack 全 list diff)。
             // 首个 chunk 来时创建 ChatMessage 持久化入 store,后续 chunk 只更新 text 字段。
+            // 注:不调 refreshRenderedItems() — 流式 bubble 独立渲染不进 bubbles 数组,
+            // renderedItems 内容此期间不变,跳过重算节省 CPU。
             if streamingId == nil {
                 isThinking = false
                 let id = UUID()
@@ -543,6 +567,7 @@ public final class ChatViewModel {
             let id = UUID()
             let display = "⚠️ \(msg)"
             bubbles.append(.assistant(id: id, text: display))
+            refreshRenderedItems()
             persistence.appendText(id: id, role: .assistant, text: display, to: session)
         }
     }

@@ -33,11 +33,17 @@ public struct ChatView: View {
     @State private var sendCounter: Int = 0
     /// 语音输入服务(单例,跨 view 共享 listening 状态)。
     @State private var speech = SpeechService.shared
+    /// 关注列表 — 观察 FollowedItem 表,避免在 mergedPromptPool 中重复 instantiate
+    /// FollowStore(context:) + .all() 走 SwiftData fetch。@Query 走 in-memory observed
+    /// snapshot,refreshPromptsLocal 每次 shuffle 不再触发 disk roundtrip。
+    @Query(sort: \FollowedItem.addedAt, order: .reverse) private var followedItems: [FollowedItem]
 
     /// Prompt 三组分类(豆包/元宝典型 starter):热门通用 / 本周末赛事 / 跟关注挂钩。
     /// 合并 prompt pool — 把热门 / 本周末 / 关注三池整合成一个列表,starter 抽 5 条显示。
     /// 老版本有 segmented picker 切换三池,产品决策改成单一列表(切换体验复杂)。
     /// 关注的 prompt 优先放前面(用户最关心),其次热门,再次本周末。重复的去重。
+    /// **性能**: 仍是 computed property,但 followedPrompts() 现在直接读 @Query 的 in-memory
+    /// 数组,不再每次 access 都开一个 SwiftData fetch(此前用 FollowStore(context:).all())。
     private var mergedPromptPool: [String] {
         let hot = L10n.effective == .en ? Self.poolHotEN : Self.poolHotZH
         let weekend = L10n.effective == .en ? Self.poolWeekendEN : Self.poolWeekendZH
@@ -51,8 +57,9 @@ public struct ChatView: View {
     /// Prompt 用"故事性 / 悬念"措辞,直接点关注对象的当下处境,引诱用户点击。
     /// 带 series 前缀(F1/MotoGP/WSBK/FE),让 LLM 一眼知道在问哪个系列,不用反复 disambiguate。
     /// 中文不在前缀和正文之间加空格(中英文混排习惯,跟 pool 里的 prompts 保持一致)。
+    /// **性能**: 直接消费 @Query followedItems(in-memory),不再 instantiate FollowStore。
     private func followedPrompts() -> [String] {
-        let items = FollowStore(context: modelContext).all().prefix(3)
+        let items = followedItems.prefix(3)
         return items.flatMap { item -> [String] in
             let name = item.localizedDisplayName
             let prefix = Self.seriesPrefix(seriesRaw: item.seriesRaw)
@@ -387,7 +394,8 @@ public struct ChatView: View {
     @MainActor
     private func refreshPromptsAI() async {
         isRefreshingPrompts = true
-        let followedNames = FollowStore(context: modelContext).all().map { $0.localizedDisplayName }
+        // 用 @Query 的 in-memory 数组,跟 mergedPromptPool 同源,避免再开一次 SwiftData fetch。
+        let followedNames = followedItems.map { $0.localizedDisplayName }
         let exclude = displayedPrompts
         let result = (try? await LLMClient.shared.suggestStarterPrompts(
             followedNames: followedNames,

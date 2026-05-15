@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine   // Timer.publish(...).autoconnect() — SwiftUI 不再自动 re-export Combine
 import PoleDesignSystem
 import PoleDomain
 
@@ -26,11 +25,12 @@ public struct ToolGroupView: View {
 
     @State private var isExpanded: Bool = false
     /// 跟踪 view 出现以来经过的 wall-clock 时间,driving header 的"运行总秒数"显示。
-    /// running 状态下每秒 tick 一次,non-running 时不订阅 timer。
+    /// running 状态下每 500ms tick 一次,non-running 时不调度 task,完全零唤醒。
+    /// **性能**: 此前是 stored `let runningTimer = Timer.publish(...).autoconnect()`,
+    /// Combine publisher 即便没人订阅也持续 emit。改用 `.task(id: hasRunning)` 后,
+    /// hasRunning=false 时 task body 立即 return,无 sleep 循环,跟 ChatView 流式
+    /// 滚动 `.task(id: vm.isStreaming)` 同款模式。
     @State private var nowTick: Date = .now
-
-    /// running 期 timer — 每秒 emit 一次,driving 计时显示。
-    private let runningTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 
     public var body: some View {
         let expanded = isExpanded || autoExpand
@@ -102,9 +102,15 @@ public struct ToolGroupView: View {
         .padding(.vertical, DS.Spacing.sm + 2)
         .dsToolCard()
         .padding(.horizontal, DS.Spacing.lg)
-        // running 期订阅 timer 让 elapsedSeconds reactive 重算;non-running 不订阅省电。
-        .onReceive(runningTimer) { now in
-            if hasRunning { nowTick = now }
+        // running 期才跑 sleep 循环驱动 elapsedSeconds 重算;非 running 时立即 return,
+        // 完全零唤醒。`id: hasRunning` 翻转时 SwiftUI 自动 cancel + 重启 task body。
+        .task(id: hasRunning) {
+            guard hasRunning else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(500))
+                guard !Task.isCancelled else { return }
+                nowTick = .now
+            }
         }
     }
 
