@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "PoleSharedKit",
-    platforms: [.iOS(.v17), .macOS(.v11)],
+    platforms: [.iOS(.v17), .macOS(.v14)],
     products: [
         .library(name: "PoleSharedKit", targets: ["PoleSharedKit"]),
     ],
