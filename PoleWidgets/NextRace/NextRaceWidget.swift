@@ -5,7 +5,14 @@ struct NextRaceWidget: Widget {
     let kind: String = "NextRaceWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: NextRaceProvider()) { entry in
+        // AppIntentConfiguration:用户可在 long-press 编辑器里 pin 特定系列
+        // (F1 / MotoGP / WSBK / FE),也可保持 "全部" 看四系列里最早的一场。
+        // 替代之前的 StaticConfiguration —— 单实例无配置,无法分系列。
+        AppIntentConfiguration(
+            kind: kind,
+            intent: SelectSeriesIntent.self,
+            provider: NextRaceProvider()
+        ) { entry in
             NextRaceWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
