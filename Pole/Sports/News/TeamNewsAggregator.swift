@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 /// 内置 RSS 源——按 series 分组,每个源有 sourceName(UI 显示)。
 public nonisolated enum NewsSources {

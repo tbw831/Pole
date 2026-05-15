@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PoleDomain
 
 /// 单个 session 的"加入日历"开关。
 /// 用 `sessionKey`(formula 见各 detail view 调用方)做唯一键,SwiftData @Query 监听同 key

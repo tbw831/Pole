@@ -1,5 +1,6 @@
 import SwiftUI
 import PoleDesignSystem
+import PoleDomain
 
 /// 每个 series 一个品牌主题——颜色 + 渐变 + 字体 hint。
 /// 参考 Ferrari / Repsol Honda / WorldSBK Pirelli 等官方品牌色。

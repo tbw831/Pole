@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 import PoleDesignSystem
+import PoleDomain
 
 @MainActor
 @Observable

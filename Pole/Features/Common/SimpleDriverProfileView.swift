@@ -1,5 +1,6 @@
 import SwiftUI
 import PoleDesignSystem
+import PoleDomain
 
 /// 简版车手 profile — 只接 (name + series),无 standing 对象。
 /// 关注页点 MotoGP / FE 车手时跳这里(关注表只持久化 id+name,没 standing snapshot)。

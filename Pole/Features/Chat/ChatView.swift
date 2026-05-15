@@ -4,6 +4,7 @@ import SwiftData
 // ToolGroupView 用 .onReceive 订阅 timer 计时必须显式 import。
 import Combine
 import PoleDesignSystem
+import PoleDomain
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext

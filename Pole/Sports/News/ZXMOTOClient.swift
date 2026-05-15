@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 /// ZXMOTO(张雪机车)中文官网 news 适配器。
 /// 端点返回 `{ code, msg, data }`,**msg 字段是 HTML `<li>` 列表**(不是结构化 JSON),

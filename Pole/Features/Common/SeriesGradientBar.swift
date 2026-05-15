@@ -1,4 +1,5 @@
 import SwiftUI
+import PoleDomain
 
 /// 卡片左侧系列彩条——快速识别 series。
 /// 默认不限定 height,在 HStack 里靠外层 padding 控制上下边距,让 Capsule 自动跟 sibling 等高,

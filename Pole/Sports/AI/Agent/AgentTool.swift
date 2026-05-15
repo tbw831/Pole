@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 /// 给 LLM 暴露的"工具"——每条对应 app 内一个数据/能力入口。
 /// 所有访问点都 `nonisolated`,因为 module-default MainActor 会让 protocol property 隐式 isolated,

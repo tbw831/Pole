@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 /// 全局共享 URLSession,带 disk URLCache。
 ///

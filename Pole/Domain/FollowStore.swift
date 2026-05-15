@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// SwiftData 关注操作的薄封装。所有方法在 MainActor 上跑，因为 ModelContext
 /// 不是 Sendable，View 层调用它最自然。

@@ -1,5 +1,6 @@
 import Foundation
 import os
+import PoleDomain
 
 nonisolated fileprivate let feLog = Logger(subsystem: "com.tiebowen.Pole", category: "FormulaEClient")
 

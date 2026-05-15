@@ -1,5 +1,6 @@
 import SwiftUI
 import PoleDesignSystem
+import PoleDomain
 
 private let motorsportCardCornerRadius: CGFloat = DS.Radius.xl
 

@@ -3,6 +3,7 @@ import SwiftUI
 import SwiftData
 import NaturalLanguage   // NLLanguage,RetrieveKnowledgeTool 闭包内传给 KnowledgeRetriever
 import PoleDesignSystem
+import PoleDomain
 
 /// 聊天 UI 用的"消息"——包含纯文本 + 工具调用步进卡片。
 /// 每条 bubble 都对应一条持久化的 ChatMessage(id 一致)。

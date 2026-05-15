@@ -1,6 +1,7 @@
 import SwiftUI
 import UserNotifications
 import PoleDesignSystem
+import PoleDomain
 
 struct SettingsView: View {
     @State private var authStatus: UNAuthorizationStatus = .notDetermined

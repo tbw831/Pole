@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// 一次 AI 对话会话。`messages` 是 cascade 关系——删 session 自动删消息。
 @Model

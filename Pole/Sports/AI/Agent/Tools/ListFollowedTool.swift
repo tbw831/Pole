@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 /// `list_followed` —— 列出当前关注的车手/车队。
 /// fetcher 强制 `@MainActor`:SwiftData ModelContext 必须在 MainActor 访问;

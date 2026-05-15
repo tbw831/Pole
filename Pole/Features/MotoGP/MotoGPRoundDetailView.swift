@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import PoleDesignSystem
+import PoleDomain
 
 // MARK: - ViewModel
 

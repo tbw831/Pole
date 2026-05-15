@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// AI 生成的赛道亮点缓存。一条对应一个"赛道 + 系列"组合。
 ///

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit   // UIPasteboard for context menu "copy name"
 import PoleDesignSystem
+import PoleDomain
 
 struct FollowFeedView: View {
     @Environment(\.modelContext) private var context

@@ -1,4 +1,5 @@
 import Foundation
+import PoleDomain
 
 public enum RSSError: Error, LocalizedError {
     case invalidResponse(Int)

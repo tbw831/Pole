@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// `retrieve_knowledge` —— RAG 工具,从本地知识库语义搜索相关 chunk 拼回 LLM。
 ///

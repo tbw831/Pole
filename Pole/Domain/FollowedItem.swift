@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import PoleDomain
 
 /// SwiftData 持久化的"关注"行。一行 = 一个 FollowTarget。
 /// `key` 强约束唯一，避免重复 follow。

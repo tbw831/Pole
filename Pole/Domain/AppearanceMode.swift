@@ -1,4 +1,5 @@
 import SwiftUI
+import PoleDomain
 
 public enum AppearanceMode: String, CaseIterable, Sendable {
     case dark    // 默认

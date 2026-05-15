@@ -1,4 +1,5 @@
 import SwiftUI
+import PoleDomain
 
 /// 赛车 tab 容器——顶部 segmented picker 在"全部 / F1 / MotoGP / WSSP / FE"切换。
 /// "全部"渲染 MotorsportTimelineView 跨 series 时间线;其它走各 series 自己的 list view。

@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import PoleSharedKit
+import PoleDomain
 
 @main
 struct PoleApp: App {
