@@ -1,6 +1,5 @@
 import Foundation
 import os
-import PoleDomain
 import PoleSharedKit
 
 nonisolated fileprivate let wttrLog = Logger(subsystem: "com.tiebowen.Pole", category: "WttrClient")

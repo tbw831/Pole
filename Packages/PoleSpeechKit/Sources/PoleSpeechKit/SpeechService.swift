@@ -1,7 +1,9 @@
 import Foundation
+import PoleDomain
+
+#if os(iOS)
 import Speech
 import AVFoundation
-import PoleDomain
 
 /// 语音输入服务 — Speech framework + AVAudioEngine 封装。
 ///
@@ -224,3 +226,5 @@ public final class SpeechService {
         }
     }
 }
+
+#endif

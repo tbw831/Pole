@@ -1,6 +1,7 @@
 import SwiftUI
 import PoleDesignSystem
 import PoleDomain
+import PoleNewsKit
 
 @MainActor
 @Observable

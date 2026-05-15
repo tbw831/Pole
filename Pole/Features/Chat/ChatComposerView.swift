@@ -1,6 +1,7 @@
 import SwiftUI
 import PoleDesignSystem
 import PoleDomain
+import PoleSpeechKit
 
 // MARK: - 底部输入区(文本框 + 麦克风 + 字数提示 + 听写状态条)
 //

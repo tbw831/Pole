@@ -6,6 +6,7 @@ import Combine
 import PoleDesignSystem
 import PoleDomain
 import PoleAIKit
+import PoleSpeechKit
 
 /// AI 助手主屏 —— 顶层路由 view。
 ///
