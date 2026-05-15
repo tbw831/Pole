@@ -1,6 +1,7 @@
 import SwiftUI
 import PoleDesignSystem
 import PoleDomain
+import PoleSharedKit
 
 /// 详情页顶部 hero header——大 banner + 底部黑色渐变 + 玻璃浮层文字。
 /// 支持 banner image / SVG image,失败时 fallback 系列彩色渐变作为背景。
@@ -103,18 +104,9 @@ struct GlassHeroHeader<TopContent: View>: View {
                     .padding(.bottom, 60)   // 给底部文字区让位
             }
         } else if let url = bannerURL {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: .fill)
-                case .empty:
-                    series.brandGradient
-                        .overlay(ProgressView().tint(.white))
-                case .failure:
-                    series.brandGradient
-                @unknown default:
-                    series.brandGradient
-                }
+            CachedAsyncBanner(url: url) {
+                series.brandGradient
+                    .overlay(ProgressView().tint(.white))
             }
         } else {
             series.brandGradient
@@ -138,5 +130,33 @@ extension GlassHeroHeader where TopContent == EmptyView {
             enableSpeedLines: enableSpeedLines,
             topAccessory: { EmptyView() }
         )
+    }
+}
+
+/// Disk-cached async banner image。第一次走网络 + 写盘,后续直接读 disk,< 50ms 渲染。
+private struct CachedAsyncBanner: View {
+    let url: URL
+    let fallback: AnyView
+
+    @State private var image: UIImage?
+
+    init<F: View>(url: URL, @ViewBuilder fallback: () -> F) {
+        self.url = url
+        self.fallback = AnyView(fallback())
+    }
+
+    var body: some View {
+        Group {
+            if let img = image {
+                Image(uiImage: img)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                fallback
+            }
+        }
+        .task(id: url) {
+            image = try? await BannerDiskCache.shared.image(for: url)
+        }
     }
 }
