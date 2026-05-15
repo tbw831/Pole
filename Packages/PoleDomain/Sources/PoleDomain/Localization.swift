@@ -757,7 +757,7 @@ public nonisolated enum MotorsportNames {
         if n.contains("bulega")         { return "布莱加" }
         if n.contains("yamanaka")       { return "山中琉圣" }
         if n.contains("montella")       { return "蒙泰拉" }
-        if n.contains("schroetter") || n.contains("schrötter") { return "施罗特" }
+        if n.contains("schroetter") || n.contains("schrötter") || n.contains("schrotter") { return "施罗特" }
         if n.contains("aegerter")       { return "阿格特" }
         if n.contains("locatelli")      { return "洛卡泰利" }
         if n.contains("oncu") || n.contains("öncü") { return "翁居" }
@@ -808,7 +808,7 @@ public nonisolated enum MotorsportNames {
         if n.contains("bulega")         { return "尼科洛·布莱加" }
         if n.contains("yamanaka")       { return "山中琉圣" }
         if n.contains("montella")       { return "亚里·蒙泰拉" }
-        if n.contains("schroetter") || n.contains("schrötter") { return "马塞尔·施罗特" }
+        if n.contains("schroetter") || n.contains("schrötter") || n.contains("schrotter") { return "马塞尔·施罗特" }
         if n.contains("aegerter")       { return "多米尼克·阿格特" }
         if n.contains("locatelli")      { return "安德烈亚·洛卡泰利" }
         if n.contains("oncu") || n.contains("öncü") { return "詹·翁居" }
