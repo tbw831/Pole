@@ -2,11 +2,15 @@ import SwiftUI
 import SwiftData
 import PoleDesignSystem
 import PoleDomain
+import PoleSharedKit
 
 struct ContentView: View {
     /// 监听语言切换 — 切换时整体 .id(languageRaw) 重建子树,所有 L10n.t 文案立即刷新。
     @AppStorage("languageMode") private var languageRaw: String = LanguageMode.zh.rawValue
-    @State private var selection: AppTab = .motorsport
+
+    /// Tab 选择走 AppRouter — 由跨 Tab 深链 / Live Activity / AppIntent 统一驱动。
+    /// 本地 enum 仅作 UI 绑定与文案映射,与 `AppRouter.Tab` 一一对应(`.ai ↔ .chat`)。
+    @Environment(AppEnv.self) private var env
 
     enum AppTab: String, CaseIterable, Identifiable {
         case motorsport, standings, ai, follow, settings
@@ -31,10 +35,38 @@ struct ContentView: View {
             case .settings:   return L10n.t(zh: "设置", en: "Settings")
             }
         }
+
+        /// 映射到 AppRouter.Tab(本地 `.ai` 对应 router 的 `.chat`)。
+        var routerTab: AppRouter.Tab {
+            switch self {
+            case .motorsport: return .motorsport
+            case .standings:  return .standings
+            case .ai:         return .chat
+            case .follow:     return .follow
+            case .settings:   return .settings
+            }
+        }
+
+        init(_ routerTab: AppRouter.Tab) {
+            switch routerTab {
+            case .motorsport: self = .motorsport
+            case .standings:  self = .standings
+            case .chat:       self = .ai
+            case .follow:     self = .follow
+            case .settings:   self = .settings
+            }
+        }
     }
 
     var body: some View {
-        TabView(selection: $selection) {
+        // 绑定到 router.selectedTab — 跨 Tab 深链(Live Activity / Notification / AppIntent)
+        // 修改 router 后,TabView 自动切换;反过来用户手动点击 Tab 也会回写 router。
+        let selectionBinding = Binding<AppTab>(
+            get: { AppTab(env.router.selectedTab) },
+            set: { env.router.selectedTab = $0.routerTab }
+        )
+
+        TabView(selection: selectionBinding) {
             // 用 Tab(value:){content}label:{} 形式,label 内自定义 Image 加 .imageScale(.small),
             // 让所有 tab 图标比系统默认的 medium 小一档,视觉更精致。
             // (Tab(_:systemImage:value:) 直接传字符串无法接 modifier,系统自己 sizing。)
@@ -78,21 +110,21 @@ struct ContentView: View {
         // 不再硬染红色,走系统 accent(可被 Asset Catalog AccentColor 配置)
         // 系列识别仍由各 view 内 `series.brandColor` 局部染色保留
         .id(languageRaw)   // 切语言整树重建,所有 L10n.t 立即刷新
-        .onChange(of: selection) { _, newTab in
+        .onChange(of: env.router.selectedTab) { _, newTab in
             HapticFeedback.lightImpact()
-            // 每次切到 AI tab 都让 ChatView 回 starter(greeting),不延续上次会话
-            if newTab == .ai {
+            // 每次切到 AI tab(router 中称 .chat)都让 ChatView 回 starter(greeting),不延续上次会话
+            if newTab == .chat {
                 NotificationCenter.default.post(name: .resetChatToStarter, object: nil)
             }
         }
         // 灵动岛/锁屏 Live Activity 上点"打开详情"按钮跳转回 app — 由 OpenRaceDetailIntent post 通知
+        // round detail navigation 仍通过 NotificationCenter,这里只负责 tab 切换(经 router)
         .onReceive(NotificationCenter.default.publisher(for: .openRaceDetail)) { _ in
-            // 跳到赛车 tab(detail navigation 由各 list view 内部 handle)
-            selection = .motorsport
+            env.router.selectedTab = .motorsport
         }
         // 关注 tab 空状态 CTA "去赛车 tab 发现" 发出此通知 → 切到赛历 tab
         .onReceive(NotificationCenter.default.publisher(for: .navigateToMotorsportTab)) { _ in
-            selection = .motorsport
+            env.router.selectedTab = .motorsport
         }
         .task {
             // 首次启动若尚未询问,自动弹一次系统授权(用户可拒)。
@@ -107,5 +139,6 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .modelContainer(for: FollowedItem.self, inMemory: true)
+        .environment(AppEnv.bootstrap())
 }
 
