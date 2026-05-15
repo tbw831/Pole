@@ -4,7 +4,8 @@ import PoleMotorsportKit
 
 /// `get_standings` —— 当前赛季积分榜(车手/车队/厂商)。
 ///
-/// 车手 / 车队名通过 `MotorsportNames.driverFullName` / `teamName` 输出当前用户语言。
+/// 通过 `MotorsportRegistry` 单点 dispatch 到 series-specific service,本 tool 不再 switch 4 个 client。
+/// 车手 / 车队名在各 series 的 `anyDriverStandingsJSON` 内部已经按 `MotorsportNames` 输出当前语言。
 public struct GetStandingsTool: AgentTool {
     public init() {}
 
@@ -54,86 +55,29 @@ public struct GetStandingsTool: AgentTool {
         let args = try JSONDecoder().decode(Args.self, from: Data(argumentsJSON.utf8))
         let top = args.top ?? 10
 
-        var rows: [[String: Any]] = []
-        switch (args.series, args.kind) {
-        case ("f1", "driver"):
-            let s = (try? await JolpicaClient.shared.fetchDriverStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.driverFullName(rawFullName: st.driver.fullName, series: .f1),
-                 "points": st.points, "wins": st.wins,
-                 "team_id": st.constructorIds.first ?? ""]
-            }
-        case ("f1", "team"), ("f1", "constructor"):
-            let s = (try? await JolpicaClient.shared.fetchConstructorStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.teamName(raw: st.constructor.name, series: .f1),
-                 "points": st.points, "wins": st.wins]
-            }
-        case ("motogp", "driver"):
-            let s = (try? await MotoGPClient.shared.fetchRiderStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.driverFullName(rawFullName: st.rider.fullName, series: .motogp),
-                 "points": st.points,
-                 "wins": st.raceWins,
-                 "team": MotorsportNames.teamName(raw: st.team.name, series: .motogp),
-                 "constructor": MotorsportNames.teamName(raw: st.constructor.name, series: .motogp)]
-            }
-        case ("motogp", "team"):
-            let s = (try? await MotoGPClient.shared.fetchTeamStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.teamName(raw: st.team.name, series: .motogp),
-                 "points": st.points,
-                 "riders": st.riderNames.map { MotorsportNames.driverFullName(rawFullName: $0, series: .motogp) }]
-            }
-        case ("motogp", "constructor"):
-            let s = (try? await MotoGPClient.shared.fetchConstructorStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.teamName(raw: st.constructor.name, series: .motogp),
-                 "points": st.points]
-            }
-        case ("wsbk", "driver"):
-            let s = (try? await WSBKClient.shared.fetchSSPRiderStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.driverFullName(rawFullName: st.rider.fullName, series: .wssp),
-                 "points": st.points,
-                 "country": st.rider.countryISO ?? ""]
-            }
-        case ("wsbk", "team"), ("wsbk", "constructor"):
-            let s = (try? await WSBKClient.shared.fetchSSPBuilderStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.teamName(raw: st.builder.name, series: .wssp),
-                 "points": st.points,
-                 "country": st.builder.countryISO ?? ""]
-            }
-        case ("fe", "driver"):
-            let s = (try? await FormulaEClient.shared.fetchDriverStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.driverFullName(rawFullName: st.driver.fullName, series: .fe),
-                 "points": st.points,
-                 "team": MotorsportNames.teamName(raw: st.teamName, series: .fe),
-                 "country": st.driver.countryISO2 ?? ""]
-            }
-        case ("fe", "team"), ("fe", "constructor"):
-            let s = (try? await FormulaEClient.shared.fetchConstructorStandings()) ?? []
-            rows = s.prefix(top).map { st in
-                ["position": st.position,
-                 "name": MotorsportNames.teamName(raw: st.team.name, series: .fe),
-                 "points": st.points]
-            }
-        default:
-            return #"{"error":"unsupported series/kind combo"}"#
+        guard let service = MotorsportRegistry.service(forId: args.series) else {
+            return AgentToolJSON.error("unsupported_series", message: args.series)
         }
 
-        let payload: [String: Any] = ["series": args.series, "kind": args.kind, "rows": rows]
+        // 各 series client 已经在 anyDriverStandingsJSON 里输出 `{"rows":[...]}`,
+        // 这里把 series / kind 元信息合并进去给 LLM。
+        let rowsJSON = await service.anyDriverStandingsJSON(kind: args.kind, top: top)
+        guard
+            let rowsData = rowsJSON.data(using: .utf8),
+            let parsed = try? JSONSerialization.jsonObject(with: rowsData) as? [String: Any]
+        else {
+            return rowsJSON
+        }
+        // 把内层 rows 提出来(或转发 error)再补 series/kind。
+        if let errCode = parsed["error"] as? String {
+            var payload: [String: Any] = ["error": errCode, "series": args.series, "kind": args.kind]
+            for (k, v) in parsed where k != "error" { payload[k] = v }
+            let data = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
+            return String(data: data, encoding: .utf8) ?? rowsJSON
+        }
+        var payload: [String: Any] = ["series": args.series, "kind": args.kind]
+        if let rows = parsed["rows"] { payload["rows"] = rows }
         let data = try JSONSerialization.data(withJSONObject: payload)
-        return String(data: data, encoding: .utf8) ?? "{}"
+        return String(data: data, encoding: .utf8) ?? rowsJSON
     }
 }

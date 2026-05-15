@@ -4,11 +4,11 @@ import PoleMotorsportKit
 
 /// `get_session_results` —— 单 session(race/qualifying/sprint)的完整结果排行。
 ///
-/// 车手 / 车队名通过 `MotorsportNames.driverFullName` / `teamName` 输出当前用户语言，
-/// LLM 看到 zh 模式下的中文译名就直接用，避免输出英文。
+/// 通过 `MotorsportRegistry` 单点 dispatch:每个 series client 自己实现 `anySessionResultsJSON`,
+/// 本 tool 不再写 3 套分支。车手 / 车队名在 client 内部已经按 `MotorsportNames` 输出当前语言。
 ///
-/// 错误处理：所有 fetch 失败统一走 `AgentToolJSON.fetchFailed` 返回结构化错误，
-/// LLM 能区分"网络/接口问题"和"真没结果"两种情况，不会把 fetch 失败当作"无数据"。
+/// 错误处理:client 内部所有 fetch 失败统一返 `{"error":"fetch_failed", ...}`,
+/// LLM 能区分"网络/接口问题"和"真没结果"两种情况,不会把 fetch 失败当作"无数据"。
 public struct GetSessionResultsTool: AgentTool {
     public init() {}
 
@@ -51,176 +51,9 @@ public struct GetSessionResultsTool: AgentTool {
 
     public func execute(argumentsJSON: String) async throws -> String {
         let args = try JSONDecoder().decode(Args.self, from: Data(argumentsJSON.utf8))
-
-        switch args.series {
-        case "f1":
-            return await f1Results(round: args.round, session: args.session)
-        case "motogp":
-            return await motogpResults(round: args.round, session: args.session)
-        case "wsbk":
-            return await wsbkResults(round: args.round, session: args.session)
-        default:
-            return #"{"error":"unknown series"}"#
+        guard let service = MotorsportRegistry.service(forId: args.series) else {
+            return AgentToolJSON.error("unsupported_series", message: args.series)
         }
-    }
-
-    // MARK: F1
-
-    private func f1Results(round: Int, session: String) async -> String {
-        // jolpica 用 "current" 表示当年
-        let season = "current"
-        switch session {
-        case "race":
-            do {
-                let rows = try await JolpicaClient.shared.fetchRaceResults(season: season, round: round)
-                let payload = rows.prefix(20).map { r in
-                    [
-                        "position": r.position,
-                        "name": MotorsportNames.driverFullName(rawFullName: r.driver.fullName, series: .f1),
-                        "team": MotorsportNames.teamName(raw: r.constructor.name, series: .f1),
-                        "time": r.timeText ?? r.status,
-                        "points": r.points,
-                        "status": r.status
-                    ] as [String: Any]
-                }
-                return Self.wrap(payload)
-            } catch {
-                return AgentToolJSON.fetchFailed(series: "f1", error: error)
-            }
-        case "sprint":
-            do {
-                let rows = try await JolpicaClient.shared.fetchSprintResults(season: season, round: round)
-                let payload = rows.prefix(20).map { r in
-                    ["position": r.position,
-                     "name": MotorsportNames.driverFullName(rawFullName: r.driver.fullName, series: .f1),
-                     "team": MotorsportNames.teamName(raw: r.constructor.name, series: .f1),
-                     "time": r.timeText ?? r.status, "points": r.points] as [String: Any]
-                }
-                return Self.wrap(payload)
-            } catch {
-                return AgentToolJSON.fetchFailed(series: "f1", error: error)
-            }
-        case "qualifying":
-            do {
-                let rows = try await JolpicaClient.shared.fetchQualifyingResults(season: season, round: round)
-                let payload = rows.prefix(20).map { r in
-                    ["position": r.position,
-                     "name": MotorsportNames.driverFullName(rawFullName: r.driver.fullName, series: .f1),
-                     "team": MotorsportNames.teamName(raw: r.constructor.name, series: .f1),
-                     "best_time": r.q3 ?? r.q2 ?? r.q1 ?? ""] as [String: Any]
-                }
-                return Self.wrap(payload)
-            } catch {
-                return AgentToolJSON.fetchFailed(series: "f1", error: error)
-            }
-        default:
-            return #"{"error":"unsupported f1 session"}"#
-        }
-    }
-
-    // MARK: MotoGP
-
-    private func motogpResults(round: Int, session: String) async -> String {
-        // 先找 round 对应的 event
-        let rounds: [MotoGPRound]
-        do {
-            rounds = try await MotoGPClient.shared.fetchSeasonRounds()
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "motogp", error: error)
-        }
-        guard let r = rounds.first(where: { $0.round == round }) else {
-            return #"{"error":"round not found"}"#
-        }
-        let refs: [MotoGPSessionRef]
-        do {
-            refs = try await MotoGPClient.shared.fetchSessions(eventId: r.id)
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "motogp", error: error)
-        }
-        let want: Session.Kind
-        switch session {
-        case "race":       want = .race
-        case "sprint":     want = .sprint
-        case "qualifying": want = .qualifying
-        default:           return #"{"error":"unsupported motogp session"}"#
-        }
-        let candidates = refs.filter { $0.session.kind == want }
-            .sorted { $0.session.startTime < $1.session.startTime }
-        guard let target = candidates.first else { return #"{"error":"session not in this round"}"# }
-        let rows: [MotoGPRaceResult]
-        do {
-            rows = try await MotoGPClient.shared.fetchSessionResults(sessionId: target.rawId)
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "motogp", error: error)
-        }
-        let payload = rows.prefix(20).map { row in
-            [
-                "position": row.position,
-                "name": MotorsportNames.driverFullName(rawFullName: row.rider.fullName, series: .motogp),
-                "team": MotorsportNames.teamName(raw: row.team.name, series: .motogp),
-                "constructor": MotorsportNames.teamName(raw: row.constructor.name, series: .motogp),
-                "time": row.timeText ?? row.gapToFirstText ?? row.status,
-                "points": row.points
-            ] as [String: Any]
-        }
-        return Self.wrap(payload)
-    }
-
-    // MARK: WSBK(WSSP class)
-
-    private func wsbkResults(round: Int, session: String) async -> String {
-        let rounds: [WSBKRound]
-        do {
-            rounds = try await WSBKClient.shared.fetchSeasonRounds()
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "wsbk", error: error)
-        }
-        guard let r = rounds.first(where: { $0.round == round }) else {
-            return #"{"error":"round not found"}"#
-        }
-        let items: [WSSPSessionWithResults]
-        do {
-            items = try await WSBKClient.shared.fetchEventSessions(
-                countryCode: r.countryCode, year: r.season
-            )
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "wsbk", error: error)
-        }
-        // 想要哪个 race PDF? race=Race 1, race_2=Race 2, qualifying=Superpole
-        let candidates: [WSSPSessionWithResults]
-        switch session {
-        case "race":
-            candidates = items.filter { $0.session.label == "Race 1" }
-        case "race_2":
-            candidates = items.filter { $0.session.label == "Race 2" }
-        case "qualifying":
-            candidates = items.filter { $0.session.kind == .qualifying }
-        default:
-            return #"{"error":"unsupported wsbk session"}"#
-        }
-        guard let target = candidates.first, let pdfURL = target.resultsPdfURL else {
-            return #"{"error":"session not available"}"#
-        }
-        let rows: [WSSPRaceResult]
-        do {
-            rows = try await WSBKClient.shared.fetchSSPSessionResults(pdfURL: pdfURL)
-        } catch {
-            return AgentToolJSON.fetchFailed(series: "wsbk", error: error)
-        }
-        let payload = rows.prefix(25).map { row in
-            [
-                "position": row.position,
-                "name": MotorsportNames.driverFullName(rawFullName: row.riderName, series: .wssp),
-                "team": MotorsportNames.teamName(raw: row.team, series: .wssp),
-                "nat": row.nat,
-                "time": row.timeText ?? row.gapText ?? ""
-            ] as [String: Any]
-        }
-        return Self.wrap(payload)
-    }
-
-    private static func wrap(_ rows: [[String: Any]]) -> String {
-        let data = (try? JSONSerialization.data(withJSONObject: ["rows": rows])) ?? Data()
-        return String(data: data, encoding: .utf8) ?? "{}"
+        return await service.anySessionResultsJSON(round: args.round, sessionKind: args.session)
     }
 }

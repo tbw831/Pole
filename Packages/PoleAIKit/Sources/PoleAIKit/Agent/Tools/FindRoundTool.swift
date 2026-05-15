@@ -70,24 +70,15 @@ public struct FindRoundTool: AgentTool {
 
     public func execute(argumentsJSON: String) async throws -> String {
         let args = try JSONDecoder().decode(Args.self, from: Data(argumentsJSON.utf8))
+        // 通过 registry 单点 dispatch 到 series-specific service,不再 switch 4 个 client。
+        // 序列化阶段还要根据 `AnyMotorsportRound` 各 case 取字段,逻辑保留在本 tool 里。
+        guard let service = MotorsportRegistry.service(forId: args.series) else {
+            return AgentToolJSON.error("unknown_series", message: args.series)
+        }
         // 网络/解析失败必须告诉 LLM "拿不到数据" 而不是返空数组让它幻觉。
         do {
-            switch args.series {
-            case "f1":
-                let rounds = try await JolpicaClient.shared.fetchSeasonRaces()
-                return try Self.serialize(rounds: rounds.map { AnyMotorsportRound.f1($0) }, args: args)
-            case "motogp":
-                let rounds = try await MotoGPClient.shared.fetchSeasonRounds()
-                return try Self.serialize(rounds: rounds.map { AnyMotorsportRound.motogp($0) }, args: args)
-            case "wsbk":
-                let rounds = try await WSBKClient.shared.fetchSeasonRounds()
-                return try Self.serialize(rounds: rounds.map { AnyMotorsportRound.wssp($0) }, args: args)
-            case "fe":
-                let rounds = try await FormulaEClient.shared.fetchSeasonRounds()
-                return try Self.serialize(rounds: rounds.map { AnyMotorsportRound.fe($0) }, args: args)
-            default:
-                return #"{"error":"unknown_series"}"#
-            }
+            let rounds = try await service.anyRounds()
+            return try Self.serialize(rounds: rounds, args: args)
         } catch {
             return AgentToolJSON.fetchFailed(series: args.series, error: error)
         }
